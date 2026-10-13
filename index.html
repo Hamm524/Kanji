@@ -4609,12 +4609,17 @@ function itemPrizeSize(item){
 const TIER_WEIGHT = {common:35, uncommon:20, rare:10, epic:4, legendary:1, ultra:0.3};
 const CATEGORY_FACTOR = {gem:0.55, fossil:1.3, gold:1.15, jewelry:1, dino:0.6};
 const DIG_MISS_WEIGHT = 22;
-function rollGem(){
+/* v72：ふつうの宝探しも、はずれで終わらず9枚全部めくれる。
+   宝物でない枚は、宝石のかけら（重み22のまま）か お散歩の宝物（石ころなど）。
+   前の「はずれまで」の宝物の数（平均5.5個）と同じくらいになるように重みを決めた。 */
+const DIG_NATURE_WEIGHT = {tn_stone:30, tn_leaf:27, tn_acorn:27, tn_shell:19};
+function rollGem(itemOnly){
   const counts = {};
   ALL_ITEMS.forEach(it => { const key = it.category + ":" + it.rarity; counts[key] = (counts[key]||0) + 1; });
   /* What used to be a true "nothing" outcome now always yields a small gem
      shard instead, so a dig never truly comes up completely empty. */
-  const entries = [{item: GEM_SHARD_META, weight: DIG_MISS_WEIGHT}];
+  const entries = itemOnly ? [] : [{item: GEM_SHARD_META, weight: DIG_MISS_WEIGHT}];
+  if(!itemOnly) TREAT_NATURE.forEach(it => entries.push({item: it, weight: DIG_NATURE_WEIGHT[it.id] || 0}));
   ALL_ITEMS.forEach(it => {
     const key = it.category + ":" + it.rarity;
     const w = (TIER_WEIGHT[it.rarity] / counts[key]) * (CATEGORY_FACTOR[it.category] || 1);
@@ -4715,8 +4720,11 @@ function flipDigCard(card){
   /* 巻物が見つかる条件がそろっているときは、このたからさがしの1枚目に
      かならず巻物を出す（運まかせにしない。1回につき1枚まで）。 */
   const scrollRecipe = digSessionFinds.length === 0 ? pendingLegendScroll() : null;
-  let result = scrollRecipe ? {id:"scroll_" + scrollRecipe.id, name:"伝説の巻物", rarity:"legendary", category:"scroll"} : rollGem();
+  /* 最後の1枚まで宝物が出ていなければ、最後は必ず宝物 */
+  const lastNoItem = digSessionFinds.length === DIG_CARD_COUNT - 1 && !digSessionFinds.some(isDigTreasure);
+  let result = scrollRecipe ? {id:"scroll_" + scrollRecipe.id, name:"伝説の巻物", rarity:"legendary", category:"scroll"} : rollGem(lastNoItem);
   const isShard = result.id === GEM_SHARD_ID;
+  const isNature = !!TREAT_NATURE_BY_ID[result.id];
   /* 宝石には大きさとカラットが付く */
   let size = null, record = false;
   if(!scrollRecipe && result.category === "gem"){
@@ -4730,13 +4738,16 @@ function flipDigCard(card){
   if(z && z.key === "b" && RANK.indexOf(fxRarity) < 2) fxRarity = "rare";
   if(z && z.key === "h" && RANK.indexOf(fxRarity) < 4) fxRarity = "legendary";
   const face = card.querySelector(".dig-card-face");
-  face.innerHTML = revealFxHtml({rarity:fxRarity}) + '<span class="dig-icon-wrap' + (z ? ' has-size' : '') + '">' + itemIconSvg(result, z ? z.icon : 34) + '</span>' +
+  face.innerHTML = revealFxHtml({rarity:fxRarity}) + '<span class="dig-icon-wrap' + (z ? ' has-size' : '') + '">' + (isNature ? natureIconSvg(result.id, 46) : itemIconSvg(result, z ? z.icon : 34)) + '</span>' +
     (z ? '<span class="dig-size-tag size-' + z.key + '">' + z.label + '</span>' : '');
   card.classList.add("hit");
   if(isShard) card.classList.add("shard-hit");
   if(scrollRecipe){
     legendFound[scrollRecipe.id] = 1;
     saveLegendFound();
+  }else if(isNature){
+    treatNature[result.id] = (treatNature[result.id] || 0) + 1;
+    saveTreatNature();
   }else{
     if(size) record = addGemWithSize(result.id, size);
     else gemCollection[result.id] = (gemCollection[result.id]||0) + 1;
@@ -4749,7 +4760,7 @@ function flipDigCard(card){
   renderDigSessionFinds();
   renderGemCard();
   if(scrollRecipe) showLegendScrollFoundModal(scrollRecipe);
-  if(isShard || digSessionFinds.length >= DIG_CARD_COUNT) endDig(!isShard);
+  if(digSessionFinds.length >= DIG_CARD_COUNT) endDig(true);
 }
 function showLegendScrollFoundModal(r){
   const html =
@@ -4770,17 +4781,19 @@ function renderDigSessionFinds(){
   if(digSessionFinds.length === 0){ strip.innerHTML = ""; strip.style.display = "none"; return; }
   strip.style.display = "flex";
   strip.innerHTML = digSessionFinds.map(it =>
-    '<span class="dig-find-chip rarity-' + it.rarity + '">' + itemIconSvg(it, 22) + '<span>' + it.name +
+    '<span class="dig-find-chip rarity-' + it.rarity + '">' + (TREAT_NATURE_BY_ID[it.id] ? natureIconSvg(it.id, 22) : itemIconSvg(it, 22)) + '<span>' + it.name +
       (it.sizeKey ? '<small class="chip-size size-' + it.sizeKey + '">' + GEM_SIZE_BY_KEY[it.sizeKey].label + '</small>' : '') + '</span></span>'
   ).join("");
 }
+function isDigTreasure(it){ return it.id !== GEM_SHARD_ID && !TREAT_NATURE_BY_ID[it.id]; }
 function endDig(allCleared){
   if(digEnded) return;
   digEnded = true;
   document.querySelectorAll(".dig-card:not(.flipped)").forEach(c => c.classList.add("locked"));
   const hint = document.getElementById("digHint");
   if(allCleared){
-    hint.textContent = digSessionFinds.length + "個見つけた！全部ほりきったよ！";
+    const got = digSessionFinds.filter(isDigTreasure).length;
+    hint.textContent = "全部ほりきったよ！宝物を" + got + "個見つけたよ！";
   }else{
     hint.textContent = digSessionFinds.length + "個見つけたところで、今回はここまで！";
   }
