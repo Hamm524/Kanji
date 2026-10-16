@@ -1501,6 +1501,10 @@ header.app{
 .ts-dot{display:flex;flex-direction:column;align-items:center;gap:2px;width:70px;white-space:nowrap;padding:4px 0;border:2px solid transparent;border-radius:12px;background:none;font:inherit;font-size:.72rem;color:inherit;cursor:pointer;}
 .ts-dot i{display:block;width:30px;height:30px;border-radius:50%;border:2px solid;}
 .ts-dot.on{border-color:#d0679a;background:#fff0f6;font-weight:bold;}
+.ts-dot.lock,.ts-shape.lock{cursor:default;opacity:.55;}
+.ts-dot.lock i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.85rem;background:#f4f0f2;border-color:#ddd;}
+.ts-shape.lock{font-size:.85rem;}
+.ts-yarn{display:flex;align-items:center;justify-content:center;gap:4px;font-weight:bold;font-size:.95rem;}
 .ts-note{font-size:.8rem;color:var(--ink-soft);margin-top:6px;}
 @keyframes taSway{0%,100%{transform:rotate(-7deg);}50%{transform:rotate(7deg);}}
 @keyframes taGlint{0%,55%{transform:translateX(-14px);opacity:0;}65%{opacity:1;}85%,100%{transform:translateX(14px);opacity:0;}}
@@ -4847,10 +4851,12 @@ TREAT_ITEMS.forEach(it => { TREAT_BY_ID[it.id] = it; });
    小物は平均2〜3個（重み：小物の合計69、おさんぽ＋かけら177）。 */
 const TREAT_NATURE_KEY = "kanji-drill-treat-nature-v1";
 const TREAT_NATURE = [
-  {id:"tn_stone", name:"つるつるの石ころ", rarity:"common", weight:45},
-  {id:"tn_leaf", name:"きれいな葉っぱ", rarity:"common", weight:40},
-  {id:"tn_acorn", name:"どんぐり", rarity:"common", weight:40},
-  {id:"tn_shell", name:"貝がら", rarity:"common", weight:27}
+  {id:"tn_stone", name:"つるつるの石ころ", rarity:"common", weight:33},
+  {id:"tn_leaf", name:"きれいな葉っぱ", rarity:"common", weight:35},
+  {id:"tn_acorn", name:"どんぐり", rarity:"common", weight:35},
+  {id:"tn_shell", name:"貝がら", rarity:"common", weight:22},
+  /* v73：毛糸玉。おつかれさま宝探しだけで出る（1回に約1個）。たまるとマフラーの飾りが増える（使ってもへらない） */
+  {id:"tn_yarn", name:"毛糸玉", rarity:"common", weight:27}
 ];
 const TREAT_SHARD_WEIGHT = 25;
 const TREAT_NATURE_BY_ID = {};
@@ -4871,6 +4877,7 @@ function natureIconSvg(id, size){
     tn_stone: '<g class="ta-bob"><ellipse cx="32" cy="40" rx="22" ry="15" fill="#a9a29a" stroke="#6f6860" stroke-width="2"/><ellipse cx="25" cy="34" rx="8" ry="4" fill="#fff" fill-opacity=".45" transform="rotate(-15 25 34)"/><circle cx="40" cy="44" r="2" fill="#8a837b"/><circle cx="34" cy="48" r="1.5" fill="#8a837b"/></g>',
     tn_leaf: '<g class="ta-sway"><path d="M32 6C50 16 54 40 32 56C10 40 14 16 32 6Z" fill="#f08a3c" stroke="#b85a1a" stroke-width="2" stroke-linejoin="round"/><path d="M32 12V60M32 26L22 20M32 26L42 20M32 38L20 31M32 38L44 31" stroke="#b85a1a" stroke-width="1.8" stroke-linecap="round" fill="none"/></g>',
     tn_acorn: '<g class="ta-bob"><path d="M18 30Q18 56 32 58Q46 56 46 30Z" fill="#c98a4b" stroke="#8a5523" stroke-width="2"/><path d="M14 30Q14 16 32 16Q50 16 50 30Z" fill="#7a5230" stroke="#4f3219" stroke-width="2"/><path d="M32 16V8" stroke="#4f3219" stroke-width="3" stroke-linecap="round"/><path d="M20 26H44M18 22H46" stroke="#4f3219" stroke-width="1.2" stroke-opacity=".6"/><ellipse cx="25" cy="40" rx="3" ry="7" fill="#fff" fill-opacity=".35"/></g>',
+    tn_yarn: '<g class="ta-bob"><path d="M44 46Q54 52 50 58Q46 62 56 60" fill="none" stroke="#e483a5" stroke-width="2.2" stroke-linecap="round"/><circle cx="30" cy="34" r="20" fill="#f7a6c1" stroke="#d0679a" stroke-width="2"/><path d="M14 26Q30 22 44 40M12 36Q30 30 40 50M20 18Q36 22 48 34M24 50Q22 34 34 15M32 54Q30 38 44 22" fill="none" stroke="#d0679a" stroke-width="1.6" stroke-linecap="round" stroke-opacity=".75"/><ellipse cx="23" cy="25" rx="5" ry="3" fill="#fff" fill-opacity=".5" transform="rotate(-30 23 25)"/></g>',
     tn_shell: '<g class="ta-sway"><path d="M32 54L8 30Q10 10 32 8Q54 10 56 30Z" fill="#fbd3c8" stroke="#d9876f" stroke-width="2" stroke-linejoin="round"/><path d="M32 54L18 14M32 54L25 10M32 54L32 8M32 54L39 10M32 54L46 14" stroke="#d9876f" stroke-width="1.6" fill="none"/><path d="M26 54H38L36 60H28Z" fill="#f2b3a1" stroke="#d9876f" stroke-width="1.5"/></g>'
   };
   return '<svg class="ta" width="' + size + '" height="' + size + '" viewBox="0 0 64 64" aria-hidden="true">' + (bodies[id] || "") + '</svg>';
@@ -4931,12 +4938,67 @@ const RIBBON_COLORS = [
   {id:"cream", name:"クリーム", c:["#fbe6a8","#f4d68e","#c79e45","#dbb766","#fdf0c9"]},
   {id:"red", name:"いちご", c:["#f6a3a8","#ee8a91","#c4545d","#d96d75","#fbc4c7"]}
 ];
+/* マフラー（v73）：最初はシンプルな赤。毛糸玉がたまると色・しましま・ぽんぽん・もこもこが使えるようになる（親：娘が3つとも選べない→集めてかわいくする） */
+const SCARF_COLORS = [
+  {id:"red", name:"赤", c:["#e8524c","#c9383a"], need:0},
+  {id:"pink", name:"ピンク", c:["#f7a6c1","#e483a5"], need:2},
+  {id:"lav", name:"ラベンダー", c:["#cbb8f4","#a68fe0"], need:8}
+];
+const SCARF_PARTS = [
+  {key:"scarfStripe", name:"しましま", need:4},
+  {key:"scarfPom", name:"ぽんぽん", need:6},
+  {key:"scarfFluff", name:"もこもこ", need:10}
+];
+function yarnCount(){ return treatNature.tn_yarn || 0; }
+/* 今使える飾りの名前（毛糸玉が n 個のとき） */
+function scarfUnlockedNames(n){
+  return SCARF_COLORS.filter(x => x.need && n >= x.need).map(x => x.name + "色").concat(SCARF_PARTS.filter(x => n >= x.need).map(x => x.name));
+}
+function quadPt(a, c, b, t){ const u = 1 - t; return [u * u * a[0] + 2 * u * t * c[0] + t * t * b[0], u * u * a[1] + 2 * u * t * c[1] + t * t * b[1]]; }
+function treatScarfBody(){
+  const n = yarnCount();
+  const col = SCARF_COLORS.find(x => x.id === treatStyle.scarf && n >= x.need) || SCARF_COLORS[0];
+  const stripe = treatStyle.scarfStripe && n >= 4, pom = treatStyle.scarfPom && n >= 6, fluff = treatStyle.scarfFluff && n >= 10;
+  const m = col.c[0], d = col.c[1], f = v => v.toFixed(1);
+  const T = [[7, 25], [32, 41], [57, 25]], B = [[5, 36], [32, 54], [59, 36]];
+  const band = "M7 25Q32 41 57 25Q62 29 59 36Q32 54 5 36Q2 29 7 25Z";
+  const tailEnd = pom ? 53 : 56;
+  const tail = "M41 39Q47 40 52 36Q54 46 52 " + tailEnd + "L41 " + tailEnd + "Q43 47 41 39Z";
+  const circ = (x, y, r, fill, extra) => '<circle cx="' + f(x) + '" cy="' + f(y) + '" r="' + r + '" fill="' + fill + '"' + (extra || "") + '/>';
+  let s = '<g class="ta-wave">';
+  /* 下がる先 */
+  if(fluff) for(let y = 40; y <= tailEnd; y += 4){ s += circ(41.6, y, 2.6, d) + circ(52.6, y - 1, 2.6, d); }
+  s += '<path d="' + tail + '" fill="' + d + '"/>';
+  if(stripe) [44, 50].forEach(y => { s += '<path d="M41.6 ' + y + 'L53.2 ' + (y - 1) + 'L53.1 ' + (y + 2.4) + 'L41.8 ' + (y + 3.4) + 'Z" fill="#fff" fill-opacity=".9"/>'; });
+  if(pom){
+    s += '<g fill="#fff" stroke="' + d + '" stroke-width="1.2">' + circ(43, 55.5, 3.2, "#fff") + circ(50, 55.5, 3.2, "#fff") + circ(46.5, 59.5, 3.2, "#fff") + circ(46.5, 55, 3.4, "#fff") + '</g>' + circ(46.5, 56.5, 4.2, "#fff");
+  }else{
+    let fr = ""; for(let x = 42; x <= 51; x += 2) fr += "M" + x + " 56L" + f(x + .4) + " 61";
+    s += '<path d="' + fr + '" stroke="' + d + '" stroke-width="1.5" stroke-linecap="round"/>';
+  }
+  /* 首にまく所 */
+  if(fluff){
+    for(let i = 0; i <= 9; i++){ const t = i / 9, a = quadPt(T[0], T[1], T[2], t), b = quadPt(B[0], B[1], B[2], t); s += circ(a[0], a[1] + .8, 3.4, m) + circ(b[0], b[1] - .8, 3.4, m); }
+    s += circ(5, 30.5, 4.2, m) + circ(59, 30.5, 4.2, m);
+  }
+  s += '<path d="' + band + '" fill="' + m + '"/>';
+  if(stripe) [.12, .31, .5, .69, .88].forEach(c => {
+    const t1 = c - .045, t2 = c + .045, p = [quadPt(T[0], T[1], T[2], t1), quadPt(T[0], T[1], T[2], t2), quadPt(B[0], B[1], B[2], t2), quadPt(B[0], B[1], B[2], t1)];
+    s += '<path d="M' + p.map(q => f(q[0]) + " " + f(q[1])).join("L") + 'Z" fill="#fff" fill-opacity=".9"/>';
+  });
+  else s += '<path d="M11 31Q20 37 28 39M36 39Q45 37 53 32" fill="none" stroke="' + d + '" stroke-width="2.4" stroke-linecap="round"/>';
+  if(fluff) [[14, 31], [26, 38], [38, 38], [50, 32]].forEach(q => { s += circ(q[0], q[1], 1.3, "#fff", ' fill-opacity=".7"'); });
+  if(!stripe) s += '<path d="M44 44Q47 44 49 42" fill="none" stroke="' + m + '" stroke-width="2" stroke-linecap="round"/>';
+  return s + '</g>';
+}
 function normalizeTreatStyle(o){
   o = o && typeof o === "object" ? o : {};
   return {
     hat: o.hat === "top" ? "top" : "round",
     hatColor: HAT_COLORS.some(x => x.id === o.hatColor) ? o.hatColor : "pink",
-    ribbon: RIBBON_COLORS.some(x => x.id === o.ribbon) ? o.ribbon : "pink"
+    ribbon: RIBBON_COLORS.some(x => x.id === o.ribbon) ? o.ribbon : "pink",
+    scarf: SCARF_COLORS.some(x => x.id === o.scarf) ? o.scarf : "red",
+    scarfStripe: o.scarfStripe === true, scarfPom: o.scarfPom === true, scarfFluff: o.scarfFluff === true
   };
 }
 let treatStyle = normalizeTreatStyle(null);
@@ -4959,6 +5021,7 @@ function treatEarFit(accId){
   return null;
 }
 function treatStyleHtml(accId, made){
+  if(accId === "ta_scarf") return scarfStyleHtml(made);
   if(accId !== "ta_hat" && accId !== "ta_ribbon") return "";
   const dot = (list, cur, key) => list.map(x => '<button class="ts-dot' + (x.id === cur ? ' on' : '') + '" data-' + key + '="' + x.id + '" aria-label="' + x.name + '"><i style="background:' + x.c[0] + ';border-color:' + x.c[2] + '"></i><span>' + x.name + '</span></button>').join('');
   let h = '<div class="treat-style">';
@@ -4973,7 +5036,23 @@ function treatStyleHtml(accId, made){
   if(made) h += '<div class="ts-note">形や色を変えたら、相棒にはもう一度つけ直してね</div>';
   return h + '</div>';
 }
+function scarfStyleHtml(made){
+  const n = yarnCount();
+  let h = '<div class="treat-style"><div class="ts-yarn">' + natureIconSvg("tn_yarn", 26) + '<span>毛糸玉 ' + n + '個</span></div>' +
+    '<div class="ts-label">色を選ぶ</div><div class="ts-row">' + SCARF_COLORS.map(x => n >= x.need ?
+      '<button class="ts-dot' + (x.id === treatStyle.scarf ? ' on' : '') + '" data-sc="' + x.id + '"><i style="background:' + x.c[0] + ';border-color:' + x.c[1] + '"></i><span>' + x.name + '</span></button>' :
+      '<div class="ts-dot lock"><i>🔒</i><span>🧶' + x.need + '個で</span></div>').join('') + '</div>' +
+    '<div class="ts-label">かざりをつける</div><div class="ts-row">' + SCARF_PARTS.map(x => n >= x.need ?
+      '<button class="ts-shape' + (treatStyle[x.key] ? ' on' : '') + '" data-sp="' + x.key + '">' + (treatStyle[x.key] ? '✓ ' : '') + x.name + '</button>' :
+      '<span class="ts-shape lock">🔒 ' + x.name + '（🧶' + x.need + '個）</span>').join('') + '</div>';
+  const next = SCARF_COLORS.concat(SCARF_PARTS).filter(x => x.need > n).sort((a, b) => a.need - b.need)[0];
+  h += '<div class="ts-note">' + (next ? 'おつかれさま宝探しで毛糸玉を集めると、マフラーのかざりが増えるよ（あと' + (next.need - n) + '個で次のかざり）' : 'かざりが全部そろったよ！') + '</div>';
+  if(made) h += '<div class="ts-note">色やかざりを変えたら、相棒にはもう一度つけ直してね</div>';
+  return h + '</div>';
+}
 function bindTreatStyle(overlay, reopen){
+  overlay.querySelectorAll("[data-sc]").forEach(b => { b.onclick = () => { treatStyle.scarf = b.dataset.sc; saveTreatStyle(); reopen(); }; });
+  overlay.querySelectorAll("[data-sp]").forEach(b => { b.onclick = () => { treatStyle[b.dataset.sp] = !treatStyle[b.dataset.sp]; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-shape]").forEach(b => { b.onclick = () => { treatStyle.hat = b.dataset.shape; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-hc]").forEach(b => { b.onclick = () => { treatStyle.hatColor = b.dataset.hc; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-rc]").forEach(b => { b.onclick = () => { treatStyle.ribbon = b.dataset.rc; saveTreatStyle(); reopen(); }; });
@@ -4985,7 +5064,7 @@ function treatIconSvg(id, size){
     ta_bowtie: '<g class="ta-pulse"><path d="M32 32L8 18V46Z" fill="#3b6fc9" stroke="#1f3f7a" stroke-width="1.5" stroke-linejoin="round"/><path d="M32 32L56 18V46Z" fill="#3b6fc9" stroke="#1f3f7a" stroke-width="1.5" stroke-linejoin="round"/><rect x="26" y="25" width="12" height="14" rx="4" fill="#1f3f7a"/></g>',
     ta_flower: '<g class="ta-spin"><g fill="#f7a8c4" stroke="#d96c8e" stroke-width="1"><ellipse cx="32" cy="16" rx="8" ry="11"/><ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(72 32 32)"/><ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(144 32 32)"/><ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(216 32 32)"/><ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(288 32 32)"/></g><circle cx="32" cy="32" r="7" fill="#f5c542" stroke="#c9951a" stroke-width="1.5"/></g>',
     ta_star: '<g class="ta-twinkle"><path d="M32 6L39 24L58 25L43 37L48 56L32 45L16 56L21 37L6 25L25 24Z" fill="#ffd84d" stroke="#e0a800" stroke-width="2" stroke-linejoin="round"/><circle cx="26" cy="27" r="2" fill="#fff"/></g>',
-    ta_scarf: '<g class="ta-wave"><path d="M6 24Q32 38 58 24L58 36Q32 50 6 36Z" fill="#e5533d" stroke="#a82a18" stroke-width="1.5"/><path d="M38 41L50 60L38 60L30 46Z" fill="#cf3e29" stroke="#a82a18" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 29L16 41M28 33L28 45M40 33L40 45M51 29L51 40" stroke="#fff" stroke-opacity=".6" stroke-width="2.5"/></g>',
+    ta_scarf: treatScarfBody(),
     ta_hat: treatHatBody(),
     ta_cape: '<g class="ta-flutter"><path d="M16 12Q32 22 48 12L60 58Q32 48 4 58Z" fill="#c1392b" stroke="#8c241a" stroke-width="1.5" stroke-linejoin="round"/><path d="M16 12Q32 22 48 12L50 20Q32 30 14 20Z" fill="#e0614f"/><circle cx="32" cy="21" r="4" fill="#f5c542" stroke="#c9951a" stroke-width="1.5"/></g>',
     ta_wings: '<g><g class="ta-flapL"><path d="M30 34C22 8 2 10 5 26C7 37 18 41 30 34Z" fill="#e3f1ff" stroke="#5f8fcb" stroke-width="2.2" stroke-linejoin="round"/><path d="M26 31C20 20 12 19 10 25" fill="none" stroke="#8db3e0" stroke-width="2"/></g><g class="ta-flapR"><path d="M34 34C42 8 62 10 59 26C57 37 46 41 34 34Z" fill="#e3f1ff" stroke="#5f8fcb" stroke-width="2.2" stroke-linejoin="round"/><path d="M38 31C44 20 52 19 54 25" fill="none" stroke="#8db3e0" stroke-width="2"/></g></g>',
@@ -5027,7 +5106,7 @@ function treatItemChip(it){
   return '<span class="dig-find-chip rarity-' + it.rarity + '">' +
     (it.id === GEM_SHARD_ID ? itemIconSvg(it, 22) : TREAT_NATURE_BY_ID[it.id] ? natureIconSvg(it.id, 22) : treatIconSvg(it.id, 22)) + '<span>' + it.name + '</span></span>';
 }
-let treatMode = false, treatEnded = false, treatFinds = [];
+let treatMode = false, treatEnded = false, treatFinds = [], treatNewScarf = [];
 function startTreat(){
   if(treatDoneToday() || !treatUnlocked()) return;
   treatMode = true;
@@ -5036,7 +5115,7 @@ function startTreat(){
   scr.classList.add("active", "treat");
   document.getElementById("digTitle").textContent = "🎁 おつかれさま宝探し";
   treatEnded = false;
-  treatFinds = [];
+  treatFinds = []; treatNewScarf = [];
   const strip = document.getElementById("digSessionFinds");
   strip.innerHTML = ""; strip.style.display = "none";
   const grid = document.getElementById("digGrid");
@@ -5070,8 +5149,10 @@ function flipTreatCard(card){
     gemCollection[GEM_SHARD_ID] = (gemCollection[GEM_SHARD_ID] || 0) + 1;
     lifetimeShards++; saveLifetimeShards(); saveGems();
   }else if(isNature){
+    const before = scarfUnlockedNames(yarnCount()).length;
     treatNature[result.id] = (treatNature[result.id] || 0) + 1;
     saveTreatNature();
+    if(result.id === "tn_yarn") treatNewScarf.push(...scarfUnlockedNames(yarnCount()).slice(before));
   }else{
     treatOwn[result.id] = (treatOwn[result.id] || 0) + 1;
     saveTreatOwn(); noteFound();
@@ -5090,6 +5171,7 @@ function endTreat(allCleared){
   document.getElementById("digHint").textContent = got > 0 ?
     "全部めくったよ！おしゃれ小物を" + got + "個見つけたよ。おつかれさま！" :
     "全部めくったよ！今日はお散歩の宝物がいっぱい。おつかれさま！";
+  if(treatNewScarf.length) document.getElementById("digHint").textContent += "　🧶毛糸玉がたまって、マフラーの「" + treatNewScarf.join("」「") + "」が使えるようになったよ！";
   document.getElementById("digDoneRow").style.display = "flex";
   document.getElementById("digAgainBtn").style.display = "none";
 }
@@ -5108,8 +5190,9 @@ function showTreatZukan(){
           '<span class="treat-slot-name">' + (n ? it.name : "まだ") + '</span>' + (n ? '</button>' : '</div>');
       }).join("") +
       '</div>' +
+      (yarnCount() ? '<div class="treat-made-title">🧶 毛糸玉 ' + yarnCount() + '個（マフラーをおすとかざりが選べるよ）</div>' : '') +
       '<div class="treat-made-title">🍂 お散歩の宝物（宝探しで見つけたもの）</div><div class="treat-zukan">' +
-      TREAT_NATURE.map(it => {
+      TREAT_NATURE.filter(it => it.id !== "tn_yarn").map(it => {
         const n = treatNature[it.id] || 0;
         return '<div class="treat-slot' + (n ? '' : ' locked') + '">' +
           (n ? '<span class="treat-slot-count">×' + n + '</span>' + natureIconSvg(it.id, 46) :
