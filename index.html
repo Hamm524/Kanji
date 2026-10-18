@@ -4835,7 +4835,7 @@ function flipDigCard(card){
   if(z && z.key === "h" && RANK.indexOf(fxRarity) < 4) fxRarity = "legendary";
   const face = card.querySelector(".dig-card-face");
   face.innerHTML = revealFxHtml({rarity:fxRarity}) + '<span class="dig-icon-wrap' + (z ? ' has-size' : '') + '">' + (isNature ? natureIconSvg(result.id, 46) : itemIconSvg(result, z ? z.icon : 34)) + '</span>' +
-    (z ? '<span class="dig-size-tag size-' + z.key + '">' + z.label + '</span>' : '');
+    (z ? '<span class="dig-size-tag size-' + z.key + '">' + z.label + '</span>' : (isNature ? COIN_TAG : ''));
   card.classList.add("hit");
   if(isShard) card.classList.add("shard-hit");
   if(scrollRecipe){
@@ -4843,7 +4843,7 @@ function flipDigCard(card){
     saveLegendFound();
   }else if(isNature){
     treatNature[result.id] = (treatNature[result.id] || 0) + 1;
-    saveTreatNature();
+    saveTreatNature(); kcAdd(1);
   }else{
     if(size) record = addGemWithSize(result.id, size);
     else gemCollection[result.id] = (gemCollection[result.id]||0) + 1;
@@ -4956,6 +4956,15 @@ function normalizeTreatNature(o){
 let treatNature = {};
 try{ treatNature = normalizeTreatNature(JSON.parse(localStorage.getItem(TREAT_NATURE_KEY))); }catch(e){ treatNature = {}; }
 function saveTreatNature(){ try{ localStorage.setItem(TREAT_NATURE_KEY, JSON.stringify(treatNature)); }catch(e){} }
+/* お散歩の宝物(石ころ・葉っぱなど)が出るたびに、けいさんチャレンジのコインが1つ ふえる。
+   ここでは「出た数のごうけい」だけ記録する。けいさんチャレンジが合言葉のクラウドからこの数を読んで、コインにする。 */
+const COIN_KEY = "kanji-drill-coins-v1";
+function kcAdd(n){
+  let c = 0;
+  try{ c = Math.max(0, parseInt((JSON.parse(localStorage.getItem(COIN_KEY)) || {}).n, 10) || 0); }catch(e){ c = 0; }
+  try{ localStorage.setItem(COIN_KEY, JSON.stringify({n: c + n})); }catch(e){}
+}
+const COIN_TAG = '<span class="dig-size-tag size-b">+1 コイン</span>';
 function natureIconSvg(id, size){
   const bodies = {
     tn_stone: '<g class="ta-bob"><ellipse cx="32" cy="40" rx="22" ry="15" fill="#a9a29a" stroke="#6f6860" stroke-width="2"/><ellipse cx="25" cy="34" rx="8" ry="4" fill="#fff" fill-opacity=".45" transform="rotate(-15 25 34)"/><circle cx="40" cy="44" r="2" fill="#8a837b"/><circle cx="34" cy="48" r="1.5" fill="#8a837b"/></g>',
@@ -5227,7 +5236,7 @@ function flipTreatCard(card){
   const rr = result.rarity;
   const face = card.querySelector(".dig-card-face");
   face.innerHTML = revealFxHtml({rarity: rr === "epic" ? "epic" : rr}) +
-    '<span class="dig-icon-wrap">' + (isShard ? itemIconSvg(result, 34) : isNature ? natureIconSvg(result.id, 46) : treatIconSvg(result.id, 52)) + '</span>';
+    '<span class="dig-icon-wrap">' + (isShard ? itemIconSvg(result, 34) : isNature ? natureIconSvg(result.id, 46) : treatIconSvg(result.id, 52)) + '</span>' + (isNature ? COIN_TAG : '');
   if(isShard){
     card.classList.add("shard-hit");
     gemCollection[GEM_SHARD_ID] = (gemCollection[GEM_SHARD_ID] || 0) + 1;
@@ -5235,7 +5244,7 @@ function flipTreatCard(card){
   }else if(isNature){
     const before = scarfUnlockedNames(yarnCount()).length;
     treatNature[result.id] = (treatNature[result.id] || 0) + 1;
-    saveTreatNature();
+    saveTreatNature(); kcAdd(1);
     if(result.id === "tn_yarn") treatNewScarf.push(...scarfUnlockedNames(yarnCount()).slice(before));
   }else{
     treatOwn[result.id] = (treatOwn[result.id] || 0) + 1;
