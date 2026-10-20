@@ -76,6 +76,17 @@ header.app{
   white-space:nowrap;
   font-variant-numeric:tabular-nums;
 }
+.back-keisan{
+  display:inline-block;
+  margin:0 0 6px;
+  padding:6px 12px;
+  border-radius:999px;
+  border:1px solid var(--ink-soft);
+  color:var(--ink-soft);
+  font-size:.78rem;
+  text-decoration:none;
+  touch-action:manipulation;
+}
 .title-row{
   display:flex;
   align-items:baseline;
@@ -1956,6 +1967,7 @@ header.app{
 
 <div class="wrap">
   <header class="app">
+    <a class="back-keisan" id="backKeisan" href="../Keisan/">← けいさんチャレンジへ もどる</a>
     <div class="title-row">
       <h1 class="app-name">書き順ドリル</h1>
       <span class="total-pill" id="totalPill"></span>
