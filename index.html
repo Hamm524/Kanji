@@ -6315,7 +6315,7 @@ const REL_TOUCH_M = 3.6;   // model: endpoint this close to another stroke = く
 const REL_APART_MIN = 6.5; // model: endpoint at least this far = はなれる
 const REL_APART_MAX = 13;  //   ...but only when it is still near enough to matter
 const REL_EXT_M = 3.2;     // model: both strokes run past the meeting point = まじわる
-const REL_TOUCH_U = 5.2;   // user: gap up to this still looks touching (pen is 4.4 wide)
+const REL_TOUCH_U = 6.2;   // user: gap up to this still looks touching (pen is 4.4 wide; v75 で 5.2→6.2)
 const REL_OVER_U = 7.5;    // user: running past more than this = つき出ている
 const REL_APART_U = 2.6;   // user: closer than this = くっついてしまった
 const REL_CROSS_EXT_U = 2.2; // user: must run past the other stroke at least this much
@@ -6410,6 +6410,10 @@ function modelRelations(ch){
           const k = a + "-" + b + "-" + end;
           if(!touchKey[k]){ touchKey[k] = 1; rels.push({a, b, kind:"touch", end, d: hit.d, x: hit.x, y: hit.y}); }
         }else if(hit.d >= REL_APART_MIN && hit.d <= REL_APART_MAX){
+          if(A.len < 12) return; // dots: style detail, not tested (宮の宀の点など)
+          // the other end already sits on b (宀の点の下の端など): the strokes meet, so "apart" makes no sense
+          const other = end === "s" ? A.pts[A.pts.length-1] : A.pts[0];
+          if(relPointDist(other, B).d < REL_APART_MIN) return;
           // only when b is the closest stroke to this end, so we check the gap that matters
           let closest = true;
           for(let c=0;c<polys.length;c++){
@@ -6463,11 +6467,13 @@ function checkRelations(ch, userStrokes){
       if(hit.d > REL_TOUCH_U + (r.d||0)*0.6){
         // did it run past b instead? (つき出ている)
         const xs = relIntersections(A, B);
-        let over = null;
+        let over = null, touching = false;
         xs.forEach(x => {
           const past = r.end === "s" ? x.atA : A.len - x.atA;
-          if(past > REL_OVER_U && (!over || past < over.past)) over = {past, x: x.x, y: x.y};
+          if(past <= REL_OVER_U) touching = true; // 少し出ただけ＝くっついている（v75）
+          else if(!over || past < over.past) over = {past, x: x.x, y: x.y};
         });
+        if(touching) return;
         if(over) issues.push({rel:r, problem:"over", x: over.x, y: over.y});
         else issues.push({rel:r, problem:"gap", x: (p.x+hit.x)/2, y: (p.y+hit.y)/2});
       }
@@ -6489,7 +6495,8 @@ function checkRelations(ch, userStrokes){
     }else if(r.kind === "apart"){
       const p = r.end === "s" ? A.pts[0] : A.pts[A.pts.length-1];
       const hit = relPointDist(p, B);
-      const xs = relIntersections(A, B);
+      // 交わっていても、はなすはずの端から遠い所なら関係ない（v75）
+      const xs = relIntersections(A, B).filter(x => (r.end === "s" ? x.atA : A.len - x.atA) < 8);
       if(hit.d < REL_APART_U || xs.length) issues.push({rel:r, problem:"stuck", x: (p.x+hit.x)/2, y: (p.y+hit.y)/2});
     }
   });
@@ -6848,10 +6855,12 @@ function renderWriteOverlay(ch, marks, opts){
   });
   document.getElementById("dotsRow").style.visibility = "hidden";
 }
+/* △は「気をつける所」が多いとき。画が多い字ほど調べる所も多いので、その分ゆるくする（v75：宮・局が正しく書いても△になっていた） */
 function gradeWriting(ch, issues, clean){
   const n = issues.length;
   if(n === 0 && clean) return "best";
-  if(n <= 2) return "good";
+  const rels = modelRelations(ch).length;
+  if(n <= 2 + Math.floor(rels / 8)) return "good";
   return "care";
 }
 const GRADE_INFO = {
