@@ -6299,7 +6299,8 @@ function evalStroke(userPoints, targetPathEl, attemptNum){
   const dEndToStart = Math.hypot(userEnd.x-targetStart.x, userEnd.y-targetStart.y);
   const dEndToEnd = Math.hypot(userEnd.x-targetEnd.x, userEnd.y-targetEnd.y);
   const dirSlack = 4*leniency;
-  if(dStartToStart > dStartToEnd + dirSlack && dEndToEnd > dEndToStart + dirSlack) return false;
+  // 点のような短い画（長さ14未満）は、どちら向きに書いても同じ見た目なので向きは見ない（v76）
+  if(targetLen >= 14 && dStartToStart > dStartToEnd + dirSlack && dEndToEnd > dEndToStart + dirSlack) return false;
 
   if(targetLen < 8){
     const tAvg = targetPts.reduce((a,p)=>({x:a.x+p.x/targetPts.length, y:a.y+p.y/targetPts.length}),{x:0,y:0});
@@ -7552,7 +7553,7 @@ function renderWorksheetReading(item){
     btn.onclick = () => {
       if(answered) return;
       answered = true;
-      const ok = opt === correct;
+      const ok = opt === correct || validReadings(ch).has(opt);
       btn.classList.add(ok ? "correct" : "wrong");
       if(!ok){
         const cb = Array.from(grid.children).find(b => b.textContent === correct);
@@ -7746,9 +7747,13 @@ function recordOsaraiItem(item){
   renderGridStats();
 }
 /* 10回練習にする字：△か、画を OSARAI_MISS 回以上まちがえた字（v74） */
-const OSARAI_MISS = 2;
+/* 書き終わった字で画を何回まちがえたら「まちがえた字」にするか。画の多い字は多めに（v76：宮・局・究・幸・向が正しく書けても10回練習になっていた） */
+const OSARAI_MISS = 3;
+function osaraiMissLimit(item){
+  return Math.max(OSARAI_MISS, Math.ceil(item.ch.s.length * 0.4));
+}
 function osaraiMissed(item){
-  return !!item.missedBefore || item.grade === "care" || item.miss >= OSARAI_MISS;
+  return !!item.missedBefore || item.grade === "care" || item.miss >= osaraiMissLimit(item);
 }
 function unrecordOsaraiItem(item){
   if(!item.recorded) return;
@@ -8417,9 +8422,18 @@ function renderReviewQuestion(){
   else renderWriteQuestion(ch);
 }
 
+/* その字の読みとして正しいものぜんぶ（v76：宮の「キュウ」など、2つ目以降の読みも正解にする） */
+function validReadings(ch){
+  const set = new Set(ch.r.split("、").map(x => x.replace(/-/g, "")));
+  (ch.on || []).forEach(x => set.add(x));
+  (ch.ku || []).forEach(k => { if(k.y) set.add(k.y); });
+  return set;
+}
 function pickDistractors(ch, n){
   const correct = ch.r.split("、")[0];
+  const valid = validReadings(ch);
   const seen = new Set([correct]);
+  valid.forEach(v => seen.add(v));
   const out = [];
   const pools = [KANJI.filter(k => k.g === ch.g && k.c !== ch.c), KANJI.filter(k => k.c !== ch.c)];
   for(const pool of pools){
@@ -8458,7 +8472,7 @@ function renderReadingQuestion(ch){
       if(answered) return;
       answered = true;
       clearRvTimer();
-      const ok = opt === correct;
+      const ok = opt === correct || validReadings(ch).has(opt);
       btn.classList.add(ok ? "correct" : "wrong");
       if(!ok){
         const cb = Array.from(grid.children).find(b => b.textContent === correct);
@@ -8779,6 +8793,8 @@ function renderConfirmQuestion(){
 }
 function pickGenericDistractors(correctVal, excludeCharC, getVals, n){
   const seen = new Set([correctVal]);
+  const own = CHAR_MAP[excludeCharC];
+  if(own) getVals(own).forEach(v => seen.add(v)); // その字のほかの正しい読みは、まちがいの選択肢にしない（v76）
   const out = [];
   const shuffled = KANJI.filter(k => k.c !== excludeCharC).sort(() => Math.random()-0.5);
   for(const k of shuffled){
@@ -8798,6 +8814,8 @@ function formatKunReading(y, o){
 }
 function pickKunDistractors(correctY, excludeCharC, n){
   const seen = new Set([correctY]);
+  const own = CHAR_MAP[excludeCharC];
+  if(own) (own.ku || []).forEach(e => seen.add(e.y));
   const out = [];
   const shuffled = KANJI.filter(k => k.c !== excludeCharC).sort(() => Math.random()-0.5);
   for(const k of shuffled){
