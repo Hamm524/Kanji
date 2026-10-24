@@ -7645,6 +7645,12 @@ function handleWorksheetStroke(item){
     if(item.showMiss && item.guideEl){ item.guideEl.setAttribute("opacity", .4); item.guideEl.setAttribute("stroke", "var(--kon)"); }
   }
 }
+/* 10回練習の字になるとき、書いた直後にやさしく知らせる（v77） */
+function practiceNoteHtml(item){
+  if(!wsState || !wsState.osarai || !osaraiMissed(item)) return "";
+  return '<div class="osarai-more" style="margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--cream,#fff7e0);color:var(--ink);font-size:.9rem;">' +
+    '<b>🌱 もう少し練習しよう！</b><br>この字は、あとで10回書いて覚えるよ。' + (item.later ? '' : '大じょうぶ、書けているよ。') + '</div>';
+}
 function finishWorksheetWrite(item, ok){
   if(item.settled) return;
   item.settled = true;
@@ -7683,7 +7689,7 @@ function finishWorksheetWrite(item, ok){
       const info = GRADE_INFO[item.grade];
       fb.innerHTML = '<b>' + info.mark + '</b> ' + info.title +
         (marks.length ? '<br><span style="font-size:.8em">○の所に気をつけよう</span>' + issueListHtml(marks) : '') + reward +
-        (marks.length || item.grade !== "best" ? legendHtml() : '');
+        (marks.length || item.grade !== "best" ? legendHtml() : '') + practiceNoteHtml(item);
     }else{
       fb.textContent = ok ? "正解！" : "できた！";
     }
@@ -7753,7 +7759,8 @@ function osaraiMissLimit(item){
   return Math.max(OSARAI_MISS, Math.ceil(item.ch.s.length * 0.4));
 }
 function osaraiMissed(item){
-  return !!item.missedBefore || item.grade === "care" || item.miss >= osaraiMissLimit(item);
+  // △でも、画を1回もまちがえていない字は10回練習にしない（v77：まちがえずに書けたのに練習になって娘さんがショックだった）
+  return !!item.missedBefore || item.miss >= osaraiMissLimit(item) || (item.grade === "care" && item.miss >= 1);
 }
 function unrecordOsaraiItem(item){
   if(!item.recorded) return;
@@ -8168,7 +8175,7 @@ function showOsaraiSummary(){
     msg = '<div style="color:var(--ink-soft);font-size:.9rem;">残りの' + left + '字は、ホームの「今日のおさらい」から続きができるよ</div>';
     btns = '<button class="ctrl-btn primary" id="reviewDoneBtn">閉じる</button>';
   }else if(laterN > 0){
-    msg = '<div style="font-size:.95rem;">「あとで」とまちがえた' + laterN + '字を、1字ずつ10回書こう。<br>そのあと、もう一度問題を解いたら今日のおさらいは終わり！</div>';
+    msg = '<div style="font-size:.95rem;">もう少し練習する字が' + laterN + '字あるよ。1字ずつ10回書こう。<br>そのあと、もう一度問題を解いたら今日のおさらいは終わり！</div>';
     btns = '<button class="ctrl-btn primary" id="osaraiPracticeBtn">10回練習する</button><button class="ctrl-btn" id="reviewDoneBtn">あとでする</button>';
   }else if(osaraiRetestLeft().length > 0){
     msg = '<div style="font-size:.95rem;">もう一度問題を解いたら、今日のおさらいは終わり！</div>';
