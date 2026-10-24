@@ -2257,13 +2257,18 @@ header.app{
    Cloud copy: the same keys are also kept in Firebase Firestore over REST
    (no sign-in) under kids/<code>/kv/<key>, the same place and the same
    10-letter code (kapp_code, shared on this origin) as けいさんチャレンジ.
-   At start the side with the newer changed-at wins; a newer cloud copy is
-   written to localStorage and the page reloads once. */
+   Each device remembers which cloud version it last matched (cloud-base).
+   At start (and whenever the app comes back to the front, and before each
+   upload) the cloud copy is checked: if only one side changed, that side
+   wins; if both changed (two devices, or an iPad that slept for days), the
+   two are merged so nothing either side earned is lost. Taking the cloud copy
+   writes it to localStorage and the page reloads once. */
 (function(){
   var PREFIX = "kanji-drill-";
   var CHANGED = "kanji-drill-changed-at-v1";
-  var NO_DIRTY = {"kanji-drill-grade-v2":1,"kanji-drill-selfcheck-count-v1":1,"kanji-drill-last-backup-v1":1,"kanji-drill-backup-at-v1":1,"kanji-drill-changed-at-v1":1};
-  var NO_CLOUD = {"kanji-drill-last-backup-v1":1,"kanji-drill-backup-at-v1":1,"kanji-drill-gateskip-v1":1};
+  var BASE = "kanji-drill-cloud-base-v1";
+  var NO_DIRTY = {"kanji-drill-cloud-base-v1":1,"kanji-drill-grade-v2":1,"kanji-drill-selfcheck-count-v1":1,"kanji-drill-last-backup-v1":1,"kanji-drill-backup-at-v1":1,"kanji-drill-changed-at-v1":1};
+  var NO_CLOUD = {"kanji-drill-cloud-base-v1":1,"kanji-drill-last-backup-v1":1,"kanji-drill-backup-at-v1":1,"kanji-drill-gateskip-v1":1};
   var DATA_KEYS = ["kanji-drill-progress-v2","kanji-drill-gems-v1","kanji-drill-tickets-v1","kanji-drill-srs-v1"];
   var DBN = "kanji-drill-mirror", ST = "kv";
   var CFG = { projectId:"keisan-suzu", apiKey:"AIzaSyCv0vvfBwyjInAZV9cBRfVaRAn5zTEtCrg" };
@@ -2409,12 +2414,76 @@ header.app{
     });
     return { data:data, parts:parts };
   }
+  function baseNow(){ try{ return parseInt(ls.getItem(BASE), 10) || 0; }catch(e){ return 0; } }
+  function setBase(v){ try{ if(window.kdRawSet) window.kdRawSet(BASE, String(v || "")); else ls.setItem(BASE, String(v || "")); }catch(e){} }
+  /* who wins: "adopt" (cloud), "push" (this device), "merge" (both changed) or "same" */
   function decide(rd){
     var local = snapshot(), lHas = hasData(local), rHas = hasData(rd);
-    var lc = parseInt(local[CHANGED], 10) || 0, rc = parseInt(rd[CHANGED], 10) || 0;
-    if(rHas && (!lHas || rc > lc)) return "adopt";
-    if(lHas && (!rHas || lc > rc)) return "push";
-    return "same";
+    var lc = parseInt(local[CHANGED], 10) || 0, rc = parseInt(rd[CHANGED], 10) || 0, base = baseNow();
+    if(!rHas) return lHas ? "push" : "same";
+    if(!lHas) return "adopt";
+    if(rc === lc) return "same";
+    if(base && rc === base) return "push";   /* nobody else wrote since this device last matched the cloud */
+    if(base && lc === base) return "adopt";  /* nothing new on this device */
+    return "merge";
+  }
+  /* merge two copies of one value so that nothing either side earned is lost:
+     numbers take the larger, flags stay on, dates take the later, collections
+     are joined. A day's plan ({date,...}) is taken whole from the later day;
+     a review card ({box,due}) is taken whole from the side further along.
+     Anything else that differs comes from the side changed last (preferB). */
+  var DAY_RE = /^\d{4}-\d{2}-\d{2}/;
+  function isObj(x){ return !!x && typeof x === "object" && !Array.isArray(x); }
+  function mergeVal(a, b, preferB, name){
+    if(a === undefined || a === null) return b;
+    if(b === undefined || b === null) return a;
+    var ta = typeof a, tb = typeof b;
+    if(ta === "number" && tb === "number") return Math.max(a, b);
+    if(ta === "boolean" && tb === "boolean") return a || b;
+    if(ta === "string" && tb === "string"){
+      if(DAY_RE.test(a) && DAY_RE.test(b)) return a > b ? a : b;
+      return preferB ? b : a;
+    }
+    if(Array.isArray(a) && Array.isArray(b)){
+      if(name === "doneDates"){
+        var out = a.slice();
+        b.forEach(function(x){ if(out.indexOf(x) < 0) out.push(x); });
+        return out.sort();
+      }
+      return preferB ? b : a;
+    }
+    if(isObj(a) && isObj(b)){
+      if(typeof a.date === "string" && typeof b.date === "string" && a.date !== b.date) return a.date > b.date ? a : b;
+      if(typeof a.box === "number" && typeof b.box === "number" && "due" in a && "due" in b){
+        if(a.box !== b.box) return a.box > b.box ? a : b;
+        return String(a.due) >= String(b.due) ? a : b;
+      }
+      var o = {};
+      Object.keys(a).forEach(function(k){ o[k] = (k in b) ? mergeVal(a[k], b[k], preferB, k) : a[k]; });
+      Object.keys(b).forEach(function(k){ if(!(k in a)) o[k] = b[k]; });
+      return o;
+    }
+    return preferB ? b : a;
+  }
+  function mergeRaw(a, b, preferB){
+    if(a == null) return b;
+    if(b == null || a === b) return a;
+    var ja, jb;
+    try{ ja = JSON.parse(a); jb = JSON.parse(b); }catch(e){ return mergeVal(a, b, preferB, ""); }
+    var m = mergeVal(ja, jb, preferB, "");
+    return typeof m === "string" ? m : JSON.stringify(m);
+  }
+  /* join the cloud copy into this device; returns the merged map (records only) */
+  function mergeSnapshots(local, remote){
+    var lc = parseInt(local[CHANGED], 10) || 0, rc = parseInt(remote[CHANGED], 10) || 0;
+    var preferRemote = rc > lc, out = {};
+    var keys = {};
+    Object.keys(local).concat(Object.keys(remote)).forEach(function(k){ if(cloudKeyOk(k) && k !== CHANGED) keys[k] = 1; });
+    Object.keys(keys).forEach(function(k){
+      var v = mergeRaw(local[k], remote[k], preferRemote);
+      if(v != null) out[k] = v;
+    });
+    return out;
   }
   function adoptRemote(data, flag){
     cloud.dirty = {};
@@ -2422,7 +2491,24 @@ header.app{
       if(!cloudKeyOk(k)) return;
       try{ if(window.kdRawSet) window.kdRawSet(k, data[k]); else ls.setItem(k, data[k]); }catch(e){}
     });
+    if(data[CHANGED]) setBase(data[CHANGED]);
     try{ window.name = flag; }catch(e){}
+    location.reload();
+  }
+  /* both sides changed: write the merged records here, send them up, then reload with them */
+  async function mergeRemote(remote){
+    var merged = mergeSnapshots(snapshot(), remote);
+    cloud.dirty = {};
+    Object.keys(merged).forEach(function(k){
+      try{ if(window.kdRawSet) window.kdRawSet(k, merged[k]); else ls.setItem(k, merged[k]); }catch(e){}
+      cloud.dirty[k] = 1;
+    });
+    try{ window.kdRawSet(CHANGED, String(Date.now())); }catch(e){}
+    /* if the upload below fails, the next start still knows the cloud copy is already inside */
+    if(remote[CHANGED]) setBase(remote[CHANGED]);
+    cloud.ready = true; cloud.busy = false;
+    try{ await cloudFlush(true); }catch(e){}
+    try{ window.name = "kd-synced"; }catch(e){}
     location.reload();
   }
   function scheduleFlush(ms){ clearTimeout(cloud.timer); cloud.timer = setTimeout(cloudFlush, ms); }
@@ -2431,12 +2517,36 @@ header.app{
     cloud.dirty[k] = 1;
     if(cloud.ready) scheduleFlush(1500);
   }
-  async function cloudFlush(){
+  /* the cloud's changed-at right now ("" if none); throws when offline */
+  async function remoteStamp(){
+    try{
+      var d = await fsFetch(docUrl(cloud.code, CHANGED));
+      return (d && d.fields && d.fields.v && d.fields.v.stringValue) || "";
+    }catch(e){
+      if(e && e.message === "fs 404") return "";
+      throw e;
+    }
+  }
+  /* another device wrote since this one last matched the cloud? */
+  async function cloudMovedOn(){
+    var base = baseNow();
+    if(!base) return false;
+    var rs = parseInt(await remoteStamp(), 10) || 0;
+    return !!rs && rs !== base && rs !== (parseInt(chgNow(), 10) || 0);
+  }
+  async function cloudFlush(skipCheck){
     cloud.timer = null;
     if(!cloud.ready || cloud.busy) return;
     var keys = Object.keys(cloud.dirty);
     if(!keys.length) return;
-    cloud.busy = true; cloud.dirty = {};
+    cloud.busy = true;
+    if(skipCheck !== true){
+      var moved = false;
+      try{ moved = await cloudMovedOn(); }
+      catch(e){ cloud.busy = false; cloud.flushFails++; scheduleFlush(Math.min(30000, 4000 * cloud.flushFails)); notify(); return; }
+      if(moved){ cloud.busy = false; cloud.ready = false; cloudSyncStart(); return; }
+    }
+    cloud.dirty = {};
     keys = keys.filter(function(k){ return k !== CHANGED; });
     keys.push(CHANGED); /* last, so another device never sees a newer stamp before the records */
     var failed = false;
@@ -2452,6 +2562,7 @@ header.app{
         }
         for(var x=n;x<had;x++) await fsFetch(docUrl(cloud.code, x ? k + "~" + x : k), { method:"DELETE" });
         cloud.parts[k] = n;
+        if(k === CHANGED && v) setBase(v);
       }catch(e){
         var c = e && e.code;
         if(c === "not_granted" || c === "invalid_argument"){ cloud.dead = true; cloud.ready = false; break; }
@@ -2474,9 +2585,11 @@ header.app{
       cloud.loading = false; cloud.fails = 0;
       var d = decide(r.data);
       cloud.parts = r.parts || {};
-      /* already played in this session on a device that has records: this device wins */
-      if(d === "adopt" && hasData(snapshot()) && chgNow() !== startChanged) d = "push";
+      /* already played since this page opened: those records must not be thrown away */
+      if(d === "adopt" && hasData(snapshot()) && chgNow() !== startChanged) d = "merge";
       if(d === "adopt"){ adoptRemote(r.data, hasData(snapshot()) ? "kd-synced" : "kd-restored"); return "reload"; }
+      if(d === "merge"){ mergeRemote(r.data); return "reload"; }
+      if(d === "same" && r.data[CHANGED]) setBase(r.data[CHANGED]);
       cloud.ready = true;
       if(d === "push") Object.keys(snapshot()).forEach(function(k){ if(cloudKeyOk(k)) cloud.dirty[k] = 1; });
       if(Object.keys(cloud.dirty).length) scheduleFlush(300);
@@ -2499,6 +2612,12 @@ header.app{
   });
   document.addEventListener("visibilitychange", function(){
     if(document.visibilityState === "hidden" && cloud.ready && Object.keys(cloud.dirty).length){ clearTimeout(cloud.timer); cloudFlush(); }
+    /* back to the front (an iPad can keep the page asleep for days): look for records from the other device */
+    if(document.visibilityState === "visible" && booted && cloud.ready && !cloud.busy && !cloud.loading){
+      cloudMovedOn().then(function(moved){
+        if(moved && cloud.ready && !cloud.busy){ cloud.ready = false; clearTimeout(cloud.timer); cloudSyncStart(); }
+      }, function(){});
+    }
   });
   window.KD_CLOUD = {
     onStatus: null,
