@@ -2429,7 +2429,8 @@ header.app{
   }
   /* merge two copies of one value so that nothing either side earned is lost:
      numbers take the larger, flags stay on, dates take the later, collections
-     are joined. A day's plan ({date,...}) is taken whole from the later day;
+     are joined. A day's plan ({date,...}) is taken whole from the later day
+     (on the same day, from the side with more done);
      a review card ({box,due}) is taken whole from the side further along.
      Anything else that differs comes from the side changed last (preferB). */
   var DAY_RE = /^\d{4}-\d{2}-\d{2}/;
@@ -2453,7 +2454,12 @@ header.app{
       return preferB ? b : a;
     }
     if(isObj(a) && isObj(b)){
-      if(typeof a.date === "string" && typeof b.date === "string" && a.date !== b.date) return a.date > b.date ? a : b;
+      if(typeof a.date === "string" && typeof b.date === "string"){
+        if(a.date !== b.date) return a.date > b.date ? a : b;
+        /* the same day planned on two devices: keep the one she got further with, so finished work never comes back */
+        var da = isObj(a.done) ? Object.keys(a.done).length : 0, db = isObj(b.done) ? Object.keys(b.done).length : 0;
+        if(da !== db) return da > db ? a : b;
+      }
       if(typeof a.box === "number" && typeof b.box === "number" && "due" in a && "due" in b){
         if(a.box !== b.box) return a.box > b.box ? a : b;
         return String(a.due) >= String(b.due) ? a : b;
