@@ -2355,9 +2355,12 @@ header.app{
     try{ if(history.replaceState){ var u = new URL(location.href); u.searchParams.set("k", c); history.replaceState(null, "", u.toString()); } }catch(e){}
   }
   function appCode(){
-    var c = null;
+    var c = null, u = codeFromUrl();
     try{ c = normCode(ls.getItem(CODE_KEY)); }catch(e){}
-    if(!c) c = codeFromUrl();
+    /* opened with another code in the address (the link from けいさんチャレンジ carries its code):
+       move to that code. This device's records are not lost: with no base the first sync merges them in. */
+    if(c && u && u !== c){ c = u; setBase(""); }
+    if(!c) c = u;
     if(!c){
       var b = new Uint8Array(10);
       try{ crypto.getRandomValues(b); }catch(e){ for(var i=0;i<10;i++) b[i] = Math.floor(Math.random() * 256); }
@@ -2643,6 +2646,14 @@ header.app{
     apply: function(code, data){
       try{ ls.setItem(CODE_KEY, code); }catch(e){}
       adoptRemote(data, "kd-restored");
+    },
+    /* use this code from now on and merge this device's records into it */
+    join: function(code){
+      code = normCode(code);
+      if(!code) return;
+      try{ ls.setItem(CODE_KEY, code); }catch(e){}
+      setBase(""); putCodeInUrl(code);
+      location.reload();
     }
   };
 
@@ -3279,12 +3290,12 @@ function openCodeRestore(){
         closeModal();
         if(!appHasData()){ window.KD_CLOUD.apply(r.code, r.data); return; }
         showHtmlModal(
-          '<div style="text-align:left;line-height:1.7">今の記録を、合言葉の記録に入れかえます。<br><br>' +
+          '<div style="text-align:left;line-height:1.7">今の記録と合言葉の記録を合わせます。どちらの記録も消えません。これからは、この合言葉で保存します。<br><br>' +
           '<b>今：</b>' + backupSummary(progress, tickets) + '<br>' +
           '<b>合言葉の記録：</b>' + remoteSummary(r.data) + '</div>',
-          '<button class="ctrl-btn" id="modalNoBtn">やめる</button><button class="ctrl-btn primary" id="modalYesBtn">入れかえる</button>',
+          '<button class="ctrl-btn" id="modalNoBtn">やめる</button><button class="ctrl-btn primary" id="modalYesBtn">合わせる</button>',
           () => {
-            document.getElementById("modalYesBtn").onclick = () => { closeModal(); window.KD_CLOUD.apply(r.code, r.data); };
+            document.getElementById("modalYesBtn").onclick = () => { closeModal(); window.KD_CLOUD.join(r.code); };
             document.getElementById("modalNoBtn").onclick = closeModal;
           });
       };
