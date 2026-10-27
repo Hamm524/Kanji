@@ -1520,13 +1520,13 @@ header.app{
 .treat-style{margin:10px 0 4px;}
 .ts-label{font-size:.9rem;font-weight:bold;color:var(--ink-soft);margin:8px 0 4px;}
 .ts-row{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;}
-.ts-shape{padding:7px 14px;border:2px solid #e8d8ea;border-radius:999px;background:#fff;font:inherit;font-size:.95rem;color:inherit;cursor:pointer;}
-.ts-shape.on{border-color:#d0679a;background:#fff0f6;font-weight:bold;}
-.ts-dot{display:flex;flex-direction:column;align-items:center;gap:2px;width:70px;white-space:nowrap;padding:4px 0;border:2px solid transparent;border-radius:12px;background:none;font:inherit;font-size:.72rem;color:inherit;cursor:pointer;}
+.ts-shape{padding:7px 14px;border:2px solid var(--line);border-radius:999px;background:var(--paper-raised);font:inherit;font-size:.95rem;color:var(--ink);cursor:pointer;}
+.ts-shape.on{border-color:#d0679a;background:rgba(208,103,154,.2);font-weight:bold;}
+.ts-dot{display:flex;flex-direction:column;align-items:center;gap:2px;width:70px;white-space:nowrap;padding:4px 0;border:2px solid transparent;border-radius:12px;background:none;font:inherit;font-size:.72rem;color:var(--ink);cursor:pointer;}
 .ts-dot i{display:block;width:30px;height:30px;border-radius:50%;border:2px solid;}
-.ts-dot.on{border-color:#d0679a;background:#fff0f6;font-weight:bold;}
+.ts-dot.on{border-color:#d0679a;background:rgba(208,103,154,.2);font-weight:bold;}
 .ts-dot.lock,.ts-shape.lock{cursor:default;opacity:.55;}
-.ts-dot.lock i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.85rem;background:#f4f0f2;border-color:#ddd;}
+.ts-dot.lock i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.85rem;background:var(--paper);border-color:var(--line);}
 .ts-shape.lock{font-size:.85rem;}
 .ts-yarn{display:flex;align-items:center;justify-content:center;gap:4px;font-weight:bold;font-size:.95rem;}
 .ts-note{font-size:.8rem;color:var(--ink-soft);margin-top:6px;}
@@ -1553,6 +1553,7 @@ header.app{
 .wear-gem b{color:var(--gold);font-size:.62rem;}
 .wear-howto{text-align:left;font-size:.82rem;line-height:1.7;margin-top:8px;}
 .treat-howto{text-align:left;font-size:.8rem;line-height:1.65;margin:8px 0 4px;padding:8px 10px;border-radius:12px;background:#FFF0F5;color:#7A3550;}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .treat-howto{background:#3A2430;color:#F3C7D8;}}
 .treat-howto b{color:#C2496F;}
 
 /* ---------- あそんでおぼえる（まちがいさがし・どっち？） ---------- */
