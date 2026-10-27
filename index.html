@@ -2464,9 +2464,21 @@ header.app{
         if(a.date !== b.date) return a.date > b.date ? a : b;
         /* the same day planned on two devices: keep the one she got further with, so finished work never comes back */
         var da = isObj(a.done) ? Object.keys(a.done).length : 0, db = isObj(b.done) ? Object.keys(b.done).length : 0;
+        /* two different plans for the day (v79): keep the one she got further with, and add only the characters
+           she already wrote from the other plan, with their results. Before, those were dropped (弱 was missing
+           from the 10回練習 and 歯 from the other plan was there), and nothing she did not start is added */
+        if(Array.isArray(a.list) && Array.isArray(b.list) && JSON.stringify(a.list) !== JSON.stringify(b.list)){
+          var w = da !== db ? (da > db ? a : b) : (preferB ? b : a), l = w === a ? b : a;
+          var out = JSON.parse(JSON.stringify(w));
+          var started = l.list.filter(function(c){ return out.list.indexOf(c) < 0 && isObj(l.done) && (c in l.done); });
+          out.list = out.list.concat(started);
+          ["done", "miss", "practiced", "retest"].forEach(function(f){
+            if(!isObj(l[f])) return;
+            started.forEach(function(c){ if(c in l[f]){ if(!isObj(out[f])) out[f] = {}; out[f][c] = l[f][c]; } });
+          });
+          return out;
+        }
         if(da !== db) return da > db ? a : b;
-        /* never mix two day plans with different lists: that put characters from the other device's plan into today's おさらい */
-        if(JSON.stringify(a.list || null) !== JSON.stringify(b.list || null)) return preferB ? b : a;
       }
       if(typeof a.box === "number" && typeof b.box === "number" && "due" in a && "due" in b){
         if(a.box !== b.box) return a.box > b.box ? a : b;
@@ -3397,7 +3409,7 @@ function normalizeOsaraiData(d){
   if(!d || typeof d !== "object") return {date:"", list:[], done:{}, miss:{}, practiced:{}, retest:{}};
   return {
     date: typeof d.date === "string" ? d.date : "",
-    list: Array.isArray(d.list) ? d.list.filter(c => typeof c === "string").slice(0, OSARAI_SIZE) : [],
+    list: Array.isArray(d.list) ? d.list.filter(c => typeof c === "string").slice(0, OSARAI_SIZE * 2) : [],  // 2台の予定を合わせると8字より多くなる
     done: d.done && typeof d.done === "object" ? d.done : {},
     miss: d.miss && typeof d.miss === "object" ? d.miss : {},
     practiced: d.practiced && typeof d.practiced === "object" ? d.practiced : {},
@@ -3460,7 +3472,7 @@ function normalizePrintData(d){
   if(!d || typeof d !== "object") return {date:"", list:[], done:{}};
   return {
     date: typeof d.date === "string" ? d.date : "",
-    list: Array.isArray(d.list) ? d.list.filter(c => typeof c === "string").slice(0, PRINT_SIZE) : [],
+    list: Array.isArray(d.list) ? d.list.filter(c => typeof c === "string").slice(0, PRINT_SIZE * 2) : [],
     done: d.done && typeof d.done === "object" ? d.done : {}
   };
 }
