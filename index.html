@@ -8787,9 +8787,40 @@ function writeContextCandidates(ch){
     const i = e.w.indexOf(ch.c);
     if(i !== -1) add({key:e.w, before:e.w.slice(0,i), after:e.w.slice(i+1), oku:"", y:e.y});
   });
-  /* 字1つだけの言葉（例：矢＝や）は、空らんだけになってどの字か分からないので、ほかに候補があれば出さない（v61） */
+  /* 字1つだけの言葉（例：矢＝や）は、空らんだけになってどの字か分からないので、ほかに候補があれば出さない（v61）。
+     ほかの字でも同じ問題になる言葉（「□い（よわい）」は弱も歯も入る、「□い（あかい）」は赤も紅も入る）も出さない（v79：
+     歯の問題で弱と書いて正しいのにまちがいになり、歯が10回練習になっていた） */
   const clear = out.filter(o => o.before || o.after || o.oku);
-  return clear.length ? clear : out;
+  const pool = clear.length ? clear : out;
+  const amb = writeContextAmbiguous();
+  const sure = pool.filter(o => o.sentence || !amb.has(writeContextKey(o)));
+  return sure.length ? sure : pool;
+}
+function writeContextKey(o){ return o.before + "□" + o.after + o.oku + "|" + o.y; }
+let writeContextAmb = null;
+function writeContextAmbiguous(){
+  if(writeContextAmb) return writeContextAmb;
+  const who = new Map();
+  const note = (o, c) => {
+    const k = writeContextKey(o);
+    if(!who.has(k)) who.set(k, new Set());
+    who.get(k).add(c);
+  };
+  KANJI.forEach(k => {
+    (k.ku || []).forEach(w => {
+      const oku = w.o || "";
+      const stem = oku ? w.w.slice(0, w.w.length - oku.length) : w.w;
+      const i = stem.indexOf(k.c);
+      if(i !== -1) note({before:stem.slice(0,i), after:stem.slice(i+1), oku, y:w.y}, k.c);
+    });
+    (k.ex || []).forEach(e => {
+      const i = e.w.indexOf(k.c);
+      if(i !== -1) note({before:e.w.slice(0,i), after:e.w.slice(i+1), oku:"", y:e.y}, k.c);
+    });
+  });
+  writeContextAmb = new Set();
+  who.forEach((set, k) => { if(set.size > 1) writeContextAmb.add(k); });
+  return writeContextAmb;
 }
 /* 毎回ちがう言葉を選ぶ（前回とおなじ言葉は、ほかに候補があるかぎり出さない） */
 function pickWordContext(ch){
