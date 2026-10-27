@@ -5598,7 +5598,7 @@ function treatIconSvg(id, size){
   return '<svg class="ta" width="' + size + '" height="' + size + '" viewBox="0 0 64 64" aria-hidden="true">' + b + '</svg>';
 }
 /* v79：キーホルダーをつけられるかばんと、つるす所 */
-const TREAT_KH_AT = {"ta_randoseru":[13,22],"ta_backpack":[44,36],"ta_bag":[42,26]};
+const TREAT_KH_AT = {"ta_randoseru":[10,28],"ta_backpack":[44,36],"ta_bag":[42,26]};
 function rollTreat(itemOnly){
   const counts = {};
   TREAT_ITEMS.forEach(it => { counts[it.rarity] = (counts[it.rarity] || 0) + 1; });
