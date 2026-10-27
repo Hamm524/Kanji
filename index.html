@@ -2462,6 +2462,8 @@ header.app{
         /* the same day planned on two devices: keep the one she got further with, so finished work never comes back */
         var da = isObj(a.done) ? Object.keys(a.done).length : 0, db = isObj(b.done) ? Object.keys(b.done).length : 0;
         if(da !== db) return da > db ? a : b;
+        /* never mix two day plans with different lists: that put characters from the other device's plan into today's おさらい */
+        if(JSON.stringify(a.list || null) !== JSON.stringify(b.list || null)) return preferB ? b : a;
       }
       if(typeof a.box === "number" && typeof b.box === "number" && "due" in a && "due" in b){
         if(a.box !== b.box) return a.box > b.box ? a : b;
@@ -7951,7 +7953,8 @@ function recordOsaraiItem(item){
 /* 書き終わった字で画を何回まちがえたら「まちがえた字」にするか。画の多い字は多めに（v76：宮・局・究・幸・向が正しく書けても10回練習になっていた） */
 const OSARAI_MISS = 3;
 function osaraiMissLimit(item){
-  return Math.max(OSARAI_MISS, Math.ceil(item.ch.s.length * 0.4));
+  // ◎の「きれいに書けた」（まちがい ceil(画数×0.4) 回まで）と同じ線にする。前は同じ回数で◎なのに10回練習になっていた（指）
+  return Math.max(OSARAI_MISS, Math.ceil(item.ch.s.length * 0.4) + 1);
 }
 function osaraiMissed(item){
   // △でも、画を1回もまちがえていない字は10回練習にしない（v77：まちがえずに書けたのに練習になって娘さんがショックだった）
