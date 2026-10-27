@@ -5287,6 +5287,33 @@ function plushStyleHtml(made){
   if(made) h += '<div class="ts-note">子やかざりを変えたら、相棒にはもう一度つけ直してね</div>';
   return h + '</div>';
 }
+/* v81：キーホルダーの種類。くま・ほし・ハートは最初から、のこりはお散歩の「石ころ」がたまると使える(使ってもへらない) */
+const KH_RING = "<circle cx=\"32\" cy=\"6\" r=\"4.5\" fill=\"none\" stroke=\"#e0a800\" stroke-width=\"2\"/><path d=\"M32 10.5V20\" stroke=\"#c9951a\" stroke-width=\"1.6\" stroke-dasharray=\"2 1.4\"/>";
+const KH_KINDS = [
+  {id:"bear", name:"くま", need:0, art:"<circle cx=\"22\" cy=\"26\" r=\"6\" fill=\"#f7a8c4\"/><circle cx=\"42\" cy=\"26\" r=\"6\" fill=\"#f7a8c4\"/><circle cx=\"22\" cy=\"26\" r=\"3\" fill=\"#fbd3df\"/><circle cx=\"42\" cy=\"26\" r=\"3\" fill=\"#fbd3df\"/><circle cx=\"32\" cy=\"38\" r=\"14\" fill=\"#f7a8c4\"/><ellipse cx=\"32\" cy=\"43\" rx=\"6.5\" ry=\"5\" fill=\"#fde3ea\"/><circle cx=\"26.5\" cy=\"36\" r=\"2\" fill=\"#4a3530\"/><circle cx=\"37.5\" cy=\"36\" r=\"2\" fill=\"#4a3530\"/><ellipse cx=\"32\" cy=\"41\" rx=\"2\" ry=\"1.5\" fill=\"#4a3530\"/><circle cx=\"22.5\" cy=\"41\" r=\"2.4\" fill=\"#ff7fa3\" fill-opacity=\".6\"/><circle cx=\"41.5\" cy=\"41\" r=\"2.4\" fill=\"#ff7fa3\" fill-opacity=\".6\"/>"},
+  {id:"star", name:"ほし", need:0, art:"<path d=\"M32 21L37.5 33L50 34.5L40.5 43L43.5 55.5L32 49L20.5 55.5L23.5 43L14 34.5L26.5 33Z\" fill=\"#ffd84d\" stroke=\"#e0a800\" stroke-width=\"2\" stroke-linejoin=\"round\"/><circle cx=\"27\" cy=\"35\" r=\"2\" fill=\"#fff\" fill-opacity=\".8\"/>"},
+  {id:"heart", name:"ハート", need:0, art:"<path d=\"M32 55C12 42 14 26 24 25C28 24.5 31 27 32 30C33 27 36 24.5 40 25C50 26 52 42 32 55Z\" fill=\"#ff6f8f\" stroke=\"#d4486c\" stroke-width=\"2\" stroke-linejoin=\"round\"/><path d=\"M22 31Q24 28 27 28\" stroke=\"#fff\" stroke-width=\"2.4\" fill=\"none\" stroke-linecap=\"round\" stroke-opacity=\".8\"/>"},
+  {id:"cat", name:"ねこ", need:2, art:"<path d=\"M18 36L19 20L29 28ZM46 36L45 20L35 28Z\" fill=\"#ffb86b\"/><path d=\"M21 33L21.5 25L26 29ZM43 33L42.5 25L38 29Z\" fill=\"#ffd9b0\"/><circle cx=\"32\" cy=\"40\" r=\"14\" fill=\"#ffb86b\"/><circle cx=\"26.5\" cy=\"38\" r=\"2\" fill=\"#4a3530\"/><circle cx=\"37.5\" cy=\"38\" r=\"2\" fill=\"#4a3530\"/><path d=\"M30 43L32 45L34 43Z\" fill=\"#e8738f\"/><path d=\"M12 40H21M12 44L21 42.5M52 40H43M52 44L43 42.5\" stroke=\"#8a6a50\" stroke-width=\"1.2\" stroke-linecap=\"round\"/>"},
+  {id:"rabbit", name:"うさぎ", need:4, art:"<ellipse cx=\"24\" cy=\"26\" rx=\"4.5\" ry=\"10\" fill=\"#fff\" stroke=\"#e5d9e6\" stroke-width=\"1.4\"/><ellipse cx=\"40\" cy=\"26\" rx=\"4.5\" ry=\"10\" fill=\"#fff\" stroke=\"#e5d9e6\" stroke-width=\"1.4\"/><ellipse cx=\"24\" cy=\"26\" rx=\"2\" ry=\"7\" fill=\"#f7a8c4\"/><ellipse cx=\"40\" cy=\"26\" rx=\"2\" ry=\"7\" fill=\"#f7a8c4\"/><circle cx=\"32\" cy=\"43\" r=\"13\" fill=\"#fff\" stroke=\"#e5d9e6\" stroke-width=\"1.4\"/><circle cx=\"26.5\" cy=\"41\" r=\"2\" fill=\"#4a3530\"/><circle cx=\"37.5\" cy=\"41\" r=\"2\" fill=\"#4a3530\"/><ellipse cx=\"32\" cy=\"45\" rx=\"2\" ry=\"1.5\" fill=\"#f08aa8\"/><circle cx=\"23\" cy=\"46\" r=\"2.4\" fill=\"#ff9fb8\" fill-opacity=\".6\"/><circle cx=\"41\" cy=\"46\" r=\"2.4\" fill=\"#ff9fb8\" fill-opacity=\".6\"/>"},
+  {id:"chick", name:"ひよこ", need:6, art:"<circle cx=\"32\" cy=\"40\" r=\"15\" fill=\"#ffd84d\"/><path d=\"M30 25Q32 20 34 25\" stroke=\"#e0a800\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"26\" cy=\"37\" r=\"2\" fill=\"#4a3530\"/><circle cx=\"38\" cy=\"37\" r=\"2\" fill=\"#4a3530\"/><path d=\"M28 42L32 47L36 42Z\" fill=\"#ff9a3c\"/><circle cx=\"22\" cy=\"44\" r=\"2.6\" fill=\"#ff9fb8\" fill-opacity=\".6\"/><circle cx=\"42\" cy=\"44\" r=\"2.6\" fill=\"#ff9fb8\" fill-opacity=\".6\"/>"},
+  {id:"fish", name:"さかな", need:8, art:"<path d=\"M44 38L56 28V48Z\" fill=\"#4ba3e3\" stroke=\"#2c78b5\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/><ellipse cx=\"30\" cy=\"38\" rx=\"17\" ry=\"12\" fill=\"#6cc0f5\" stroke=\"#2c78b5\" stroke-width=\"1.6\"/><circle cx=\"21\" cy=\"35\" r=\"2.4\" fill=\"#fff\"/><circle cx=\"21\" cy=\"35\" r=\"1.2\" fill=\"#2b2b3a\"/><path d=\"M33 28Q38 38 33 48\" stroke=\"#2c78b5\" stroke-width=\"1.4\" fill=\"none\"/><path d=\"M26 42Q29 44 32 42\" stroke=\"#2c78b5\" stroke-width=\"1.4\" fill=\"none\" stroke-linecap=\"round\"/>"},
+  {id:"berry", name:"いちご", need:10, art:"<path d=\"M32 55C16 47 14 33 18 28C24 24 30 28 32 29C34 28 40 24 46 28C50 33 48 47 32 55Z\" fill=\"#ff5a6e\" stroke=\"#c93a4f\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/><path d=\"M24 24L32 29L40 24L36 20L32 24L28 20Z\" fill=\"#5fae4a\" stroke=\"#3f8f3a\" stroke-width=\"1.4\" stroke-linejoin=\"round\"/><g fill=\"#ffe680\"><ellipse cx=\"25\" cy=\"36\" rx=\"1.2\" ry=\"1.8\"/><ellipse cx=\"32\" cy=\"35\" rx=\"1.2\" ry=\"1.8\"/><ellipse cx=\"39\" cy=\"36\" rx=\"1.2\" ry=\"1.8\"/><ellipse cx=\"28\" cy=\"43\" rx=\"1.2\" ry=\"1.8\"/><ellipse cx=\"36\" cy=\"43\" rx=\"1.2\" ry=\"1.8\"/><ellipse cx=\"32\" cy=\"49\" rx=\"1.2\" ry=\"1.8\"/></g>"},
+  {id:"penguin", name:"ペンギン", need:12, art:"<ellipse cx=\"32\" cy=\"40\" rx=\"14\" ry=\"16\" fill=\"#3a3a5c\"/><ellipse cx=\"32\" cy=\"43\" rx=\"9\" ry=\"11\" fill=\"#fff\"/><circle cx=\"26.5\" cy=\"34\" r=\"2\" fill=\"#fff\"/><circle cx=\"37.5\" cy=\"34\" r=\"2\" fill=\"#fff\"/><circle cx=\"26.5\" cy=\"34\" r=\"1\" fill=\"#2b2b3a\"/><circle cx=\"37.5\" cy=\"34\" r=\"1\" fill=\"#2b2b3a\"/><path d=\"M29 38L32 42L35 38Z\" fill=\"#ff9a3c\"/><path d=\"M16 38Q12 46 18 52M48 38Q52 46 46 52\" stroke=\"#3a3a5c\" stroke-width=\"4\" fill=\"none\" stroke-linecap=\"round\"/>"}
+];
+function khKindOf(id){ return KH_KINDS.find(x => x.id === id) || KH_KINDS[0]; }
+function treatKhBody(){
+  let k = khKindOf(treatStyle.khk);
+  if((treatNature.tn_stone || 0) < k.need) k = KH_KINDS[0];
+  return '<g class="ta-sway">' + KH_RING + k.art + '</g>';
+}
+function khKindHtml(){
+  const n = treatNature.tn_stone || 0, cur = khKindOf(treatStyle.khk).id;
+  let h = '<div class="ts-label">キーホルダーの種類</div><div class="ts-row">' + KH_KINDS.map(x => n >= x.need ?
+    '<button style="padding:4px 12px" class="ts-shape' + (x.id === cur ? ' on' : '') + '" data-kk="' + x.id + '">' + x.name + '</button>' :
+    '<span class="ts-shape lock" style="padding:4px 9px;font-size:.78rem">🔒' + x.name + '🪨' + x.need + '</span>').join("") + '</div>';
+  const next = KH_KINDS.filter(x => x.need > n).sort((a, b) => a.need - b.need)[0];
+  return h + '<div class="ts-note">🪨 石ころ ' + n + '個。' + (next ? 'おつかれさま宝探しで石ころを集めると、新しいキーホルダーが使えるよ（あと' + (next.need - n) + '個で' + next.name + '）' : 'ぜんぶ使えるよ！') + '</div>';
+}
 function normalizeTreatStyle(o){
   o = o && typeof o === "object" ? o : {};
   return {
@@ -5296,6 +5323,7 @@ function normalizeTreatStyle(o){
     scarf: SCARF_COLORS.some(x => x.id === o.scarf) ? o.scarf : "red",
     scarfStripe: o.scarfStripe === true, scarfPom: o.scarfPom === true, scarfFluff: o.scarfFluff === true,
     kh: o.kh === true,
+    khk: KH_KINDS.some(x => x.id === o.khk) ? o.khk : "bear",
     plush: PLUSH_SP.some(x => x.id === o.plush) ? o.plush : "cat",
     plushHat: o.plushHat === true, plushRibbon: o.plushRibbon === true, plushScarf: o.plushScarf === true
   };
@@ -5322,9 +5350,11 @@ function treatEarFit(accId){
 function treatStyleHtml(accId, made){
   if(accId === "ta_scarf") return scarfStyleHtml(made);
   if(accId === "ta_plush") return plushStyleHtml(made);
+  if(accId === "ta_keyholder") return '<div class="treat-style">' + khKindHtml() + '</div>';
   if(TREAT_KH_AT[accId]){
     if(!treatOwn.ta_keyholder) return '<div class="treat-style"><div class="ts-note">宝探しでキーホルダーを見つけると、' + TREAT_BY_ID[accId].name + 'につけられるよ</div></div>';
     return '<div class="treat-style"><div class="ts-label">かざりをつける</div><div class="ts-row"><button class="ts-shape' + (treatStyle.kh ? ' on' : '') + '" data-kh="1">' + (treatStyle.kh ? '✓ ' : '') + 'キーホルダー</button></div>' +
+      (treatStyle.kh ? khKindHtml() : '') +
       (made ? '<div class="ts-note">キーホルダーをつけかえたら、相棒にはもう一度つけ直してね</div>' : '') + '</div>';
   }
   if(accId !== "ta_hat" && accId !== "ta_ribbon") return "";
@@ -5362,6 +5392,7 @@ function bindTreatStyle(overlay, reopen){
   overlay.querySelectorAll("[data-hc]").forEach(b => { b.onclick = () => { treatStyle.hatColor = b.dataset.hc; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-pl]").forEach(b => { b.onclick = () => { treatStyle.plush = b.dataset.pl; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-pp]").forEach(b => { b.onclick = () => { treatStyle[b.dataset.pp] = !treatStyle[b.dataset.pp]; saveTreatStyle(); reopen(); }; });
+  overlay.querySelectorAll("[data-kk]").forEach(b => { b.onclick = () => { treatStyle.khk = b.dataset.kk; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-kh]").forEach(b => { b.onclick = () => { treatStyle.kh = !treatStyle.kh; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-rc]").forEach(b => { b.onclick = () => { treatStyle.ribbon = b.dataset.rc; saveTreatStyle(); reopen(); }; });
 }
@@ -5387,7 +5418,7 @@ function treatIconSvg(id, size){
     ta_bottle: '<g><path d="M25 14C8 10 8 -4 32 -4C56 -4 56 10 39 14" fill="none" stroke="#3e9c8f" stroke-width="2.4"/><rect x="22" y="15" width="20" height="44" rx="9" fill="#6cc3b5"/><rect x="24" y="7" width="16" height="11" rx="3" fill="#3e9c8f"/><rect x="22" y="27" width="20" height="5" fill="#fff" fill-opacity=".85"/><path d="M27 37V52" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-opacity=".55"/></g>',
     ta_book: '<g><rect x="13" y="9" width="38" height="49" rx="3" fill="#7b83eb"/><rect x="13" y="9" width="8" height="49" rx="2" fill="#5a62c9"/><rect x="47" y="12" width="5" height="43" fill="#fffaf0" stroke="#d8d2c4" stroke-width=".8"/><rect x="25" y="17" width="20" height="9" rx="2" fill="#fff"/><path d="M29 21.5H41" stroke="#7b83eb" stroke-width="1.6" stroke-linecap="round"/><path d="M35 33L37 38L42 38.5L38 41.5L39.5 46.5L35 43.5L30.5 46.5L32 41.5L28 38.5L33 38Z" fill="#ffd84d"/></g>',
     ta_plush: treatPlushBody(),
-    ta_keyholder: '<g class="ta-sway"><circle cx="32" cy="6" r="4.5" fill="none" stroke="#e0a800" stroke-width="2"/><path d="M32 10.5V20" stroke="#c9951a" stroke-width="1.6" stroke-dasharray="2 1.4"/><g><circle cx="22" cy="26" r="6" fill="#f7a8c4"/><circle cx="42" cy="26" r="6" fill="#f7a8c4"/><circle cx="22" cy="26" r="3" fill="#fbd3df"/><circle cx="42" cy="26" r="3" fill="#fbd3df"/><circle cx="32" cy="38" r="14" fill="#f7a8c4"/><ellipse cx="32" cy="43" rx="6.5" ry="5" fill="#fde3ea"/><circle cx="26.5" cy="36" r="2" fill="#4a3530"/><circle cx="37.5" cy="36" r="2" fill="#4a3530"/><ellipse cx="32" cy="41" rx="2" ry="1.5" fill="#4a3530"/><circle cx="22.5" cy="41" r="2.4" fill="#ff7fa3" fill-opacity=".6"/><circle cx="41.5" cy="41" r="2.4" fill="#ff7fa3" fill-opacity=".6"/></g></g>',
+    ta_keyholder: treatKhBody(),
     ta_crown: '<g><path d="M10 46L10 20L23 33L32 12L41 33L54 20L54 46Z" fill="#f5c542" stroke="#c9951a" stroke-width="2" stroke-linejoin="round"/><rect x="10" y="46" width="44" height="7" rx="2" fill="#e0a82a" stroke="#c9951a" stroke-width="1.5"/><circle cx="32" cy="40" r="3.5" fill="#d6254a"/><circle cx="20" cy="41" r="2.5" fill="#2a7de1"/><circle cx="44" cy="41" r="2.5" fill="#2a9d5f"/><g class="ta-spark"><path d="M54 8L56 13L61 15L56 17L54 22L52 17L47 15L52 13Z" fill="#fff" stroke="#f5c542" stroke-width="1"/></g><g class="ta-spark" style="animation-delay:.8s"><path d="M10 6L11.5 10L15.5 11.5L11.5 13L10 17L8.5 13L4.5 11.5L8.5 10Z" fill="#fff" stroke="#f5c542" stroke-width="1"/></g></g>'
   };
   let b = bodies[id] || "";
