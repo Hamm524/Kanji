@@ -5328,6 +5328,46 @@ function treatColHtml(accId, made){
     '<button class="ts-dot' + (c.id === cur ? ' on' : '') + '" data-col="' + accId + ':' + c.id + '"><i style="background:' + c.dot + ';border-color:rgba(0,0,0,.25)"></i><span>' + c.name + '</span></button>').join("") + '</div>' +
     (made ? '<div class="ts-note">色を変えたら、相棒にはもう一度つけ直してね</div>' : '');
 }
+/* v83：ふうせん・おはなの形と色、花かんむりの色 */
+TREAT_COLS.ta_flowercrown = [{"id":"mix","name":"いろいろ","dot":"#FF9EB8","map":{}},{"id":"pink","name":"ピンク","dot":"#FF9EB8","map":{"#FFD84D":"#FF9EB8","#fff":"#FF9EB8"}},{"id":"yellow","name":"きいろ","dot":"#FFD84D","map":{"#FF9EB8":"#FFD84D","#fff":"#FFD84D"}},{"id":"blue","name":"あお","dot":"#9CC8F5","map":{"#FF9EB8":"#9CC8F5","#FFD84D":"#D6E9FA"}},{"id":"purple","name":"むらさき","dot":"#C3A5F2","map":{"#FF9EB8":"#C3A5F2","#FFD84D":"#E3D4FA"}},{"id":"red","name":"あか","dot":"#F2747F","map":{"#FF9EB8":"#F2747F","#FFD84D":"#FFB3B8"}},{"id":"white","name":"しろ","dot":"#F3EEFF","map":{"#FF9EB8":"#F3EEFF","#FFD84D":"#F3EEFF","#fff":"#F3EEFF"}}];
+const BAL_COLORS = [
+  {id:"red", name:"あか", c:["#FF6F7D","#E8525F"]}, {id:"blue", name:"あお", c:["#5AA7F0","#3A82CC"]}, {id:"yellow", name:"きいろ", c:["#FFD84D","#E0A800"]},
+  {id:"green", name:"みどり", c:["#6CCB7E","#47A95C"]}, {id:"purple", name:"むらさき", c:["#B79CF0","#8A6FCB"]}, {id:"pink", name:"ピンク", c:["#FF9EC4","#E0689B"]}
+];
+const BAL_SHAPES = [{id:"round", name:"まる"}, {id:"heart", name:"ハート"}, {id:"star", name:"ほし"}, {id:"bear", name:"くま"}, {id:"long", name:"ながい"}];
+function balStar(cx, cy, r){ let o = []; for(let i = 0; i < 10; i++){ const a = Math.PI * i / 5, rr = i % 2 ? r * .5 : r; o.push((cx + rr * Math.sin(a)).toFixed(1) + "," + (cy - rr * Math.cos(a)).toFixed(1)); } return o.join(" "); }
+function treatBalloonBody(){
+  const c = BAL_COLORS.find(x => x.id === treatStyle.balCol) || BAL_COLORS[0], m = c.c[0], d = c.c[1], sh = treatStyle.balShape;
+  let b, ky = 33, hl = "";
+  if(sh === "heart"){ b = '<path d="M30 34C8 20 12 5 22 5C27 5 29 8 30 12C31 8 33 5 38 5C48 5 52 20 30 34Z" fill="' + m + '"/>'; ky = 34; hl = '<path d="M17 12Q19 8 23 8" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".8"/>'; }
+  else if(sh === "star"){ b = '<polygon points="' + balStar(30, 19, 18) + '" fill="' + m + '" stroke="' + d + '" stroke-width="1.6" stroke-linejoin="round"/>'; ky = 35; hl = '<circle cx="26" cy="15" r="2.2" fill="#fff" opacity=".8"/>'; }
+  else if(sh === "bear"){ b = '<circle cx="19" cy="7" r="6" fill="' + m + '"/><circle cx="41" cy="7" r="6" fill="' + m + '"/><circle cx="19" cy="7" r="3" fill="#fff" opacity=".6"/><circle cx="41" cy="7" r="3" fill="#fff" opacity=".6"/><circle cx="30" cy="19" r="15" fill="' + m + '"/><ellipse cx="30" cy="24" rx="7" ry="5.5" fill="#fff" opacity=".85"/><circle cx="24" cy="17" r="2" fill="#4a3530"/><circle cx="36" cy="17" r="2" fill="#4a3530"/><ellipse cx="30" cy="22.5" rx="2.2" ry="1.6" fill="#4a3530"/>'; ky = 34; }
+  else if(sh === "long"){ b = '<ellipse cx="30" cy="20" rx="8" ry="18" fill="' + m + '"/>'; ky = 37; hl = '<path d="M26 8Q27 5 30 4.5" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" opacity=".8"/>'; }
+  else { b = '<ellipse cx="30" cy="17" rx="13" ry="16" fill="' + m + '"/>'; hl = '<path d="M23 9Q25 6 28 5.5" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".8"/>'; }
+  return '<g class="ta-sway"><path d="M30 ' + ky + 'Q34 ' + (ky + 11) + ' 29 ' + (ky + 19) + 'Q26 ' + (ky + 25) + ' 30 63" stroke="#9AA3B5" stroke-width="1.4" fill="none"/>' + b + '<path d="M27 ' + ky + 'l3 3 3-3Z" fill="' + d + '"/>' + hl + '</g>';
+}
+const FL_COLORS = [
+  {id:"pink", name:"ピンク", c:["#f7a8c4","#d96c8e"], mid:["#f5c542","#c9951a"]}, {id:"red", name:"あか", c:["#f2747f","#c24557"], mid:["#f5c542","#c9951a"]},
+  {id:"yellow", name:"きいろ", c:["#ffd84d","#e0a800"], mid:["#f29a3c","#c06f16"]}, {id:"white", name:"しろ", c:["#ffffff","#c9c3d4"], mid:["#f5c542","#c9951a"]},
+  {id:"purple", name:"むらさき", c:["#c3a5f2","#8a6fcb"], mid:["#f5c542","#c9951a"]}, {id:"blue", name:"あお", c:["#9cc8f5","#5a93d6"], mid:["#f5c542","#c9951a"]}
+];
+const FL_KINDS = [{id:"five", name:"おはな"}, {id:"daisy", name:"ひなぎく"}, {id:"sunflower", name:"ひまわり"}, {id:"tulip", name:"チューリップ"}];
+function treatFlowerBody(){
+  const c = FL_COLORS.find(x => x.id === treatStyle.flCol) || FL_COLORS[0], k = treatStyle.flKind;
+  const rot = (n, f) => { let o = ""; for(let i = 0; i < n; i++) o += f(i * 360 / n); return o; };
+  if(k === "sunflower") return '<g class="ta-spin">' + rot(14, a => '<path d="M32 4L37 18L27 18Z" fill="#ffd84d" stroke="#e0a800" stroke-width="1.2" stroke-linejoin="round" transform="rotate(' + a + ' 32 32)"/>') +
+    '<circle cx="32" cy="32" r="12" fill="#7a4a21" stroke="#4f3219" stroke-width="1.6"/><g fill="#4f3219"><circle cx="28" cy="29" r="1.4"/><circle cx="35" cy="28" r="1.4"/><circle cx="32" cy="34" r="1.4"/><circle cx="26" cy="35" r="1.4"/><circle cx="38" cy="35" r="1.4"/></g></g>';
+  if(k === "daisy") return '<g class="ta-spin">' + rot(12, a => '<ellipse cx="32" cy="14" rx="4" ry="11" fill="' + c.c[0] + '" stroke="' + c.c[1] + '" stroke-width="1" transform="rotate(' + a + ' 32 32)"/>') +
+    '<circle cx="32" cy="32" r="7" fill="' + c.mid[0] + '" stroke="' + c.mid[1] + '" stroke-width="1.5"/></g>';
+  if(k === "tulip") return '<g class="ta-sway"><path d="M32 40V60" stroke="#4fa35a" stroke-width="3" stroke-linecap="round"/><path d="M32 52Q44 50 46 40Q36 42 32 52Z" fill="#6cc27a" stroke="#4fa35a" stroke-width="1.4" stroke-linejoin="round"/>' +
+    '<path d="M18 22Q18 42 32 42Q46 42 46 22L39 28L32 16L25 28Z" fill="' + c.c[0] + '" stroke="' + c.c[1] + '" stroke-width="1.8" stroke-linejoin="round"/><path d="M32 16Q28 30 32 42Q36 30 32 16Z" fill="' + c.c[1] + '" fill-opacity=".25"/></g>';
+  return '<g class="ta-spin"><g fill="' + c.c[0] + '" stroke="' + c.c[1] + '" stroke-width="1">' + rot(5, a => '<ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(' + a + ' 32 32)"/>') + '</g><circle cx="32" cy="32" r="7" fill="' + c.mid[0] + '" stroke="' + c.mid[1] + '" stroke-width="1.5"/></g>';
+}
+function treatPickHtml(label, list, cur, attr, dots){
+  return '<div class="ts-label">' + label + '</div><div class="ts-row">' + list.map(x => dots ?
+    '<button class="ts-dot' + (x.id === cur ? ' on' : '') + '" data-' + attr + '="' + x.id + '"><i style="background:' + x.c[0] + ';border-color:rgba(0,0,0,.25)"></i><span>' + x.name + '</span></button>' :
+    '<button style="padding:4px 12px" class="ts-shape' + (x.id === cur ? ' on' : '') + '" data-' + attr + '="' + x.id + '">' + x.name + '</button>').join("") + '</div>';
+}
 function normalizeTreatStyle(o){
   o = o && typeof o === "object" ? o : {};
   return {
@@ -5338,6 +5378,8 @@ function normalizeTreatStyle(o){
     scarfStripe: o.scarfStripe === true, scarfPom: o.scarfPom === true, scarfFluff: o.scarfFluff === true,
     kh: o.kh === true,
     khk: KH_KINDS.some(x => x.id === o.khk) ? o.khk : "bear",
+    balShape: BAL_SHAPES.some(x => x.id === o.balShape) ? o.balShape : "round", balCol: BAL_COLORS.some(x => x.id === o.balCol) ? o.balCol : "red",
+    flKind: FL_KINDS.some(x => x.id === o.flKind) ? o.flKind : "five", flCol: FL_COLORS.some(x => x.id === o.flCol) ? o.flCol : "pink",
     col: Object.keys(TREAT_COLS).reduce((r, k) => { const v = o.col && o.col[k]; if(TREAT_COLS[k].some(c => c.id === v)) r[k] = v; return r; }, {}),
     plush: PLUSH_SP.some(x => x.id === o.plush) ? o.plush : "cat",
     plushHat: o.plushHat === true, plushRibbon: o.plushRibbon === true, plushScarf: o.plushScarf === true
@@ -5371,6 +5413,9 @@ function treatStyleHtml(accId, made){
   return h;
 }
 function treatStyleHtmlBase(accId, made){
+  const note = made ? '<div class="ts-note">変えたら、相棒にはもう一度つけ直してね</div>' : "";
+  if(accId === "ta_balloon") return '<div class="treat-style">' + treatPickHtml("形を選ぶ", BAL_SHAPES, treatStyle.balShape, "bs", false) + treatPickHtml("色を選ぶ", BAL_COLORS, treatStyle.balCol, "bc", true) + note + '</div>';
+  if(accId === "ta_flower") return '<div class="treat-style">' + treatPickHtml("しゅるいを選ぶ", FL_KINDS, treatStyle.flKind, "fk", false) + (treatStyle.flKind === "sunflower" ? "" : treatPickHtml("色を選ぶ", FL_COLORS, treatStyle.flCol, "fc", true)) + note + '</div>';
   if(accId === "ta_scarf") return scarfStyleHtml(made);
   if(accId === "ta_plush") return plushStyleHtml(made);
   if(accId === "ta_keyholder") return '<div class="treat-style">' + khKindHtml() + '</div>';
@@ -5415,6 +5460,7 @@ function bindTreatStyle(overlay, reopen){
   overlay.querySelectorAll("[data-hc]").forEach(b => { b.onclick = () => { treatStyle.hatColor = b.dataset.hc; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-pl]").forEach(b => { b.onclick = () => { treatStyle.plush = b.dataset.pl; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-pp]").forEach(b => { b.onclick = () => { treatStyle[b.dataset.pp] = !treatStyle[b.dataset.pp]; saveTreatStyle(); reopen(); }; });
+  [["bs", "balShape"], ["bc", "balCol"], ["fk", "flKind"], ["fc", "flCol"]].forEach(([a, k]) => overlay.querySelectorAll("[data-" + a + "]").forEach(b => { b.onclick = () => { treatStyle[k] = b.dataset[a]; saveTreatStyle(); reopen(); }; }));
   overlay.querySelectorAll("[data-col]").forEach(b => { b.onclick = () => { const [a, c] = b.dataset.col.split(":"); treatStyle.col = Object.assign({}, treatStyle.col, {[a]: c}); saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-kk]").forEach(b => { b.onclick = () => { treatStyle.khk = b.dataset.kk; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-kh]").forEach(b => { b.onclick = () => { treatStyle.kh = !treatStyle.kh; saveTreatStyle(); reopen(); }; });
@@ -5425,7 +5471,7 @@ function treatIconSvg(id, size){
     ta_ribbon: treatRibbonBody(treatStyle.ribbon),
     ta_glasses: treatGlassesBody("#8fd0f2", false),
     ta_bowtie: '<g class="ta-pulse"><path d="M32 32L8 18V46Z" fill="#3b6fc9" stroke="#1f3f7a" stroke-width="1.5" stroke-linejoin="round"/><path d="M32 32L56 18V46Z" fill="#3b6fc9" stroke="#1f3f7a" stroke-width="1.5" stroke-linejoin="round"/><rect x="26" y="25" width="12" height="14" rx="4" fill="#1f3f7a"/></g>',
-    ta_flower: '<g class="ta-spin"><g fill="#f7a8c4" stroke="#d96c8e" stroke-width="1"><ellipse cx="32" cy="16" rx="8" ry="11"/><ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(72 32 32)"/><ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(144 32 32)"/><ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(216 32 32)"/><ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(288 32 32)"/></g><circle cx="32" cy="32" r="7" fill="#f5c542" stroke="#c9951a" stroke-width="1.5"/></g>',
+    ta_flower: treatFlowerBody(),
     ta_star: '<g class="ta-twinkle"><path d="M32 6L39 24L58 25L43 37L48 56L32 45L16 56L21 37L6 25L25 24Z" fill="#ffd84d" stroke="#e0a800" stroke-width="2" stroke-linejoin="round"/><circle cx="26" cy="27" r="2" fill="#fff"/></g>',
     ta_scarf: treatScarfBody(),
     ta_hat: treatHatBody(),
@@ -5434,7 +5480,7 @@ function treatIconSvg(id, size){
     ta_heartgl: '<g><path d="M8 32L2 29M56 32L62 29" stroke="#E0457B" stroke-width="2.6" stroke-linecap="round"/><path d="M19 44C7 36 7 26 13 25C16 24.5 18.5 27 19 29C19.5 27 22 24.5 25 25C31 26 31 36 19 44Z" fill="#FF8FB1" fill-opacity=".6" stroke="#E0457B" stroke-width="2.6" stroke-linejoin="round"/><g transform="translate(26 0)"><path d="M19 44C7 36 7 26 13 25C16 24.5 18.5 27 19 29C19.5 27 22 24.5 25 25C31 26 31 36 19 44Z" fill="#FF8FB1" fill-opacity=".6" stroke="#E0457B" stroke-width="2.6" stroke-linejoin="round"/></g><path d="M29 31Q32 28 35 31" stroke="#E0457B" stroke-width="2.6" fill="none" stroke-linecap="round"/><path d="M12 30Q13 28 15 28" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" opacity=".9"/></g>',
     ta_strawhat: '<g><ellipse cx="32" cy="42" rx="31" ry="9" fill="#F2C46D"/><path d="M15 42Q14 18 32 17Q50 18 49 42Z" fill="#E9B65A"/><path d="M15.2 35Q32 39 48.8 35L49 41Q32 45 15 41Z" fill="#E8524C"/><path d="M8 44Q32 52 56 44" stroke="#D9A64E" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M22 27Q26 23 30 23" stroke="#F7D78F" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="23" cy="38" r="4" fill="#fff"/><circle cx="23" cy="38" r="1.8" fill="#FFD84D"/></g>',
     ta_flowercrown: '<g><path d="M6 37Q32 50 58 37" stroke="#6DBB6A" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M13 40l-4 4M26 44l-3 5M38 44l3 5M51 40l4 4" stroke="#6DBB6A" stroke-width="2.4" stroke-linecap="round"/><circle cx="11.6" cy="37.0" r="3.4" fill="#FF9EB8"/><circle cx="9.1" cy="40.4" r="3.4" fill="#FF9EB8"/><circle cx="5.1" cy="39.1" r="3.4" fill="#FF9EB8"/><circle cx="5.1" cy="34.9" r="3.4" fill="#FF9EB8"/><circle cx="9.1" cy="33.6" r="3.4" fill="#FF9EB8"/><circle cx="8" cy="37" r="2.6" fill="#F2A33A"/><circle cx="22.6" cy="42.0" r="3.4" fill="#FFD84D"/><circle cx="20.1" cy="45.4" r="3.4" fill="#FFD84D"/><circle cx="16.1" cy="44.1" r="3.4" fill="#FFD84D"/><circle cx="16.1" cy="39.9" r="3.4" fill="#FFD84D"/><circle cx="20.1" cy="38.6" r="3.4" fill="#FFD84D"/><circle cx="19" cy="42" r="2.6" fill="#E8743B"/><circle cx="35.6" cy="44.0" r="3.4" fill="#fff"/><circle cx="33.1" cy="47.4" r="3.4" fill="#fff"/><circle cx="29.1" cy="46.1" r="3.4" fill="#fff"/><circle cx="29.1" cy="41.9" r="3.4" fill="#fff"/><circle cx="33.1" cy="40.6" r="3.4" fill="#fff"/><circle cx="32" cy="44" r="2.6" fill="#F2A33A"/><circle cx="48.6" cy="42.0" r="3.4" fill="#FF9EB8"/><circle cx="46.1" cy="45.4" r="3.4" fill="#FF9EB8"/><circle cx="42.1" cy="44.1" r="3.4" fill="#FF9EB8"/><circle cx="42.1" cy="39.9" r="3.4" fill="#FF9EB8"/><circle cx="46.1" cy="38.6" r="3.4" fill="#FF9EB8"/><circle cx="45" cy="42" r="2.6" fill="#F2A33A"/><circle cx="59.6" cy="37.0" r="3.4" fill="#FFD84D"/><circle cx="57.1" cy="40.4" r="3.4" fill="#FFD84D"/><circle cx="53.1" cy="39.1" r="3.4" fill="#FFD84D"/><circle cx="53.1" cy="34.9" r="3.4" fill="#FFD84D"/><circle cx="57.1" cy="33.6" r="3.4" fill="#FFD84D"/><circle cx="56" cy="37" r="2.6" fill="#E8743B"/></g>',
-    ta_balloon: '<g class="ta-sway"><path d="M30 33Q34 44 29 52Q26 58 30 63" stroke="#9AA3B5" stroke-width="1.4" fill="none"/><ellipse cx="30" cy="17" rx="13" ry="16" fill="#FF6F7D"/><path d="M27 33l3 3 3-3Z" fill="#E8525F"/><path d="M23 9Q25 6 28 5.5" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".8"/></g>',
+    ta_balloon: treatBalloonBody(),
     ta_earstar: '<g class="ta-sway"><path d="M32 14V28" stroke="#E0B23A" stroke-width="2" stroke-linecap="round"/><circle cx="32" cy="13" r="3" fill="#E0B23A"/><polygon points="32.0,28.0 35.2,35.6 43.4,36.3 37.1,41.7 39.1,49.7 32.0,45.4 24.9,49.7 26.9,41.7 20.6,36.3 28.8,35.6" fill="#FFD84D" stroke="#E0B23A" stroke-width="1.4" stroke-linejoin="round"/><circle cx="28" cy="37" r="1.6" fill="#fff"/></g>',
     ta_randoseru: '<g><rect x="12" y="10" width="40" height="48" rx="9" fill="#d93a4a"/><path d="M12 19Q12 10 21 10H43Q52 10 52 19V41Q52 47 46 47H18Q12 47 12 41Z" fill="#e8505f"/><path d="M16 19Q16 14 21 14H43Q48 14 48 19" fill="none" stroke="#f58a95" stroke-width="2" stroke-linecap="round"/><path d="M14 52H50" stroke="#ffe680" stroke-width="2.4" stroke-linecap="round"/><rect x="27.5" y="41" width="9" height="9" rx="2" fill="#f2c14e" stroke="#c9951a" stroke-width="1.2"/></g>',
     ta_backpack: '<g><path d="M24 12Q24 5 32 5Q40 5 40 12" fill="none" stroke="#2f6fa8" stroke-width="3" stroke-linecap="round"/><path d="M13 54Q9 18 32 11Q55 18 51 54Q51 58 47 58H17Q13 58 13 54Z" fill="#4fa3e0"/><rect x="19" y="34" width="26" height="18" rx="7" fill="#3b88c4"/><path d="M21 40Q32 37 43 40" fill="none" stroke="#a9d4f5" stroke-width="1.6" stroke-dasharray="2 2"/><path d="M21 22Q32 16 43 22" fill="none" stroke="#a9d4f5" stroke-width="1.6" stroke-dasharray="2 2"/></g>',
