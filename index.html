@@ -5314,6 +5314,20 @@ function khKindHtml(){
   const next = KH_KINDS.filter(x => x.need > n).sort((a, b) => a.need - b.need)[0];
   return h + '<div class="ts-note">🪨 石ころ ' + n + '個。' + (next ? 'おつかれさま宝探しで石ころを集めると、新しいキーホルダーが使えるよ（あと' + (next.need - n) + '個で' + next.name + '）' : 'ぜんぶ使えるよ！') + '</div>';
 }
+/* v82：ランドセル・リュック・カバン・水とう・本の色えらび(絵の色を置きかえる) */
+const TREAT_COLS = {"ta_randoseru":[{"id":"red","name":"あか","dot":"#d93a4a","map":{}},{"id":"black","name":"くろ","dot":"#2f3140","map":{"#d93a4a":"#2f3140","#e8505f":"#454860","#f58a95":"#8a8fa8"}},{"id":"navy","name":"あお","dot":"#2f64c0","map":{"#d93a4a":"#2f64c0","#e8505f":"#4a82dc","#f58a95":"#9bbcf0"}},{"id":"sky","name":"みずいろ","dot":"#3fa9d8","map":{"#d93a4a":"#3fa9d8","#e8505f":"#62c2ec","#f58a95":"#b4e4f8"}},{"id":"pink","name":"ピンク","dot":"#e66a99","map":{"#d93a4a":"#e66a99","#e8505f":"#f58fb5","#f58a95":"#ffc2d8"}},{"id":"purple","name":"むらさき","dot":"#7d56c9","map":{"#d93a4a":"#7d56c9","#e8505f":"#9a76e0","#f58a95":"#cbb4f5"}},{"id":"green","name":"みどり","dot":"#2f9a62","map":{"#d93a4a":"#2f9a62","#e8505f":"#4cb87d","#f58a95":"#a5e0bf"}},{"id":"brown","name":"ちゃいろ","dot":"#9a5f36","map":{"#d93a4a":"#9a5f36","#e8505f":"#b87a4c","#f58a95":"#e0b48f"}}],"ta_backpack":[{"id":"blue","name":"あお","dot":"#4fa3e0","map":{}},{"id":"red","name":"あか","dot":"#e8625a","map":{"#4fa3e0":"#e8625a","#3b88c4":"#d44f48","#2f6fa8":"#b83a34","#a9d4f5":"#f5b0aa"}},{"id":"green","name":"みどり","dot":"#5fb871","map":{"#4fa3e0":"#5fb871","#3b88c4":"#4aa05c","#2f6fa8":"#388a49","#a9d4f5":"#b3e3bb"}},{"id":"orange","name":"オレンジ","dot":"#f29a3c","map":{"#4fa3e0":"#f29a3c","#3b88c4":"#dd8426","#2f6fa8":"#c06f16","#a9d4f5":"#fbd2a0"}},{"id":"purple","name":"むらさき","dot":"#9a7be0","map":{"#4fa3e0":"#9a7be0","#3b88c4":"#8463cc","#2f6fa8":"#6c4cb4","#a9d4f5":"#cdbbf5"}},{"id":"pink","name":"ピンク","dot":"#ec7aa3","map":{"#4fa3e0":"#ec7aa3","#3b88c4":"#d8628e","#2f6fa8":"#c04a78","#a9d4f5":"#f8bfd5"}}],"ta_bag":[{"id":"pink","name":"ピンク","dot":"#f29bb5","map":{}},{"id":"blue","name":"あお","dot":"#6fa8e8","map":{"#f29bb5":"#6fa8e8","#e57fa0":"#5a93d6","#d96c8e":"#4a7fc0"}},{"id":"yellow","name":"きいろ","dot":"#f2c44f","map":{"#f29bb5":"#f2c44f","#e57fa0":"#e0b03a","#d96c8e":"#c9952a"}},{"id":"green","name":"みどり","dot":"#7cc48a","map":{"#f29bb5":"#7cc48a","#e57fa0":"#66b076","#d96c8e":"#4f9a60"}},{"id":"purple","name":"むらさき","dot":"#b79cf0","map":{"#f29bb5":"#b79cf0","#e57fa0":"#a085de","#d96c8e":"#8a6fcb"}},{"id":"red","name":"あか","dot":"#e8625a","map":{"#f29bb5":"#e8625a","#e57fa0":"#d44f48","#d96c8e":"#b83a34"}}],"ta_bottle":[{"id":"teal","name":"みどり","dot":"#6cc3b5","map":{}},{"id":"blue","name":"あお","dot":"#6fa8e8","map":{"#6cc3b5":"#6fa8e8","#3e9c8f":"#4a82c4"}},{"id":"pink","name":"ピンク","dot":"#f29bb5","map":{"#6cc3b5":"#f29bb5","#3e9c8f":"#d96c8e"}},{"id":"yellow","name":"きいろ","dot":"#f2c44f","map":{"#6cc3b5":"#f2c44f","#3e9c8f":"#d9a42a"}},{"id":"purple","name":"むらさき","dot":"#b79cf0","map":{"#6cc3b5":"#b79cf0","#3e9c8f":"#8a6fcb"}},{"id":"red","name":"あか","dot":"#e8625a","map":{"#6cc3b5":"#e8625a","#3e9c8f":"#b83a34"}}],"ta_book":[{"id":"indigo","name":"むらさき","dot":"#7b83eb","map":{}},{"id":"red","name":"あか","dot":"#e8625a","map":{"#7b83eb":"#e8625a","#5a62c9":"#b83a34"}},{"id":"green","name":"みどり","dot":"#5fb871","map":{"#7b83eb":"#5fb871","#5a62c9":"#388a49"}},{"id":"yellow","name":"きいろ","dot":"#f2c44f","map":{"#7b83eb":"#f2c44f","#5a62c9":"#c9952a"}},{"id":"pink","name":"ピンク","dot":"#f29bb5","map":{"#7b83eb":"#f29bb5","#5a62c9":"#d96c8e"}},{"id":"teal","name":"みずいろ","dot":"#6cc3b5","map":{"#7b83eb":"#6cc3b5","#5a62c9":"#3e9c8f"}}]};
+function treatColOf(accId){ const l = TREAT_COLS[accId]; return l.find(x => x.id === (treatStyle.col || {})[accId]) || l[0]; }
+function treatRecolor(accId, svg){
+  if(!TREAT_COLS[accId]) return svg;
+  const m = treatColOf(accId).map;
+  return Object.keys(m).reduce((t, k) => t.split(k).join(m[k]), svg);
+}
+function treatColHtml(accId, made){
+  const cur = treatColOf(accId).id;
+  return '<div class="ts-label">色を選ぶ</div><div class="ts-row">' + TREAT_COLS[accId].map(c =>
+    '<button class="ts-dot' + (c.id === cur ? ' on' : '') + '" data-col="' + accId + ':' + c.id + '"><i style="background:' + c.dot + ';border-color:rgba(0,0,0,.25)"></i><span>' + c.name + '</span></button>').join("") + '</div>' +
+    (made ? '<div class="ts-note">色を変えたら、相棒にはもう一度つけ直してね</div>' : '');
+}
 function normalizeTreatStyle(o){
   o = o && typeof o === "object" ? o : {};
   return {
@@ -5324,6 +5338,7 @@ function normalizeTreatStyle(o){
     scarfStripe: o.scarfStripe === true, scarfPom: o.scarfPom === true, scarfFluff: o.scarfFluff === true,
     kh: o.kh === true,
     khk: KH_KINDS.some(x => x.id === o.khk) ? o.khk : "bear",
+    col: Object.keys(TREAT_COLS).reduce((r, k) => { const v = o.col && o.col[k]; if(TREAT_COLS[k].some(c => c.id === v)) r[k] = v; return r; }, {}),
     plush: PLUSH_SP.some(x => x.id === o.plush) ? o.plush : "cat",
     plushHat: o.plushHat === true, plushRibbon: o.plushRibbon === true, plushScarf: o.plushScarf === true
   };
@@ -5348,6 +5363,14 @@ function treatEarFit(accId){
   return null;
 }
 function treatStyleHtml(accId, made){
+  let h = treatStyleHtmlBase(accId, made);
+  if(TREAT_COLS[accId]){
+    const c = treatColHtml(accId, made && !h);
+    h = h ? h.replace('<div class="treat-style">', '<div class="treat-style">' + c) : '<div class="treat-style">' + c + '</div>';
+  }
+  return h;
+}
+function treatStyleHtmlBase(accId, made){
   if(accId === "ta_scarf") return scarfStyleHtml(made);
   if(accId === "ta_plush") return plushStyleHtml(made);
   if(accId === "ta_keyholder") return '<div class="treat-style">' + khKindHtml() + '</div>';
@@ -5392,6 +5415,7 @@ function bindTreatStyle(overlay, reopen){
   overlay.querySelectorAll("[data-hc]").forEach(b => { b.onclick = () => { treatStyle.hatColor = b.dataset.hc; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-pl]").forEach(b => { b.onclick = () => { treatStyle.plush = b.dataset.pl; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-pp]").forEach(b => { b.onclick = () => { treatStyle[b.dataset.pp] = !treatStyle[b.dataset.pp]; saveTreatStyle(); reopen(); }; });
+  overlay.querySelectorAll("[data-col]").forEach(b => { b.onclick = () => { const [a, c] = b.dataset.col.split(":"); treatStyle.col = Object.assign({}, treatStyle.col, {[a]: c}); saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-kk]").forEach(b => { b.onclick = () => { treatStyle.khk = b.dataset.kk; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-kh]").forEach(b => { b.onclick = () => { treatStyle.kh = !treatStyle.kh; saveTreatStyle(); reopen(); }; });
   overlay.querySelectorAll("[data-rc]").forEach(b => { b.onclick = () => { treatStyle.ribbon = b.dataset.rc; saveTreatStyle(); reopen(); }; });
@@ -5421,7 +5445,7 @@ function treatIconSvg(id, size){
     ta_keyholder: treatKhBody(),
     ta_crown: '<g><path d="M10 46L10 20L23 33L32 12L41 33L54 20L54 46Z" fill="#f5c542" stroke="#c9951a" stroke-width="2" stroke-linejoin="round"/><rect x="10" y="46" width="44" height="7" rx="2" fill="#e0a82a" stroke="#c9951a" stroke-width="1.5"/><circle cx="32" cy="40" r="3.5" fill="#d6254a"/><circle cx="20" cy="41" r="2.5" fill="#2a7de1"/><circle cx="44" cy="41" r="2.5" fill="#2a9d5f"/><g class="ta-spark"><path d="M54 8L56 13L61 15L56 17L54 22L52 17L47 15L52 13Z" fill="#fff" stroke="#f5c542" stroke-width="1"/></g><g class="ta-spark" style="animation-delay:.8s"><path d="M10 6L11.5 10L15.5 11.5L11.5 13L10 17L8.5 13L4.5 11.5L8.5 10Z" fill="#fff" stroke="#f5c542" stroke-width="1"/></g></g>'
   };
-  let b = bodies[id] || "";
+  let b = treatRecolor(id, bodies[id] || "");
   const kh = TREAT_KH_AT[id];
   if(kh && treatStyle.kh && treatOwn.ta_keyholder){
     /* 動き(CSS)が transform を上書きするので、位置は外の <g> で決める */
