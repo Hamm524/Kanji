@@ -3412,11 +3412,22 @@ try{
 function saveOsarai(){
   try{ localStorage.setItem(OSARAI_KEY, JSON.stringify(osaraiData)); }catch(e){}
 }
+function inOsaraiSheet(){
+  try{ return !!(wsState && wsState.osarai); }catch(e){ return true; }
+}
 function todayOsarai(){
   const t = todayStr();
   if(osaraiData.date !== t || osaraiData.list.length === 0){
     osaraiData = {date: t, list: dueChars().slice(0, OSARAI_SIZE), done: {}, miss: {}, practiced: {}, retest: {}};
     saveOsarai();
+  }else if(Object.keys(osaraiData.done).length === 0 && !inOsaraiSheet()){
+    /* まだ1字も書いていなければ、今の記録で選び直す（v79：クラウドの記録が届く前に古い記録で字を選んでいて、
+       もう1台で済ませた字が出ていた） */
+    const fresh = dueChars().slice(0, OSARAI_SIZE);
+    if(fresh.length && fresh.join("") !== osaraiData.list.join("")){
+      osaraiData.list = fresh;
+      saveOsarai();
+    }
   }
   return osaraiData;
 }
@@ -6485,7 +6496,41 @@ function pathLength(points){
   for(let i=1;i<points.length;i++) l += Math.hypot(points[i].x-points[i-1].x, points[i].y-points[i-1].y);
   return l;
 }
-function evalStroke(userPoints, targetPathEl, attemptNum){
+/* 部品ごとのずれ（v79）：お手本なしで書くと、指の扌は左・旨は右のように、部品ごと少しずれて書くことが多い。
+   そのまま比べると、きれいに書けた画でも「おしい」になり、10回練習の字になっていた。
+   すでに書いた画のうち、お手本で今の画の近く（OFFSET_NEAR 以内）にある画がどれだけずれているかを見て、
+   今の画も同じだけずらしてもう一度比べる。形と、まわりの画との位置はこれまで通り見る。 */
+const OFFSET_NEAR = 8, OFFSET_MAX = 16;
+const offsetModelCache = {};
+function strokeOffset(ch, userStrokes, i){
+  if(!ch || !userStrokes || i <= 0) return null;
+  const polys = offsetModelCache[ch.c] || (offsetModelCache[ch.c] = ch.s.map(d => relPoly(relSamplePath(d))));
+  const cur = polys[i];
+  let sx = 0, sy = 0, n = 0;
+  for(let j=0;j<i;j++){
+    const u = userStrokes[j];
+    if(!u || u.length < 2) continue;
+    let near = Infinity;
+    cur.pts.forEach(p => { const d = relPointDist(p, polys[j]).d; if(d < near) near = d; });
+    if(near > OFFSET_NEAR) continue;
+    const m = polys[j].pts, us = u[0], ue = u[u.length-1], ms = m[0], me = m[m.length-1];
+    sx += (us.x - ms.x + ue.x - me.x) / 2;
+    sy += (us.y - ms.y + ue.y - me.y) / 2;
+    n++;
+  }
+  if(!n) return null;
+  let x = sx / n, y = sy / n;
+  const d = Math.hypot(x, y);
+  if(d < 1) return null;
+  if(d > OFFSET_MAX){ x *= OFFSET_MAX / d; y *= OFFSET_MAX / d; }
+  return {x, y};
+}
+function evalStroke(userPoints, targetPathEl, attemptNum, offset){
+  if(evalStrokeAt(userPoints, targetPathEl, attemptNum)) return true;
+  if(!offset) return false;
+  return evalStrokeAt(userPoints.map(p => ({x: p.x - offset.x, y: p.y - offset.y})), targetPathEl, attemptNum);
+}
+function evalStrokeAt(userPoints, targetPathEl, attemptNum){
   const {pts: targetPts, len: targetLen} = pathSamples(targetPathEl, N_SAMPLES);
   const leniency = 1 + Math.min(attemptNum,4)*0.2;
   const targetStart = targetPts[0];
@@ -6891,7 +6936,7 @@ function handleStrokeAttempt(){
   const idx = state.strokeIndex;
   state.strokeAttemptCounts[idx] = (state.strokeAttemptCounts[idx] || 0) + 1;
   const attemptNum = state.strokeAttemptCounts[idx] - 1;
-  const ok = evalStroke(state.userPoints, guide, attemptNum);
+  const ok = evalStroke(state.userPoints, guide, attemptNum, state.mode === "write" ? strokeOffset(currentChar(), state.userStrokes, idx) : null);
 
   if(ok){
     if(state.mode === "write") state.userStrokes[idx] = state.userPoints.slice();
@@ -7829,7 +7874,7 @@ function handleWorksheetStroke(item){
     item.livePath.setAttribute("d","");
     return;
   }
-  const ok = evalStroke(item.userPoints, item.guideEl, 1);
+  const ok = evalStroke(item.userPoints, item.guideEl, 1, strokeOffset(item.ch, item.userStrokes, item.strokeIndex));
   item.livePath.setAttribute("d","");
   if(ok){
     item.userStrokes[item.strokeIndex] = item.userPoints.slice();
@@ -8870,7 +8915,7 @@ function handleReviewStrokeAttempt(ch){
     rvLivePath.setAttribute("d","");
     return;
   }
-  const ok = evalStroke(rvUserPoints, rvGuideEl, 1);
+  const ok = evalStroke(rvUserPoints, rvGuideEl, 1, strokeOffset(ch, rvUserStrokes, rvStrokeIndex));
   rvLivePath.setAttribute("d","");
   if(ok){
     rvUserStrokes[rvStrokeIndex] = rvUserPoints.slice();
