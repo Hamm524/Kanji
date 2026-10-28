@@ -2071,6 +2071,7 @@ header.app{
       <div class="gate-label">今日やること</div>
       <div class="gate-main" id="gateMain"></div>
       <div class="gate-tasks" id="gateTasks"></div>
+      <div id="gateGauge" style="margin:10px 0 0;border:2px solid var(--gold);border-radius:14px;background:#FFFBEF;padding:8px 12px;font-size:.8rem;" hidden></div>
       <div class="gate-foot">
         <span class="gate-streak" id="gateStreak"></span>
         <button class="gate-save" id="gateSaveBtn">保存する</button>
@@ -4572,6 +4573,41 @@ function awardMasteryTicket(chC){
   tickets++;
   saveTickets();
   return true;
+}
+/* 新しい字ゲージ（v80）：今日マスターした新しい字の数。5字まで⭐、6〜8字はがんばり印🌱、9字からはごほうびなし */
+const NEWDAY_KEY = "kanji-drill-newday-v1";
+const NEWDAY_STAR_MAX = 5, NEWDAY_SPROUT_MAX = 8;
+let newDay = {date:"", n:0};
+try{ const o = JSON.parse(localStorage.getItem(NEWDAY_KEY)); if(o && typeof o.date === "string") newDay = {date:o.date, n:Math.max(0, parseInt(o.n, 10) || 0)}; }catch(e){}
+function saveNewDay(){ try{ localStorage.setItem(NEWDAY_KEY, JSON.stringify(newDay)); }catch(e){} }
+function newDayCount(){ return newDay.date === todayStr() ? newDay.n : 0; }
+function newDayGaugeHtml(n){
+  const stars = Math.min(n, NEWDAY_STAR_MAX), sprouts = Math.max(0, Math.min(n, NEWDAY_SPROUT_MAX) - NEWDAY_STAR_MAX);
+  let s = "";
+  for(let i = 0; i < NEWDAY_STAR_MAX; i++) s += i < stars ? "⭐" : '<span style="opacity:.3;filter:grayscale(1)">⭐</span>';
+  if(sprouts) s += "　" + "🌱".repeat(sprouts);
+  return '<span style="letter-spacing:2px;">' + s + '</span>';
+}
+function awardNewKanjiStar(){
+  const n = newDayCount() + 1;
+  newDay = {date:todayStr(), n:n}; saveNewDay();
+  let msg = "", coins = 0, item = null;
+  if(n <= NEWDAY_STAR_MAX){
+    coins = 3;
+    if(n === 3){ coins += 10; msg += "💰コインの袋を見つけた！（+10コイン）<br>"; }
+    if(n === 5){ coins += 20; msg += "💰大きなコインの袋を見つけた！（+20コイン）<br>"; }
+    item = rollTreat(true);
+    treatOwn[item.id] = (treatOwn[item.id] || 0) + 1;
+    saveTreatOwn(); noteFound();
+  }else if(n <= NEWDAY_SPROUT_MAX){
+    coins = 1;
+  }
+  if(coins) kcAdd(coins);
+  let head;
+  if(n <= NEWDAY_STAR_MAX) head = "⭐ 新しい字ゲージ　" + newDayGaugeHtml(n) + '<br>コイン +3' + (item ? '　小物「' + item.name + '」をゲット！' : '');
+  else if(n <= NEWDAY_SPROUT_MAX) head = "🌱 がんばり印がふえたよ　" + newDayGaugeHtml(n) + "<br>コイン +1";
+  else head = "今日はもう十分！よくがんばったね。<br>あとは、あした、おさらいで会おう。";
+  return '<div class="ticket-gained" style="line-height:1.7;">' + msg + head + '</div>';
 }
 const GEM_SHAPES = {
   brilliant:{
@@ -8668,6 +8704,9 @@ function renderGate(){
     if(!t.done) b.onclick = t.go;
     box.appendChild(b);
   });
+  const gg = document.getElementById("gateGauge"), gn = newDayCount();
+  gg.hidden = gn === 0;
+  if(gn > 0) gg.innerHTML = '<b style="color:var(--gold)">新しい字ゲージ</b>　' + newDayGaugeHtml(gn) + '<span style="color:var(--ink-soft)">　今日 ' + gn + '字</span>';
   const sc = currentStreakCount();
   document.getElementById("gateStreak").textContent = sc > 0 ? "🔥 " + sc + "日連続" : "今日から続けよう";
 }
@@ -9552,6 +9591,7 @@ function finishConfirm(){
         '<div class="quiz-char" style="margin:10px 0;">' + ch.c + '</div>' +
         '<div style="color:var(--shu);font-size:1.1rem;font-family:\'BIZ UDPGothic\',sans-serif;">完ぺき！マスターしました</div>' +
         (gotTicket ? '<div class="ticket-gained">🎫 チケットを1枚ゲット！（' + tickets + ' / ' + TICKETS_PER_DIG + '）</div>' : '') +
+        (gotTicket ? awardNewKanjiStar() : '') +
         (gotTicket && LEGEND_RECIPES.some(r => r.unlockAt > 0 && r.unlockAt === masteredCount()) ? '<div class="ticket-gained">📜 伝説の巻物が、宝探しで見つかるようになったよ！</div>' : '') +
         '<div class="complete-row" style="margin-top:18px;">' +
           '<button class="ctrl-btn primary" id="confirmNextBtn">次の漢字へ</button>' +
