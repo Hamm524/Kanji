@@ -600,6 +600,7 @@ svg.pet { display: block; width: 100%; height: auto; overflow: visible; }
 .stop.done .ball .hanko{position:absolute;bottom:-8px;right:-14px;background:var(--shu);color:#fff;font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:.8rem;padding:2px 8px;border-radius:999px;transform:rotate(-10deg);box-shadow:0 2px 0 rgba(0,0,0,.15);}
 .stop.done .ball .pet+.stamp{display:none;}
 .gate-main .road-head{margin:0;}
+.stop .go.alt{background:transparent;color:var(--shu);border:2px solid var(--shu);box-shadow:none;padding:5px 14px;font-size:.8rem;}
 </style></head><body>
 <title>書き順ドリル</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@700&family=Kosugi+Maru&display=swap">
@@ -5083,7 +5084,7 @@ function gateSkippedToday(){
 function gateNeeded(){
   if(gateSkippedToday()) return false;
   if(!appHasData()) return false;
-  return !osaraiFinished() || (printAvailable() && printLeft().length > 0) || newStepPending();
+  return !osaraiFinished() || (printAvailable() && printLeft().length > 0) || (newStepPending() && !(treatHold && !treatHold.opened));
 }
 /* 道の③「新しい字」（v81）：おさらいとプリントが終わったあと、宝探しの前に1回えらぶ。
    「新しい字をやる」か「今日は、宝探しへ進む」をおすと、その日はもう出ない */
@@ -5091,19 +5092,23 @@ const NEWCHOICE_KEY = "kanji-drill-newchoice-v1";
 let newChoiceDate = "";
 try{ newChoiceDate = localStorage.getItem(NEWCHOICE_KEY) || ""; }catch(e){}
 let treatHold = null;
+/* おさらいとプリントが終わったあとも、宝探しをあけるまで道を出す（宝探しは④をおして はじめる） */
 function newStepPending(){
   if(gateSkippedToday() || !appHasData()) return false;
-  if(newChoiceDate === todayStr() || treatPassed || treatDoneToday() || !treatUnlocked()) return false;
+  if(treatDoneToday() || !treatUnlocked()) return false;
   return osaraiFinished() && (!printAvailable() || printLeft().length === 0);
 }
-function newStepChoose(withNew){
+function newStepChoose(){
   newChoiceDate = todayStr();
   try{ localStorage.setItem(NEWCHOICE_KEY, newChoiceDate); }catch(e){}
-  if(withNew) treatHold = {n: newDayCount(), opened:false};
+  treatHold = {n: newDayCount(), opened:false};
   hideGate();
   document.getElementById("screen-grid").classList.remove("hidden");
-  if(withNew) showToast("やってみたい新しい字を、えらんでね");
-  else if(treatPending()) startTreat();
+  showToast("やってみたい新しい字を、えらんでね");
+}
+function openTreatFromRoad(){
+  hideGate();
+  startTreat();
 }
 
 /* ---------------- gem hunt (motivation reward system) ---------------- */
@@ -6695,7 +6700,6 @@ function closeDig(){
     document.getElementById("screen-dig").classList.remove("treat");
     document.getElementById("digTitle").textContent = "宝探し";
     if(!treatEnded && treatFinds.length > 0) treatEnded = true;
-    if(treatFinds.length === 0) treatPassed = true;
   }
   document.getElementById("screen-dig").classList.remove("active");
   document.getElementById("screen-grid").classList.remove("hidden");
@@ -10247,9 +10251,8 @@ function checkGate(){
    1まいもめくらずに もどったときは、次にアプリを開くまで出さない */
 let treatPassed = false;
 function treatPending(){
-  if(treatHold && !treatHold.opened && newDayCount() <= treatHold.n) return false;
-  if(newChoiceDate !== todayStr()) return false;
-  return !treatPassed && appHasData() && !treatDoneToday() && treatUnlocked();
+  /* 宝探しは道の④をおして はじめる。自動では出さない */
+  return false;
 }
 /* いま けいさんチャレンジで選んでいる相棒（同じ端末の keisan_pets）。なければ ねこ */
 function gatePetSvg(){
@@ -10281,24 +10284,27 @@ function renderGate(){
       sub: pDone ? "終わり ✓" : (pLeft < p.list.length ? "あと" + pLeft + "字" : p.list.length + "字") + "　文を読んで書こう",
       go: () => startPrint()});
   }
-  const choose = newStepPending();
-  if(choose) tasks.push({id:"gateNew", ico:"⭐", name:"新しい字", done:false, sub:"1字ごとに⭐がふえるよ", go: () => newStepChoose(true)});
+  const after = newStepPending();
+  if(treatHold && treatHold.opened) treatHold = null;
+  const newDone = newChoiceDate === todayStr();
+  const choose = after && !newDone;
   const left = tasks.filter(t => !t.done).length;
-  const gateMsg = choose ? "新しい字は、やれる分だけ。やると⭐がもらえるよ" :
+  const gateMsg = choose ? "新しい字は、やれる分だけ。やると⭐がもらえるよ" : after ? "宝探しに行こう！" :
     left === 2 ? "今日の道を、順番に進もう" : left === 1 ? "あと1つで、宝探しに進めるよ" : "今日の道を、順番に進もう";
   document.getElementById("gateMain").innerHTML = '<div class="road-head"><div class="road-pet">' + gatePetSvg() + '</div><div class="road-bubble">' + gateMsg + '</div></div>';
-  document.getElementById("gateNewSkip").hidden = !choose;
+  document.getElementById("gateNewSkip").hidden = true;
   const box = document.getElementById("gateTasks");
   /* 道：①おさらい ②プリント ③新しい字 ④おつかれさま宝探し（④はカギ付きで、終わると自動ではじまる） */
   const steps = tasks.filter(t => t.id !== "gateNew").map(t => Object.assign({}, t));
   const nowIdx = steps.findIndex(t => !t.done);
   const allDone = nowIdx < 0;
   steps.forEach((t, i) => { t.st = t.done ? "done" : i === nowIdx ? "now" : "todo"; });
-  const newDone = newChoiceDate === todayStr();
   steps.push({id:"gateNew", ico:"⭐", name:"新しい字",
     sub: choose ? "1字ごとに⭐がふえるよ" : newDone ? (newDayCount() > 0 ? "今日 " + newDayCount() + "字" : "今日はおやすみ") : "おさらいとプリントの後",
-    st: choose ? "now" : newDone ? "done" : "lock", go: () => newStepChoose(true)});
-  steps.push({id:"gateTreat", ico:"🎁", name:"おつかれさま宝探し", sub:"終わると、自動で<br>はじまるよ", st:"lock", near: choose});
+    st: choose ? "now" : newDone ? "done" : "lock", go: () => newStepChoose()});
+  steps.push({id:"gateTreat", ico:"🎁", name:"おつかれさま宝探し",
+    sub: !after ? "おさらいとプリントが<br>終わると、あけられるよ" : choose ? "新しい字のあとに<br>あけようね" : "あけられるよ！",
+    st: !after ? "lock" : choose ? "todo" : "now", go: () => openTreatFromRoad(), near: choose});
   const N = steps.length, H = 72 + 150 * (N - 1) + 88;
   const ys = steps.map((_, i) => 72 + 150 * i);
   let svg = '<svg class="path" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none">';
@@ -10316,11 +10322,12 @@ function renderGate(){
       '<div class="ball">' + inner + '<span class="num">' + (i + 1) + '</span>' +
       (t.st === "now" ? '<span class="flag">今ここ！</span>' : '') + (t.st === "lock" ? '<span class="key">🔒</span>' : '') + '</div>' +
       '<div class="name">' + t.name + '<small>' + t.sub + '</small></div>' +
-      (t.st === "now" ? '<button class="go" id="' + t.id + '">はじめる</button>' : '') + '</div>';
+      (t.go && t.st === "now" ? '<button class="go" id="' + t.id + '">' + (t.id === "gateTreat" ? "あける" : "はじめる") + '</button>' : '') +
+      (t.go && t.st === "todo" ? '<button class="go alt" id="' + t.id + '">先にあける</button>' : '') + '</div>';
   });
   html += '</div>';
   box.innerHTML = html;
-  steps.forEach(t => { const b = document.getElementById(t.id); if(b && t.go && t.st === "now") b.onclick = t.go; });
+  steps.forEach(t => { const b = document.getElementById(t.id); if(b && t.go && (t.st === "now" || t.st === "todo")) b.onclick = t.go; });
   const gg = document.getElementById("gateGauge"), gn = newDayCount();
   gg.hidden = gn === 0;
   if(gn > 0) gg.innerHTML = '<b style="color:var(--gold)">新しい字ゲージ</b>　' + newDayGaugeHtml(gn) + '<span style="color:var(--ink-soft)">　今日 ' + gn + '字</span>';
@@ -10346,7 +10353,6 @@ function renderGate(){
   ["pointerup", "pointerleave", "pointercancel"].forEach(ev => skip.addEventListener(ev, clear));
   skip.addEventListener("contextmenu", e => e.preventDefault());
   document.getElementById("gateSaveBtn").onclick = () => exportBackup();
-  document.getElementById("gateNewSkipLink").onclick = e => { e.preventDefault(); newStepChoose(false); };
 })();
 /* ---------------- 今日のおさらい：始める・まとめ・「あとで」の練習（v54） ---------------- */
 function startOsarai(){
