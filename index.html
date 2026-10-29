@@ -601,6 +601,11 @@ svg.pet { display: block; width: 100%; height: auto; overflow: visible; }
 .stop.done .ball .pet+.stamp{display:none;}
 .gate-main .road-head{margin:0;}
 .stop .go.alt{background:transparent;color:var(--shu);border:2px solid var(--shu);box-shadow:none;padding:5px 14px;font-size:.8rem;}
+#homeRoad{max-width:360px;margin:6px auto 12px;}
+.stop.open .ball{border:3px solid var(--gold);background:#FFFBEF;box-shadow:0 0 0 5px rgba(255,200,90,.25);}
+.stop.open .name{color:var(--ink);}
+.road-map.tate .stop.open .name{transform:translateY(-82%);}
+.road-map.tate .stop.open .go{top:calc(50% + 26px);}
 </style></head><body>
 <title>書き順ドリル</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@700&family=Kosugi+Maru&display=swap">
@@ -2592,6 +2597,8 @@ header.app{
       </div>
       <button class="restore-skip" id="restoreSkipBtn">初めてだよ</button>
     </div>
+
+    <div class="gate-card" id="homeRoad" hidden></div>
 
     <div class="today-card" id="reviewCard">
       <div class="today-label">今日のおすすめ</div>
@@ -5082,6 +5089,7 @@ function gateSkippedToday(){
 }
 /* 今日やること が のこっているか */
 function gateNeeded(){
+  return false; /* v81：「今日やること」は別の画面ではなく、ホームの上の道（renderHomeRoad）に出す */
   if(gateSkippedToday()) return false;
   if(!appHasData()) return false;
   return !osaraiFinished() || (printAvailable() && printLeft().length > 0) || (newStepPending() && !(treatHold && !treatHold.opened));
@@ -9453,6 +9461,7 @@ function nextCharIndex(){
 }
 let todayAction = null;
 function renderReviewCard(){
+  try{ renderHomeRoad(); }catch(e){}
   const streak = currentStreakCount();
   document.getElementById("streakNum").textContent = streak > 0 ? "🔥 " + streak + "日連続" : "今日から続けよう";
   const dotsRow = document.getElementById("streakDots");
@@ -10264,6 +10273,72 @@ function gatePetSvg(){
     const lv = Math.max(0, Math.min(3, parseInt((o.owned || {})[sp], 10) || 0));
     return Pet.svg(sp, lv);
   }catch(e){ return ""; }
+}
+/* ホームの上に出す、今日のスタンプロード（v81）：①おさらい ②プリント ③新しい字（下の一覧から） ④おつかれさま宝探し */
+function renderHomeRoad(){
+  const card = document.getElementById("homeRoad");
+  if(!card) return;
+  if(!appHasData()){ card.hidden = true; return; }
+  card.hidden = false;
+  const o = todayOsarai();
+  const oLeft = osaraiLeft().length, oLater = osaraiLaterLeft().length, oRetest = osaraiRetestLeft().length;
+  const oDone = oLeft === 0 && oLater === 0 && oRetest === 0;
+  const p = todayPrint();
+  const pLeft = printLeft().length;
+  const pDone = pLeft === 0;
+  const treatDone = treatDoneToday();
+  const baseDone = (o.list.length === 0 || oDone) && (p.list.length === 0 || pDone);
+  const after = baseDone && treatUnlocked();
+  const steps = [];
+  if(o.list.length > 0) steps.push({id:"roadOsarai", ico:"📖", name:"今日のおさらい", st: oDone ? "done" : "now",
+    sub: oDone ? "終わり ✓" : oLeft > 0 ? (oLeft < o.list.length ? "あと" + oLeft + "字" : o.list.length + "字") : oLater > 0 ? "10回練習　あと" + oLater + "字" : "もう一度問題　あと" + oRetest + "字",
+    go: () => startOsarai()});
+  if(p.list.length > 0) steps.push({id:"roadPrint", ico:"📝", name:"今日のプリント", st: pDone ? "done" : (steps.length && steps[steps.length - 1].st === "now") ? "todo" : "now",
+    sub: pDone ? "終わり ✓" : (pLeft < p.list.length ? "あと" + pLeft + "字" : p.list.length + "字") + "　文を読んで書こう",
+    go: () => startPrint()});
+  const gn = newDayCount();
+  steps.push({id:"roadNew", ico:"⭐", name:"新しい字", st: baseDone ? "open" : "lock",
+    sub: baseDone ? (gn > 0 ? "今日 " + gn + "字　" : "") + "下の一覧から<br>えらんでやってみよう" : "おさらいとプリントの後<br>1字ごとに⭐がふえるよ",
+    go: baseDone ? () => { const g = document.getElementById("grid"); if(g) g.scrollIntoView({behavior:"smooth", block:"start"}); } : null});
+  steps.push({id:"roadTreat", ico:"🎁", name:"おつかれさま宝探し", st: treatDone ? "done" : after ? "now" : "lock",
+    sub: treatDone ? "今日はあけたよ ✓" : after ? "あけられるよ！" : "おさらいとプリントが<br>終わると、あけられるよ",
+    go: after && !treatDone ? () => startTreat() : null});
+  const pet = '<div class="road-pet">' + gatePetSvg() + '</div>';
+  const left = steps.filter(t => t.st === "now" && t.id !== "roadTreat").length;
+  const msg = treatDone ? "今日も、おつかれさま！" : after ? "新しい字にも挑戦できるよ。宝探しは、いつでもあけられるよ" :
+    "今日の道を、順番に進もう";
+  const sc = currentStreakCount();
+  const foot = '<div class="gate-foot"><span class="gate-streak">' + (sc > 0 ? "🔥 " + sc + "日連続" : "今日から続けよう") + '</span><button class="gate-save" id="homeRoadSave">保存する</button></div>';
+  if(treatDone){
+    card.innerHTML = '<div class="gate-label">今日のスタンプロード</div><div class="road-head">' + pet + '<div class="road-bubble">' + msg + '</div></div>' +
+      '<div style="display:flex;justify-content:center;gap:10px;margin:6px 0;">' + steps.map(t => '<span style="width:46px;height:46px;border-radius:50%;border:2px solid var(--shu);background:#FFF8F0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--shu);font-weight:700;">' + (t.st === "done" ? "✓" : t.ico) + '</span>').join("") + '</div>' + foot;
+  }else{
+    const STEP = 128, TOP = 62, N = steps.length, H = TOP + STEP * (N - 1) + 76;
+    const ys = steps.map((_, i) => TOP + STEP * i);
+    let svg = '<svg class="path" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none">';
+    for(let i = 0; i < N - 1; i++){
+      const d = 'M24 ' + ys[i] + ' C 34 ' + (ys[i] + 50) + ', 14 ' + (ys[i + 1] - 50) + ', 24 ' + ys[i + 1];
+      const dn = steps[i].st === "done";
+      svg += '<path d="' + d + '" fill="none" stroke="' + (dn ? '#F1C3B5' : '#E6DCCB') + '" stroke-width="' + (dn ? 16 : 14) + '" vector-effect="non-scaling-stroke" stroke-linecap="round"/>' +
+        '<path d="' + d + '" fill="none" stroke="' + (dn ? '#C1391D' : '#fff') + '" stroke-width="3" stroke-dasharray="1 9" vector-effect="non-scaling-stroke" stroke-linecap="round"/>';
+    }
+    svg += '</svg>';
+    let html = '<div class="road-map tate" style="height:' + H + 'px">' + svg;
+    steps.forEach((t, i) => {
+      const inner = t.st === "done" ? '<span class="pet">' + gatePetSvg() + '</span><span class="stamp">✓</span>' : t.ico;
+      const cls = t.st === "open" ? "todo open" : t.st;
+      html += '<div class="stop ' + cls + '" style="left:24%;top:' + ys[i] + 'px">' +
+        '<div class="ball">' + inner + '<span class="num">' + (i + 1) + '</span>' +
+        (t.st === "now" ? '<span class="flag">今ここ！</span>' : '') + (t.st === "lock" ? '<span class="key">🔒</span>' : '') + '</div>' +
+        '<div class="name">' + t.name + '<small>' + t.sub + '</small></div>' +
+        (t.go && t.st === "now" ? '<button class="go" id="' + t.id + '">' + (t.id === "roadTreat" ? "あける" : "はじめる") + '</button>' : '') +
+        (t.go && t.st === "open" ? '<button class="go alt" id="' + t.id + '">字をえらぶ ↓</button>' : '') + '</div>';
+    });
+    html += '</div>';
+    card.innerHTML = '<div class="gate-label">今日のスタンプロード</div><div class="road-head">' + pet + '<div class="road-bubble">' + msg + '</div></div>' + html + foot;
+    steps.forEach(t => { const b = document.getElementById(t.id); if(b && t.go) b.onclick = t.go; });
+  }
+  const sv = document.getElementById("homeRoadSave"); if(sv) sv.onclick = () => exportBackup();
 }
 function renderGate(){
   const o = todayOsarai();
