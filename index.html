@@ -2112,7 +2112,7 @@ header.app{
         <span class="gate-streak" id="gateStreak"></span>
         <button class="gate-save" id="gateSaveBtn">保存する</button>
       </div>
-      <div class="gate-skip" id="gateSkip">おうちの人用（ながおし）</div>
+      <div class="gate-skip" id="gateSkip" hidden>おうちの人用（ながおし）</div>
     </div>
   </section>
 
@@ -8797,6 +8797,8 @@ function renderGate(){
 (function(){
   let timer = null;
   const skip = document.getElementById("gateSkip");
+  /* おうちの人用は ふだんは出さない。アドレスの最後に #oya をつけて開いたときだけ出す */
+  if(location.hash === "#oya") skip.hidden = false;
   const clear = () => { if(timer){ clearTimeout(timer); timer = null; } };
   skip.addEventListener("pointerdown", () => {
     clear();
