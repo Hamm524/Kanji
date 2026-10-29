@@ -33,6 +33,573 @@
 .stop.todo .ball{border-style:solid;opacity:.9;}
 .road-hint{font-size:.78rem;color:var(--ink-soft);text-align:center;margin-top:4px;}
 
+/* 相棒の絵（けいさんチャレンジの Pet）の CSS */
+@keyframes dc-fade { 
+  0% { opacity: 0; }
+}
+@keyframes dc-draw { 
+  0% { stroke-dashoffset: var(--len); }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes dc-pop { 
+  50% { transform: scale(1.25); }
+}
+@keyframes hl-pulse { 
+  50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--live) 22%, transparent); }
+}
+@keyframes hl-pop { 
+  0% { transform: scale(1.35); }
+}
+@keyframes hl-shake { 
+  20% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  80% { transform: translateX(-2px); }
+}
+@keyframes bkpop { 
+  0% { transform: scale(0.6); opacity: 0.2; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes rm-spin { 
+  100% { transform: rotate(360deg); }
+}
+@keyframes rm-turn { 
+  0%, 100% { transform: translateX(-6px); }
+  50% { transform: translateX(6px); }
+}
+@keyframes rm-wind { 
+  0% { transform: translateX(-6px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateX(14px); opacity: 0; }
+}
+@keyframes rm-windd { 
+  0% { transform: translateY(-6px); opacity: 0; }
+  30% { opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+@keyframes rm-cnt { 
+  0% { transform: scale(1.7); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes rm-shake { 
+  20% { translate: -3px; }
+  50% { translate: 3px; }
+  80% { translate: -2px; }
+}
+@keyframes rm-rustle { 
+  25% { rotate: -2.5deg; }
+  75% { rotate: 2.5deg; }
+}
+@keyframes rm-cin { 
+  0% { opacity: 0; }
+}
+@keyframes rm-sway { 
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(7deg); }
+}
+@keyframes rm-ihit { 
+  0% { transform: translateX(-50%) rotate(0deg) scale(1); }
+  40% { transform: translateX(-50%) rotate(-12deg) scale(1.15); }
+  100% { transform: translateX(-50%) rotate(0deg) scale(1); }
+}
+.rm-pet.dance > .pet { animation: 0.84s ease-in-out 0s infinite normal none running rm-dance; }
+@keyframes rm-dance { 
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg) translateY(-3%); }
+}
+.rm-pet.bow > .pet { transform: rotate(0deg) translateY(6%) scaleY(0.9); transition: transform 0.3s; }
+@keyframes rm-bhop { 
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-160%) rotate(200deg); }
+  82% { transform: translateY(0px) rotate(330deg); }
+  91% { transform: translateY(-25%) rotate(350deg); }
+  100% { transform: translateY(0px) rotate(360deg); }
+}
+@keyframes rm-broll { 
+  100% { transform: rotate(720deg); }
+}
+@keyframes rm-fpop { 
+  0% { opacity: 0; transform: translate(-50%, -30%) scale(0.4); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
+@keyframes rm-tv { 
+  0%, 100% { fill: rgb(154, 215, 245); }
+  33% { fill: rgb(255, 211, 168); }
+  66% { fill: rgb(201, 184, 242); }
+}
+@keyframes rm-swim { 
+  0%, 100% { transform: translateX(-26px); }
+  50% { transform: translateX(30px); }
+}
+@keyframes rm-swim2 { 
+  0%, 100% { transform: translateX(20px); }
+  50% { transform: translateX(-48px); }
+}
+@keyframes rm-bub { 
+  0% { transform: translateY(0px); opacity: 0.8; }
+  100% { transform: translateY(-52px); opacity: 0; }
+}
+@keyframes rm-tw { 
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+@keyframes rm-bob { 
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+.rm-pet .pet { transition: transform 0.3s; }
+.rm-pet.walk .pet { animation: 0.42s ease-in-out 0s infinite normal none running rm-walk; }
+@keyframes rm-walk { 
+  0%, 100% { transform: translateY(0px) rotate(-2deg); }
+  50% { transform: translateY(-5%) rotate(2deg); }
+}
+.rm-pet.climb .pet { animation: 0.3s ease-in-out 0s infinite normal none running rm-walk; }
+.rm-pet.wee .pet { transform: rotate(14deg); }
+.rm-pet.left.wee .pet { transform: rotate(-14deg); }
+.rm-pet.sleep .pet .eyes { animation: auto ease 0s 1 normal none running none; transform: scaleY(0.12); }
+.rm-pet.sleep .pet .wet { display: none; }
+.rm-pet.sleep .p-breathe { animation-duration: 4.5s; }
+@keyframes rm-zz { 
+  0% { opacity: 0; transform: translateY(6px); }
+  30%, 70% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+@keyframes rm-up { 
+  0% { opacity: 0; transform: translate(-50%, 6px) scale(0.6); }
+  20% { opacity: 1; transform: translate(-50%, 0px) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, -34px); }
+}
+@keyframes rm-pv { 
+  0%, 100% { filter: drop-shadow(rgb(127, 184, 240) 0px 0px 2px); }
+  50% { filter: drop-shadow(rgb(95, 162, 232) 0px 0px 8px); }
+}
+@keyframes rm-grow { 
+  0% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+@keyframes rm-sb { 
+  0% { opacity: 0; scale: 0.8; }
+  100% { opacity: 1; scale: 1; }
+}
+@keyframes rm-hpop { 
+  0% { opacity: 0; transform: translate(-50%, 10px) scale(0.9); }
+  12% { opacity: 1; transform: translate(-50%, 0px) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -6px); }
+}
+@keyframes rm-smoke { 
+  0% { opacity: 0; transform: translateY(8px); }
+  30% { opacity: 0.9; }
+  100% { opacity: 0; transform: translateY(-10px); }
+}
+@keyframes rm-swR { 
+  0% { opacity: 0; transform: translateX(18%); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes rm-swL { 
+  0% { opacity: 0; transform: translateX(-18%); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes rm-pin { 
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-4px); }
+}
+@keyframes mdPop { 
+  0% { transform: scale(0.2) rotate(-25deg); opacity: 0; }
+  100% { transform: none; opacity: 1; }
+}
+@keyframes tbGlow { 
+  50% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 40%, transparent); }
+}
+@keyframes tbFlyL { 
+  0% { left: 100%; }
+  100% { left: -60px; }
+}
+@keyframes tbFly { 
+  0% { left: -60px; }
+  100% { left: 100%; }
+}
+@keyframes tbHop { 
+  50% { transform: translateX(-50%) translateY(-6px); }
+}
+@keyframes tbShake { 
+  0%, 60%, 100% { transform: rotate(0deg); }
+  70% { transform: rotate(-10deg); }
+  80% { transform: rotate(10deg); }
+  90% { transform: rotate(-6deg); }
+}
+@keyframes tbPop { 
+  0% { transform: scale(0.3); opacity: 0; }
+}
+@keyframes tbHopI { 
+  50% { transform: translateY(-4px); }
+}
+@keyframes tbChew { 
+  50% { transform: translateY(3px) scaleY(0.96); }
+}
+@keyframes tbSteam { 
+  0% { transform: translateY(8px); opacity: 0.6; }
+  100% { transform: translateY(-18px); opacity: 0; }
+}
+@keyframes tbTw { 
+  50% { opacity: 0.25; }
+}
+@keyframes tbZ { 
+  50% { transform: translateY(-6px); opacity: 0.5; }
+}
+.tb-sp2.sleep .pet .eyes { animation: auto ease 0s 1 normal none running none; transform: scaleY(0.12); }
+.tb-sp2.sleep .pet .wet { display: none; }
+.tb-sp2.sleep .p-breathe { animation-duration: 4.5s; }
+@keyframes tbSteam2 { 
+  0% { transform: translateY(6px); opacity: 0.8; }
+  100% { transform: translateY(-10px); opacity: 0; }
+}
+.pet .fan { transform-box: view-box; transform-origin: 100px 40px; animation: 0.9s linear 0s infinite normal none running fan-spin; }
+svg.pet { display: block; width: 100%; height: auto; overflow: visible; }
+.pet .p-breathe { transform-box: view-box; transform-origin: 100px 180px; animation: 3.4s ease-in-out 0s infinite normal none running p-breathe; }
+@keyframes p-breathe { 
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.03, 1.05); }
+}
+.pet .eyes { transform-box: fill-box; transform-origin: center center; animation: 4.6s ease 0s infinite normal none running p-blink; }
+@keyframes p-blink { 
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+.pet .p-jump { transform-box: view-box; transform-origin: 100px 180px; }
+.pet .p-shadow { transform-box: fill-box; transform-origin: center center; }
+.pet.hop .p-jump { animation: 0.62s cubic-bezier(0.3, 0.7, 0.4, 1) 0s 1 normal none running p-hop; }
+.pet.hop .p-shadow { animation: 0.62s ease 0s 1 normal none running p-shadow; }
+@keyframes p-hop { 
+  0% { transform: translateY(0px) scale(1, 1); }
+  14% { transform: translateY(0px) scale(1.1, 0.88); }
+  42% { transform: translateY(-34px) scale(0.94, 1.08); }
+  66% { transform: translateY(0px) scale(1.08, 0.92); }
+  82% { transform: translateY(-6px) scale(1, 1); }
+  100% { transform: translateY(0px) scale(1, 1); }
+}
+@keyframes p-shadow { 
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(0.6); opacity: 0.03; }
+}
+.pet:not(.happy) .face-h { display: none; }
+.pet .face-s { display: none; }
+.pet.sad .face-s { display: inline; }
+.pet.sad .face-n, .pet.sad .face-h { display: none; }
+.pet.sad .p-jump { animation: 0.55s ease 0s 1 normal none running p-no; }
+@keyframes p-no { 
+  20% { transform: translateX(-7px) rotate(-5deg); }
+  40% { transform: translateX(7px) rotate(5deg); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(4px); }
+}
+.pet.happy .face-n { display: none; }
+.pet .sparkle { transform-box: fill-box; transform-origin: center center; animation: 2.2s ease-in-out 0s infinite normal none running p-twinkle; }
+@keyframes p-twinkle { 
+  0%, 100% { transform: scale(0.4); opacity: 0.35; }
+  50% { transform: scale(1); opacity: 1; }
+}
+.pet .o2 { transform-box: fill-box; transform-origin: center center; animation: 2.4s ease-in-out 0s infinite normal none running o2-bob; }
+@keyframes o2-bob { 
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+.pet.hop .o2 { animation: 0.62s ease-out 0s 1 normal none running o2-fly; }
+@keyframes o2-fly { 
+  0% { transform: translate(0px, 0px); }
+  60% { transform: translate(18px, -30px) scale(1.15); opacity: 0.4; }
+  61% { transform: translate(0px, 10px) scale(0.4); opacity: 0; }
+  100% { transform: translate(0px, 0px); opacity: 1; }
+}
+.pet .wobble { transform-box: view-box; transform-origin: 100px 120px; animation: 2.8s ease-in-out 0s infinite normal none running wob; }
+@keyframes wob { 
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+.pet .band { transform-box: fill-box; transform-origin: center center; animation: 2s ease-in-out 0s infinite normal none running band-sway; }
+@keyframes band-sway { 
+  0%, 100% { transform: rotate(-14deg); }
+  50% { transform: rotate(-4deg); }
+}
+.pet.hop .band { animation: 0.62s ease 0s 1 normal none running band-stick; }
+@keyframes band-stick { 
+  40% { transform: rotate(-30deg) scale(1.25); }
+  100% { transform: rotate(-14deg); }
+}
+.pet .drip { transform-box: fill-box; transform-origin: center top; animation: 3s ease-in 0s infinite normal none running drip; }
+@keyframes drip { 
+  0%, 60% { transform: translateY(0px); opacity: 0; }
+  70% { opacity: 1; }
+  100% { transform: translateY(22px); opacity: 0; }
+}
+.pet .sprout { transform-box: fill-box; transform-origin: 50% 100%; animation: 2.6s ease-in-out 0s infinite normal none running sprout; }
+@keyframes sprout { 
+  0%, 100% { transform: rotate(-8deg); }
+  50% { transform: rotate(8deg); }
+}
+.pet:not(.happy) .face-h { display: none; }
+@keyframes dtPulse { 
+  50% { transform: scale(1.06); }
+}
+@keyframes isleWave { 
+  50% { transform: translateX(6px); }
+}
+@keyframes isleHop { 
+  40% { transform: translateY(-14px); }
+}
+@keyframes pvFlash { 
+  0%, 60% { box-shadow: color-mix(in srgb, rgb(255, 194, 60) 75%, transparent 25%) 0px 0px 0px 6px; }
+  100% { box-shadow: none; }
+}
+@keyframes okPulse { 
+  50% { box-shadow: rgba(0, 0, 0, 0.18) 0px 3px 0px, color-mix(in srgb, rgb(255, 194, 60) 70%, transparent 30%) 0px 0px 0px 7px; }
+}
+svg.pet { display: block; width: 100%; height: auto; overflow: visible; }
+.pet .p-breathe { transform-box: view-box; transform-origin: 100px 180px; animation: 3.4s ease-in-out 0s infinite normal none running p-breathe; }
+@keyframes p-breathe { 
+  0%, 100% { transform: scale(1, 1); }
+  50% { transform: scale(1.03, 1.05); }
+}
+.pet .eyes { transform-box: fill-box; transform-origin: center center; animation: 4.6s ease 0s infinite normal none running p-blink; }
+@keyframes p-blink { 
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+.pet .p-jump { transform-box: view-box; transform-origin: 100px 180px; }
+.pet .p-shadow { transform-box: fill-box; transform-origin: center center; }
+.pet.hop .p-jump { animation: 0.62s cubic-bezier(0.3, 0.7, 0.4, 1) 0s 1 normal none running p-hop; }
+.pet.hop .p-shadow { animation: 0.62s ease 0s 1 normal none running p-shadow; }
+.pet.hop-s .p-jump { animation: 0.45s ease-out 0s 1 normal none running p-hop-s; }
+.pet.hop-s .p-shadow { animation: 0.45s ease 0s 1 normal none running p-shadow; }
+.pet.oops .p-jump { animation: 0.42s ease 0s 1 normal none running p-oops; }
+.pet.spin .p-jump { transform-origin: 100px 180px; animation: 0.9s ease-in-out 0s 1 normal none running p-spin; }
+.pet.spin .p-shadow { animation: 0.9s ease-in-out 0s 1 normal none running p-spin-sh; }
+@keyframes p-spin { 
+  0% { transform: translateY(0px) scaleX(1); }
+  12% { transform: translateY(-6px) scaleX(0.94); }
+  30% { transform: translateY(-10px) scaleX(0.06); }
+  50% { transform: translateY(-12px) scaleX(-1); }
+  70% { transform: translateY(-10px) scaleX(-0.06); }
+  88% { transform: translateY(-4px) scaleX(1.03); }
+  100% { transform: translateY(0px) scaleX(1); }
+}
+.pet .p-backv { opacity: 0; }
+.pet.spin .p-backv { animation: 0.9s linear 0s 1 normal none running p-backv; }
+@keyframes p-backv { 
+  0%, 29.9% { opacity: 0; }
+  30%, 69.9% { opacity: 1; }
+  70%, 100% { opacity: 0; }
+}
+.pet.spin .p-frontv { animation: 0.9s linear 0s 1 normal none running p-frontv; }
+@keyframes p-frontv { 
+  0%, 29.9% { opacity: 1; }
+  30%, 69.9% { opacity: 0; }
+  70%, 100% { opacity: 1; }
+}
+@keyframes p-spin-sh { 
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(0.8); }
+}
+@keyframes p-hop { 
+  0% { transform: translateY(0px) scale(1, 1); }
+  14% { transform: translateY(0px) scale(1.1, 0.88); }
+  42% { transform: translateY(-34px) scale(0.94, 1.08); }
+  66% { transform: translateY(0px) scale(1.08, 0.92); }
+  82% { transform: translateY(-6px) scale(1, 1); }
+  100% { transform: translateY(0px) scale(1, 1); }
+}
+@keyframes p-hop-s { 
+  0%, 100% { transform: translateY(0px) scale(1, 1); }
+  22% { transform: translateY(0px) scale(1.06, 0.92); }
+  55% { transform: translateY(-14px) scale(0.97, 1.04); }
+}
+@keyframes p-oops { 
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-6deg); }
+  50% { transform: rotate(5deg); }
+  75% { transform: rotate(-3deg); }
+}
+@keyframes p-shadow { 
+  0%, 100% { transform: scale(1); }
+  45% { transform: scale(0.6); opacity: 0.03; }
+}
+.pet:not(.happy) .face-h { display: none; }
+.pet .wet { display: none; }
+.pet.hungry:not(.happy) .wet { display: inline; }
+.pet.hungry .p-breathe { animation-duration: 5.8s; }
+.pet.hungry .eyes { animation-duration: 3.2s; }
+.pet.hungry:not(.happy) .face-s { display: inline; }
+.pet .face-hs { display: none; }
+.pet.hungry:not(.happy):not(.sad) .face-hs { display: inline; }
+.pet.hungry:not(.happy) .mq { display: none; }
+.pet.happy .face-n { display: none; }
+.pet .face-s { display: none; }
+.pet.sad .face-s, .pet.sad .wet { display: inline; }
+.pet.sad .face-h { display: none; }
+.pet.sad .face-n { display: inline; }
+.pet.sad .m-n.flip { display: none; }
+.pet.sad .p-breathe { animation-duration: 6s; }
+.pet .sparkle { transform-box: fill-box; transform-origin: center center; animation: 2.2s ease-in-out 0s infinite normal none running p-twinkle; }
+@keyframes p-twinkle { 
+  0%, 100% { transform: scale(0.4); opacity: 0.35; }
+  50% { transform: scale(1); opacity: 1; }
+}
+@keyframes bump { 
+  50% { transform: scale(1.12); }
+}
+@keyframes float-up { 
+  0% { opacity: 0; transform: translateY(6px); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-26px); }
+}
+.ta-sway { transform-origin: 50% 60%; animation: 2.2s ease-in-out 0s infinite normal none running taSway; }
+.ta-glint { animation: 2.6s ease-in-out 0s infinite normal none running taGlint; }
+.ta-pulse { transform-origin: 50% 50%; animation: 1.6s ease-in-out 0s infinite normal none running taPulse; }
+.ta-spin { transform-origin: 50% 50%; animation: 7s linear 0s infinite normal none running taSpin; }
+.ta-twinkle { transform-origin: 50% 50%; animation: 1.5s ease-in-out 0s infinite normal none running taTwinkle; }
+.ta-wave { transform-origin: 50% 0%; animation: 2s ease-in-out 0s infinite normal none running taWave; }
+.ta-bob { transform-origin: 50% 100%; animation: 2s ease-in-out 0s infinite normal none running taBob; }
+.ta-flutter { transform-origin: 50% 0%; animation: 1.8s ease-in-out 0s infinite normal none running taFlutter; }
+.ta-flapL { transform-origin: 100% 50%; animation: 1.2s ease-in-out 0s infinite normal none running taFlap; }
+.ta-flapR { transform-origin: 0% 50%; animation: 1.2s ease-in-out 0s infinite normal none running taFlap; }
+.ta-spark { animation: 1.6s ease-in-out 0s infinite normal none running taSpark; }
+@keyframes taSway { 
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(7deg); }
+}
+@keyframes taGlint { 
+  0%, 55% { transform: translateX(-14px); opacity: 0; }
+  65% { opacity: 1; }
+  85%, 100% { transform: translateX(14px); opacity: 0; }
+}
+@keyframes taPulse { 
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.82); }
+}
+@keyframes taSpin { 
+  100% { transform: rotate(360deg); }
+}
+@keyframes taTwinkle { 
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.18) rotate(12deg); }
+}
+@keyframes taWave { 
+  0%, 100% { transform: skewX(-5deg); }
+  50% { transform: skewX(5deg); }
+}
+@keyframes taBob { 
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(6deg); }
+}
+@keyframes taFlutter { 
+  0%, 100% { transform: skewX(0deg); }
+  35% { transform: skewX(-7deg); }
+  70% { transform: skewX(5deg); }
+}
+@keyframes taFlap { 
+  0%, 100% { transform: scaleX(1); }
+  50% { transform: scaleX(0.62); }
+}
+@keyframes taSpark { 
+  0%, 100% { opacity: 0; transform: scale(0.3); }
+  50% { opacity: 1; transform: scale(1); }
+}
+@keyframes rkShake { 
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+@keyframes rkPulse { 
+  0% { transform: scale(1.5); }
+  100% { transform: scale(1); }
+}
+@keyframes rkFire { 
+  0% { transform: scaleY(0.8); }
+  100% { transform: scaleY(1.25); }
+}
+@keyframes rkUp { 
+  0% { transform: translateY(0px); }
+  15% { transform: translateY(6px); }
+  100% { transform: translateY(-130vh); }
+}
+@keyframes rkFade { 
+  0%, 85% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes bubble-pop { 
+  0% { transform: scale(0.85); }
+  60% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+@keyframes shake { 
+  0%, 100% { transform: translateX(0px); }
+  25% { transform: translateX(-6px); }
+  75% { transform: translateX(6px); }
+}
+@keyframes hana-in { 
+  0% { transform: scale(0.8); opacity: 0; }
+  60% { transform: scale(1.04); opacity: 1; }
+  100% { transform: scale(1); }
+}
+@keyframes modal-in { 
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes map-nudge { 
+  0%, 70%, 100% { transform: translateX(0px); }
+  78% { transform: translateX(-5px); }
+  86% { transform: translateX(0px); }
+  92% { transform: translateX(-3px); }
+}
+@keyframes jara { 
+  0% { transform: rotate(-14deg); }
+  100% { transform: rotate(16deg); }
+}
+@keyframes band-pulse { 
+  0%, 100% { box-shadow: rgba(217, 149, 28, 0.5) 0px 0px 0px 0px; }
+  50% { box-shadow: rgba(217, 149, 28, 0) 0px 0px 0px 6px; }
+}
+@keyframes food-fly { 
+  0% { transform: translateY(-30px) scale(1.1); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(62px) scale(0.3); opacity: 0; }
+}
+@keyframes heart-up { 
+  0% { opacity: 0; transform: translateY(0px) scale(0.6); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-50px) scale(1.1); }
+}
+@keyframes cf-in { 
+  0% { transform: translate(-14px,-26px) rotate(calc(var(--r,0deg) - 90deg)); opacity: 0; }
+  100% { transform: translate(0,0) rotate(var(--r,0deg)); opacity: 0.85; }
+}
+@keyframes hs-draw { 
+  0% { opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 1; }
+}
+@keyframes hana-pop { 
+  0% { transform: rotate(-12deg) scale(1); }
+  45% { transform: rotate(-4deg) scale(1.18); }
+  100% { transform: rotate(-12deg) scale(1); }
+}
+@keyframes hp-hop { 
+  0%, 100% { transform: translateY(-8px); }
+  45% { transform: translateY(-26px); }
+}
+@keyframes big-pop { 
+  0% { transform: scale(0.6); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); }
+}
+.road-head{display:flex;align-items:center;gap:10px;margin:4px 0 2px;}
+.road-pet{width:64px;height:64px;flex:none;}
+.road-pet svg{width:100%;height:100%;}
+.road-bubble{position:relative;background:var(--paper-raised);border:1.5px solid var(--line);border-radius:14px;padding:8px 12px;font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:1.02rem;line-height:1.4;color:var(--ink);}
+.road-bubble::before{content:"";position:absolute;left:-8px;top:22px;border:7px solid transparent;border-right-color:var(--line);border-left:0;}
+.road-bubble b{color:var(--shu);font-weight:400;font-size:1.25rem;}
+.stop.done .ball .pet{width:76px;height:76px;transform:rotate(-8deg);}
+.stop.done .ball .pet svg{width:100%;height:100%;}
+.stop.done .ball .hanko{position:absolute;bottom:-8px;right:-14px;background:var(--shu);color:#fff;font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:.8rem;padding:2px 8px;border-radius:999px;transform:rotate(-10deg);box-shadow:0 2px 0 rgba(0,0,0,.15);}
+.stop.done .ball .pet+.stamp{display:none;}
+.gate-main .road-head{margin:0;}
 </style></head><body>
 <title>書き順ドリル</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@700&family=Kosugi+Maru&display=swap">
@@ -2783,6 +3350,960 @@ header.app{
     setTimeout(release, 6000);
     whenBooted(cloudSyncStart).then(function(x){ if(x !== "reload") release(); });
   });
+})();
+</script>
+<script>
+/* けいさんチャレンジの相棒の絵（Keisan の Pet をコピー） */
+var Pet = (function(){
+  "use strict";
+  var INK = '#2E2A3D';
+  var LV_NAMES = ['ベビー','キッズ','ジュニア','スター'];
+  var SCALE = [0.84, 0.9, 0.95, 1];
+
+  function eyesN(y, lx, rx){
+    var d = (-Math.random()*4).toFixed(2);
+    return '<g class="eyes face-n" style="animation-delay:'+d+'s">' +
+      '<ellipse cx="'+lx+'" cy="'+y+'" rx="10" ry="13" fill="'+INK+'"/>' +
+      '<ellipse cx="'+rx+'" cy="'+y+'" rx="10" ry="13" fill="'+INK+'"/>' +
+      '<circle cx="'+(lx-3)+'" cy="'+(y-5)+'" r="3" fill="#fff"/>' +
+      '<circle cx="'+(rx-3)+'" cy="'+(y-5)+'" r="3" fill="#fff"/>' +
+      '<g class="wet"><ellipse cx="'+lx+'" cy="'+(y+6)+'" rx="6.5" ry="3.4" fill="#BFE6FF" opacity=".75"/><ellipse cx="'+rx+'" cy="'+(y+6)+'" rx="6.5" ry="3.4" fill="#BFE6FF" opacity=".75"/>' +
+      '<circle cx="'+(lx+4)+'" cy="'+(y+3)+'" r="1.8" fill="#fff"/><circle cx="'+(rx+4)+'" cy="'+(y+3)+'" r="1.8" fill="#fff"/></g></g>';
+  }
+  function wetG(y, lx, rx){
+    return '<g class="wet"><ellipse cx="'+lx+'" cy="'+(y+6)+'" rx="6.5" ry="3.4" fill="#BFE6FF" opacity=".75"/><ellipse cx="'+rx+'" cy="'+(y+6)+'" rx="6.5" ry="3.4" fill="#BFE6FF" opacity=".75"/>' +
+      '<circle cx="'+(lx+4)+'" cy="'+(y+3)+'" r="1.8" fill="#fff"/><circle cx="'+(rx+4)+'" cy="'+(y+3)+'" r="1.8" fill="#fff"/></g>';
+  }
+  /* 女の子の まつげ(目の 外がわに 2本ずつ) */
+  function lashes(y, lx, rx, col){
+    var s = ' stroke="'+(col||INK)+'" stroke-width="2.8" fill="none" stroke-linecap="round"';
+    return '<g class="lash"><path d="M'+(lx-7)+','+(y-9)+' L'+(lx-13)+','+(y-15)+'"'+s+'/><path d="M'+(lx-9.5)+','+(y-3)+' L'+(lx-16)+','+(y-6)+'"'+s+'/>' +
+      '<path d="M'+(rx+7)+','+(y-9)+' L'+(rx+13)+','+(y-15)+'"'+s+'/><path d="M'+(rx+9.5)+','+(y-3)+' L'+(rx+16)+','+(y-6)+'"'+s+'/></g>';
+  }
+  function lashesH(y, lx, rx, col){
+    var s = ' stroke="'+(col||INK)+'" stroke-width="2.8" fill="none" stroke-linecap="round"';
+    return '<path d="M'+(lx-9)+','+(y)+' L'+(lx-15)+','+(y-3)+'"'+s+'/><path d="M'+(rx+9)+','+(y)+' L'+(rx+15)+','+(y-3)+'"'+s+'/>';
+  }
+  function eyesH(y, lx, rx, col){
+    var s = ' stroke="'+(col||INK)+'" stroke-width="5" fill="none" stroke-linecap="round"';
+    return '<g class="face-h">' +
+      '<path d="M'+(lx-10)+','+(y+3)+' Q'+lx+','+(y-13)+' '+(lx+10)+','+(y+3)+'"'+s+'/>' +
+      '<path d="M'+(rx-10)+','+(y+3)+' Q'+rx+','+(y-13)+' '+(rx+10)+','+(y+3)+'"'+s+'/></g>';
+  }
+  function gem(x, y, s, color){
+    var h = s/2;
+    return '<rect x="'+(x-h)+'" y="'+(y-h)+'" width="'+s+'" height="'+s+'" rx="3" transform="rotate(45 '+x+' '+y+')" fill="'+color+'"/>' +
+      (s > 14 ? '<circle cx="'+(x-2.5)+'" cy="'+(y-4)+'" r="2.2" fill="#fff" opacity=".85"/>' : '');
+  }
+  function bow(x, y, color){
+    return '<g transform="translate('+x+' '+y+')">' +
+      '<g transform="scale(.78)"><path d="M-1,2 Q-5,12 -9,19 L-4,18 L-2,22 Q0,12 1,3 Z" fill="#F07A9E"/>' +
+      '<path d="M1,2 Q6,11 11,17 L6,17 L5,21 Q1,12 -1,3 Z" fill="#FF8FB1"/></g>' +
+      '<path d="M0,0 L-13,-9 Q-17,0 -13,9 Z" fill="#FF8FB1"/>' +
+      '<path d="M0,0 L13,-9 Q17,0 13,9 Z" fill="#FF8FB1"/>' +
+      gem(0, 0, 8, color) + '</g>';
+  }
+  /* うしろから 見た リボン: 宝石は 前がわなので 見えず、結び目と たれた 2本の リボンが 見える */
+  function bowBack(x, y){
+    return '<g transform="translate('+x+' '+y+')">' +
+      '<path d="M-1,2 Q-5,12 -9,19 L-4,18 L-2,22 Q0,12 1,3 Z" fill="#F07A9E"/>' +
+      '<path d="M1,2 Q6,11 11,17 L6,17 L5,21 Q1,12 -1,3 Z" fill="#F58BAD"/>' +
+      '<path d="M0,0 L-13,-9 Q-17,0 -13,9 Z" fill="#F58BAD"/>' +
+      '<path d="M0,0 L13,-9 Q17,0 13,9 Z" fill="#F58BAD"/>' +
+      '<path d="M-3,-2 L-11,-6 M-3,2 L-11,6 M3,-2 L11,-6 M3,2 L11,6" stroke="#E2668E" stroke-width="1.4" stroke-linecap="round" opacity=".6"/>' +
+      '<rect x="-3.5" y="-4.5" width="7" height="9" rx="3" fill="#E2668E"/></g>';
+  }
+  /* 男の子の ネクタイ(宝石は ネクタイピンの いち)と シルクハット */
+  function necktie(k){
+    var e = k + 31;
+    return '<g><path d="M100,'+k+' L110,'+(k+21)+' L100,'+e+' L90,'+(k+21)+' Z" fill="#3F5FE0"/>' +
+      '<path d="M95,'+(k+21)+' L100,'+(e-4)+' M105,'+(k+21)+' L100,'+(e-4)+'" stroke="#fff" stroke-width="1.4" opacity=".35"/>' +
+      '<path d="M92,'+(k-2)+' L108,'+(k-2)+' L105,'+(k+6)+' L95,'+(k+6)+' Z" fill="#2F49B8"/></g>';
+  }
+  /* ネクタイの 結び目の たかさ(口・くちばし・した と ぶつからない よう 種類ごとに) */
+  var TIE_Y = { mouse:130, cow:130, horse:132, monkey:130, hen:128, boar:132, squirrel:130, koala:128, sheep:124, dog:134, dragon:131, dolphin:130, chick:129, unicorn:128, snake:129, owl:128, penguin:128, hamster:132, bear:130, fox:130, whale:129, rabbit:130, tiger:128, wolf:128, cat:128, panda:128, seal:128 };
+  function tophat(t){
+    return '<g transform="'+(t||'')+'">' +
+      '<rect x="87" y="14" width="26" height="25" rx="3" fill="#35324A"/>' +
+      '<rect x="87" y="29" width="26" height="6" fill="#E5484D"/>' +
+      '<rect x="78" y="37" width="44" height="7" rx="3.5" fill="#2A2740"/></g>';
+  }
+  /* 男の子の 蝶ネクタイ(いまは つかわない) */
+  function bowtie(color){
+    return '<g transform="translate(100 123)">' +
+      '<path d="M0,0 L-15,-9 Q-19,0 -15,9 Z" fill="#4A6CF0"/>' +
+      '<path d="M0,0 L15,-9 Q19,0 15,9 Z" fill="#4A6CF0"/>' +
+      '<path d="M-11,-3 L-6,-1.5 M11,-3 L6,-1.5" stroke="#fff" stroke-width="1.6" stroke-linecap="round" opacity=".6"/>' +
+      '<rect x="-4.5" y="-5.5" width="9" height="11" rx="3" fill="'+color+'"/></g>';
+  }
+  function necklace(){
+    var beads = [[79.6,127,'#FF9EC8'],[89.8,130,'#5B7CFA'],[110.2,130,'#1FA98E'],[120.4,127,'#FFC53D']];
+    var out = '<path d="M66,120 Q100,142 134,120" stroke="#F2B632" stroke-width="3" fill="none" stroke-linecap="round"/>';
+    beads.forEach(function(b){ out += '<circle cx="'+b[0]+'" cy="'+b[1]+'" r="4.2" fill="'+b[2]+'"/>'; });
+    return out;
+  }
+  function crown(t){
+    return '<g transform="'+(t||'')+'">' +
+      '<path d="M82,40 L79,18 L90,29 L100,11 L110,29 L121,18 L118,40 Z" fill="#FFD24C"/>' +
+      '<rect x="81" y="35" width="38" height="8" rx="3" fill="#F2B632"/>' +
+      '<circle cx="100" cy="27" r="3.6" fill="#E5484D"/>' +
+      '<circle cx="89" cy="39" r="2.6" fill="#5B7CFA"/><circle cx="100" cy="39" r="2.6" fill="#1FA98E"/><circle cx="111" cy="39" r="2.6" fill="#B05CE8"/>' +
+      '</g>';
+  }
+  function sparkle(x, y, s, delay, color){
+    return '<path class="sparkle" style="animation-delay:'+delay+'s" d="M'+x+','+(y-s)+' Q'+x+','+y+' '+(x+s)+','+y+' Q'+x+','+y+' '+x+','+(y+s)+' Q'+x+','+y+' '+(x-s)+','+y+' Q'+x+','+y+' '+x+','+(y-s)+' Z" fill="'+color+'"/>';
+  }
+
+  var SPECIES = {
+    whale:{
+      name:'ほしくじら', gem:'#FFC53D', gemAt:[100,152], clipAt:[140,58], crownT:'translate(-28 12) rotate(-18 100 30)', eyeY:90,
+      back:'<path d="M146,126 Q176,120 182,96 Q192,110 186,122 Q198,124 198,138 Q184,142 172,136 Q164,148 146,146 Z" fill="#6A72DD"/><path d="M100,30 Q97,20 90,13 M100,30 Q103,20 110,13" stroke="#8FD3FF" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="86" cy="10" r="4.5" fill="#8FD3FF"/><circle cx="114" cy="10" r="4.5" fill="#8FD3FF"/>',
+      back2:'<path d="M100,30 Q88,8 70,2 M100,30 Q112,8 130,2 M100,30 L100,0" stroke="#B9E4FF" stroke-width="5" fill="none" stroke-linecap="round"/><circle cx="66" cy="0" r="5" fill="#B9E4FF"/><circle cx="134" cy="0" r="5" fill="#B9E4FF"/>',
+      body:'<ellipse cx="100" cy="128" rx="68" ry="54" fill="#7B83EB"/><circle cx="100" cy="85" r="56" fill="#7B83EB"/><ellipse cx="100" cy="142" rx="40" ry="28" fill="#EEF0FF"/><g stroke="#D8DCFA" stroke-width="3" fill="none" stroke-linecap="round"><path d="M74,132 Q100,138 126,132"/><path d="M70,145 Q100,151 130,145"/></g><polygon points="72.0,46.0 73.6,49.8 77.7,50.1 74.6,52.8 75.5,56.9 72.0,54.7 68.5,56.9 69.4,52.8 66.3,50.1 70.4,49.8" fill="#FFE380"/><polygon points="128.0,45.0 129.3,48.2 132.8,48.5 130.1,50.7 130.9,54.0 128.0,52.2 125.1,54.0 125.9,50.7 123.2,48.5 126.7,48.2" fill="#FFE380"/><polygon points="52.0,123.5 53.2,126.4 56.3,126.6 53.9,128.6 54.6,131.6 52.0,130.0 49.4,131.6 50.1,128.6 47.7,126.6 50.8,126.4" fill="#FFE380"/><polygon points="150.0,116.0 151.1,118.5 153.8,118.8 151.7,120.6 152.4,123.2 150.0,121.8 147.6,123.2 148.3,120.6 146.2,118.8 148.9,118.5" fill="#FFE380"/>',
+      deco:'<ellipse cx="60" cy="104" rx="11" ry="7" fill="#FFB6C8" opacity=".75"/><ellipse cx="140" cy="104" rx="11" ry="7" fill="#FFB6C8" opacity=".75"/>',
+      mouthN:'<path d="M90,110 Q100,118 110,110" stroke="'+INK+'" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M90,109 Q100,126 110,109 Q100,113 90,109 Z" fill="#C94A63"/>'
+    },
+    cat:{
+      name:'ねこ', gem:'#FF6F4C', gemAt:[100,137], clipAt:[136,60], crownT:'', eyeY:90,
+      back:'<path d="M146,152 Q182,150 189,118 Q193,96 186,82 Q181,74 176,80 Q182,96 178,116 Q172,140 146,140 Z" fill="#FFE3CC"/>' +
+        '<polygon points="62,45 78,10 92,55" fill="#FFE3CC"/><polygon points="138,45 122,10 108,55" fill="#FFE3CC"/>' +
+        '<polygon points="67,42 78,22 85,50" fill="#FFB6C8"/><polygon points="133,42 122,22 115,50" fill="#FFB6C8"/>',
+      body:'<ellipse cx="100" cy="128" rx="68" ry="54" fill="#FFE3CC"/><circle cx="100" cy="85" r="56" fill="#FFE3CC"/><ellipse cx="100" cy="142" rx="38" ry="28" fill="#FFF5EA"/>',
+      deco:'<ellipse cx="60" cy="104" rx="11" ry="7" fill="#FFB6C8" opacity=".7"/><ellipse cx="140" cy="104" rx="11" ry="7" fill="#FFB6C8" opacity=".7"/>' +
+        '<polygon points="96,100 104,100 100,106" fill="#FF9DB0"/>' +
+        '<g stroke="#D9C3AE" stroke-width="1.6" stroke-linecap="round"><path d="M45,98 L20,94"/><path d="M45,104 L18,105"/><path d="M155,98 L180,94"/><path d="M155,104 L182,105"/></g>',
+      mouthN:'<path d="M92,110 Q100,116 108,110" stroke="'+INK+'" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M91,109 Q100,125 109,109 Q100,112 91,109 Z" fill="#C94A63"/>',
+      front2:'<g transform="translate(185 112) rotate(-6)"><path d="M0,0 L-10,-7 Q-13,0 -10,7 Z" fill="#FF8FB1"/><path d="M0,0 L10,-7 Q13,0 10,7 Z" fill="#FF8FB1"/><circle r="3.5" fill="#FF6F4C"/></g>'
+    },
+    dragon:{
+      name:'ドラゴン', gem:'#1FA98E', gemAt:[100,157], clipAt:[147,68], crownT:'', eyeY:90,
+      back2:'<path d="M62,96 Q30,40 4,36 Q18,60 8,82 Q26,82 26,100 Q42,98 44,116 L60,110 Z" fill="#8FE3CB"/><path d="M138,96 Q170,40 196,36 Q182,60 192,82 Q174,82 174,100 Q158,98 156,116 L140,110 Z" fill="#8FE3CB"/>',
+      back:'<path d="M66,100 Q36,64 20,60 Q32,78 22,94 Q34,96 38,108 Q50,108 54,120 L66,114 Z" fill="#A6ECD8"/><path d="M134,100 Q164,64 180,60 Q168,78 178,94 Q166,96 162,108 Q150,108 146,120 L134,114 Z" fill="#A6ECD8"/>' +
+        '<path d="M146,128 Q178,136 175,112 Q188,150 148,156 Z" fill="#6FD9BE"/><path d="M176,94 Q192,108 180,119 L176,115 L172,119 Q161,108 176,94 Z" fill="#35BE9C"/>' +
+        '<path d="M68,46 Q57,28 60,10 Q76,22 84,40 Z" fill="#FFE3A3"/><path d="M132,46 Q143,28 140,10 Q124,22 116,40 Z" fill="#FFE3A3"/><path d="M90,34 Q97,20 100,11 Q103,20 110,34 Z" fill="#35BE9C"/>',
+      body:'<ellipse cx="100" cy="128" rx="68" ry="54" fill="#6FD9BE"/><circle cx="100" cy="85" r="56" fill="#6FD9BE"/><ellipse cx="100" cy="142" rx="38" ry="28" fill="#E6FBF3"/><g stroke="#C6EEE0" stroke-width="3" fill="none" stroke-linecap="round"><path d="M72,130 Q100,136 128,130"/><path d="M68,143 Q100,149 132,143"/></g>',
+      deco:'<ellipse cx="60" cy="104" rx="11" ry="7" fill="#FFB6C8" opacity=".7"/><ellipse cx="140" cy="104" rx="11" ry="7" fill="#FFB6C8" opacity=".7"/><ellipse cx="100" cy="110" rx="20" ry="12" fill="#A8EDD9"/><ellipse cx="93" cy="106" rx="2.6" ry="2" fill="#2E9C82"/><ellipse cx="107" cy="106" rx="2.6" ry="2" fill="#2E9C82"/>',
+      mouthN:'<path d="M91,115 Q100,121 109,115" stroke="'+INK+'" stroke-width="2.5" fill="none" stroke-linecap="round"/><polygon points="102.5,117.4 107,116.8 105,121.5" fill="#fff"/>',
+      mouthH:'<path d="M90,114 Q100,130 110,114 Q100,117 90,114 Z" fill="#C94A63"/><polygon points="92.5,114.6 96.5,115.6 94.5,119.5" fill="#fff"/><polygon points="103.5,115.6 107.5,114.6 105.5,119.5" fill="#fff"/>'
+    },
+    chick:{
+      name:'ひよこ', gem:'#5B7CFA', gemAt:[100,157], clipAt:[140,60], crownT:'translate(-26 10) rotate(-18 100 30)', eyeY:92,
+      back2:'<ellipse cx="90" cy="24" rx="7" ry="16" transform="rotate(-28 90 24)" fill="#FFE380"/>' +
+        '<ellipse cx="100" cy="17" rx="7" ry="18" fill="#FFC93C"/>' +
+        '<ellipse cx="110" cy="24" rx="7" ry="16" transform="rotate(28 110 24)" fill="#FFE380"/>',
+      back:'<path d="M58,150 L58,168" stroke="#F2A134" stroke-width="4" stroke-linecap="round"/><path d="M142,150 L142,168" stroke="#F2A134" stroke-width="4" stroke-linecap="round"/>' +
+        '<path d="M50,168 L66,168 M50,168 L58,160 M66,168 L58,160" stroke="#F2A134" stroke-width="3" stroke-linecap="round"/>' +
+        '<path d="M134,168 L150,168 M134,168 L142,160 M150,168 L142,160" stroke="#F2A134" stroke-width="3" stroke-linecap="round"/>' +
+        '<ellipse cx="52" cy="118" rx="16" ry="10" fill="#FFE380" transform="rotate(-25 52 118)"/>' +
+        '<ellipse cx="148" cy="118" rx="16" ry="10" fill="#FFE380" transform="rotate(25 148 118)"/>' +
+        '<path d="M90,20 Q100,8 110,20 Q100,26 90,20 Z" fill="#FFE380"/>',
+      body:'<ellipse cx="100" cy="130" rx="66" ry="52" fill="#FFD24C"/><circle cx="100" cy="85" r="58" fill="#FFD24C"/><ellipse cx="100" cy="144" rx="36" ry="26" fill="#FFF0BE"/>',
+      deco:'<ellipse cx="62" cy="106" rx="11" ry="7" fill="#FF9D6A" opacity=".6"/><ellipse cx="138" cy="106" rx="11" ry="7" fill="#FF9D6A" opacity=".6"/>',
+      mouthN:'<polygon points="90,108 110,108 100,120" fill="#F2A134"/>',
+      mouthH:'<polygon points="91,110 109,110 107,115.5 93,115.5" fill="#C94A63"/><polygon points="90,110 110,110 100,100.5" fill="#F2A134"/><polygon points="92,115.5 108,115.5 100,124" fill="#E08A1E"/>'
+    },
+tiger:{"name": "とら", "gem": "#E5484D", "gemAt": [100.0, 157.0], "clipAt": [140, 58], "crownT": "", "eyeY": 88.0, "eyeX": [75.0, 125.0], "back": "", "body": "<path d=\"M146,153 Q184,151 191,118 Q195,95 187,81 Q181,73 175,79 Q181,96 177,116 Q171,139 146,139 Z\" fill=\"#FFB85C\" /><path d=\"M160,140 L162,151 M174,134 L183,142 M178,116 L190,118 M177,100 L190,98 M176,84 L186,82\" stroke=\"#8A5A2B\" stroke-width=\"3.5\" stroke-linecap=\"round\" /><circle cx=\"60\" cy=\"42\" r=\"17\" fill=\"#FFB85C\" /><circle cx=\"140\" cy=\"42\" r=\"17\" fill=\"#FFB85C\" /><circle cx=\"60\" cy=\"42\" r=\"8\" fill=\"#FFE3CC\" /><circle cx=\"140\" cy=\"42\" r=\"8\" fill=\"#FFE3CC\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#FFB85C\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#FFB85C\" /><ellipse cx=\"100\" cy=\"142\" rx=\"38\" ry=\"28\" fill=\"#FFF1DC\" /><g stroke=\"#8A5A2B\" stroke-width=\"4\" stroke-linecap=\"round\"><path d=\"M100,33 L100,46\" /><path d=\"M87,37 L90,47\" /><path d=\"M113,37 L110,47\" /><path d=\"M46,86 L58,89\" /><path d=\"M45,95 L57,96\" /><path d=\"M154,86 L142,89\" /><path d=\"M155,95 L143,96\" /></g><ellipse cx=\"100\" cy=\"108\" rx=\"18\" ry=\"11\" fill=\"#FFF1DC\" />", "deco": "<ellipse cx=\"60\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FF9D8A\" opacity=\".7\" /><ellipse cx=\"140\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FF9D8A\" opacity=\".7\" /><polygon points=\"96,101 104,101 100,106\" fill=\"#C9735A\" />", "mouthN": "<path d=\"M93,110 Q100,115 107,110\" stroke=\"#2E2A3D\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M92,109 Q100,125 108,109 Q100,112 92,109 Z\" fill=\"#C94A63\"/>"},
+    wolf:{"name": "おおかみ", "gem": "#5B7CFA", "gemAt": [100.0, 157.0], "clipAt": [140, 58], "crownT": "", "eyeY": 88.0, "eyeX": [75.0, 125.0], "back": "", "body": "<path d=\"M146,154 Q174,158 183,136 L189,135 Q194,117 188,102 L192,95 Q187,80 176,77 L172,70 Q162,75 160,88 L155,91 Q160,104 163,114 L158,119 Q162,134 146,136 Z\" fill=\"#A9B4C8\" /><path d=\"M188,102 L192,95 Q187,80 176,77 L172,70 Q162,75 160,88 Q170,86 178,92 Q185,97 188,102 Z\" fill=\"#EEF1F6\" /><path d=\"M166,128 Q178,121 180,106 M158,104 Q164,96 170,95\" stroke=\"#8E9AB0\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" /><polygon points=\"58,50 68,6 94,46\" fill=\"#A9B4C8\" /><polygon points=\"142,50 132,6 106,46\" fill=\"#A9B4C8\" /><polygon points=\"66,44 70,22 84,44\" fill=\"#D6DDEA\" /><polygon points=\"134,44 130,22 116,44\" fill=\"#D6DDEA\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#A9B4C8\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#A9B4C8\" /><polygon points=\"46,92 30,104 48,112\" fill=\"#A9B4C8\" /><polygon points=\"154,92 170,104 152,112\" fill=\"#A9B4C8\" /><ellipse cx=\"100\" cy=\"142\" rx=\"38\" ry=\"28\" fill=\"#EEF1F6\" /><ellipse cx=\"100\" cy=\"108\" rx=\"19\" ry=\"12\" fill=\"#EEF1F6\" />", "deco": "<ellipse cx=\"60\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".7\" /><ellipse cx=\"140\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".7\" /><ellipse cx=\"100\" cy=\"102\" rx=\"6\" ry=\"4\" fill=\"#2E2A3D\" />", "mouthN": "<path d=\"M93,111 Q100,116 107,111\" stroke=\"#2E2A3D\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M92,110 Q100,126 108,110 Q100,113 92,110 Z\" fill=\"#C94A63\"/>"},
+    snake:{"name": "へび", "gem": "#F2A134", "gemAt": [100.0, 167.0], "clipAt": [134, 46], "crownT": "", "eyeY": 78.0, "eyeX": [80.0, 120.0], "back": "", "body": "<path d=\"M160,152 Q190,146 182,122 Q176,134 158,140 Z\" fill=\"#6CC24E\" /><ellipse cx=\"100\" cy=\"150\" rx=\"70\" ry=\"24\" fill=\"#6CC24E\" /><ellipse cx=\"100\" cy=\"127\" rx=\"56\" ry=\"21\" fill=\"#86D466\" /><circle cx=\"70\" cy=\"152\" r=\"5\" fill=\"#B9EE9C\" /><circle cx=\"100\" cy=\"158\" r=\"5\" fill=\"#B9EE9C\" /><circle cx=\"130\" cy=\"152\" r=\"5\" fill=\"#B9EE9C\" /><circle cx=\"80\" cy=\"130\" r=\"4\" fill=\"#C8F4AE\" /><circle cx=\"120\" cy=\"130\" r=\"4\" fill=\"#C8F4AE\" /><circle cx=\"100\" cy=\"80\" r=\"48\" fill=\"#9EE07F\" />", "deco": "<ellipse cx=\"66\" cy=\"94\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".7\" /><ellipse cx=\"134\" cy=\"94\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".7\" /><path d=\"M100,103 L100,113 M100,113 L95,119 M100,113 L105,119\" stroke=\"#FF6F7A\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\" stroke-linejoin=\"round\" />", "mouthN": "<path d=\"M92,98 Q100,104 108,98\" stroke=\"#2E2A3D\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M91,97 Q100,113 109,97 Q100,100 91,97 Z\" fill=\"#C94A63\"/>"},
+    owl:{"name": "フクロウ", "gem": "#1FA98E", "gemAt": [100.0, 159.0], "clipAt": [140, 58], "crownT": "", "eyeY": 88.0, "eyeX": [76.0, 124.0], "back": "", "body": "<path d=\"M84,168 l-6,6 M84,168 l0,8 M84,168 l6,6 M116,168 l-6,6 M116,168 l0,8 M116,168 l6,6\" stroke=\"#F2A134\" stroke-width=\"3.5\" stroke-linecap=\"round\" /><ellipse cx=\"44\" cy=\"124\" rx=\"16\" ry=\"30\" fill=\"#9A7050\" transform=\"rotate(12 44 124)\" /><ellipse cx=\"156\" cy=\"124\" rx=\"16\" ry=\"30\" fill=\"#9A7050\" transform=\"rotate(-12 156 124)\" /><polygon points=\"58,50 56,12 86,40\" fill=\"#B58A64\" /><polygon points=\"142,50 144,12 114,40\" fill=\"#B58A64\" /><ellipse cx=\"100\" cy=\"128\" rx=\"64\" ry=\"50\" fill=\"#B58A64\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#B58A64\" /><ellipse cx=\"100\" cy=\"140\" rx=\"38\" ry=\"28\" fill=\"#F3E3CF\" /><g stroke=\"#D9BFA3\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\"><path d=\"M84,132 l6,5 l6,-5\" /><path d=\"M104,132 l6,5 l6,-5\" /><path d=\"M94,146 l6,5 l6,-5\" /></g><circle cx=\"76\" cy=\"88\" r=\"22\" fill=\"#F3E3CF\" /><circle cx=\"124\" cy=\"88\" r=\"22\" fill=\"#F3E3CF\" />", "deco": "<ellipse cx=\"52\" cy=\"108\" rx=\"9\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".7\" /><ellipse cx=\"148\" cy=\"108\" rx=\"9\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".7\" />", "mouthN": "<polygon points=\"94,104 106,104 100,114\" fill=\"#F2A134\" />", "mouthH": "<polygon points=\"95,107.5 105,107.5 103,112.5 97,112.5\" fill=\"#C94A63\"/><polygon points=\"94,107.5 106,107.5 100,99.5\" fill=\"#F2A134\"/><polygon points=\"95,112.5 105,112.5 100,120\" fill=\"#E08A1E\"/>"},
+    rabbit:{"name": "うさぎ", "gem": "#B05CE8", "gemAt": [100.0, 137.0], "clipAt": [140, 58], "crownT": "", "eyeY": 90.0, "eyeX": [75.0, 125.0], "back": "", "body": "<ellipse cx=\"70\" cy=\"28\" rx=\"14\" ry=\"32\" fill=\"#F3EAF7\" transform=\"rotate(-8 70 28)\" /><ellipse cx=\"130\" cy=\"28\" rx=\"14\" ry=\"32\" fill=\"#F3EAF7\" transform=\"rotate(8 130 28)\" /><ellipse cx=\"70\" cy=\"30\" rx=\"7\" ry=\"22\" fill=\"#FFB6C8\" transform=\"rotate(-8 70 30)\" /><ellipse cx=\"130\" cy=\"30\" rx=\"7\" ry=\"22\" fill=\"#FFB6C8\" transform=\"rotate(8 130 30)\" /><circle cx=\"152\" cy=\"146\" r=\"12\" fill=\"#FFFFFF\" stroke=\"#E4D8F0\" stroke-width=\"2\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#F3EAF7\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#F3EAF7\" /><ellipse cx=\"100\" cy=\"142\" rx=\"38\" ry=\"28\" fill=\"#FFFFFF\" />", "deco": "<ellipse cx=\"60\" cy=\"104\" rx=\"11\" ry=\"7\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"140\" cy=\"104\" rx=\"11\" ry=\"7\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"100\" cy=\"101\" rx=\"5\" ry=\"3.5\" fill=\"#FF9DB0\" />", "mouthN": "<path d=\"M100,104 L100,109 M100,109 Q93,116 88,111 M100,109 Q107,116 112,111\" stroke=\"#2E2A3D\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M94,110 Q100,125 106,110 Q100,113 94,110 Z\" fill=\"#C94A63\"/>"},
+    bear:{"name": "くま", "gem": "#FF6F4C", "gemAt": [100.0, 137.0], "clipAt": [140, 58], "crownT": "", "eyeY": 88.0, "eyeX": [75.0, 125.0], "back": "", "body": "<circle cx=\"54\" cy=\"42\" r=\"17\" fill=\"#C08A5A\" /><circle cx=\"146\" cy=\"42\" r=\"17\" fill=\"#C08A5A\" /><circle cx=\"54\" cy=\"43\" r=\"8\" fill=\"#E8C29A\" /><circle cx=\"146\" cy=\"43\" r=\"8\" fill=\"#E8C29A\" /><circle cx=\"152\" cy=\"148\" r=\"10\" fill=\"#C08A5A\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#C08A5A\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#C08A5A\" /><ellipse cx=\"100\" cy=\"142\" rx=\"38\" ry=\"28\" fill=\"#F1D9B8\" /><ellipse cx=\"100\" cy=\"106\" rx=\"23\" ry=\"17\" fill=\"#F1D9B8\" />", "deco": "<ellipse cx=\"58\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FF9D8A\" opacity=\".65\" /><ellipse cx=\"142\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FF9D8A\" opacity=\".65\" /><ellipse cx=\"100\" cy=\"100\" rx=\"8\" ry=\"5.5\" fill=\"#3B2A20\" />", "eyesC": "<ellipse cx=\"75\" cy=\"88\" rx=\"9\" ry=\"12\" fill=\"#2E2A3D\" /><ellipse cx=\"125\" cy=\"88\" rx=\"9\" ry=\"12\" fill=\"#2E2A3D\" /><circle cx=\"72\" cy=\"83\" r=\"3\" fill=\"#fff\" /><circle cx=\"122\" cy=\"83\" r=\"3\" fill=\"#fff\" />", "mouthN": "<path d=\"M100,106 L100,111 M100,111 Q94,117 89,112 M100,111 Q106,117 111,112\" stroke=\"#3B2A20\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M92,112 Q100,126 108,112 Q100,115 92,112 Z\" fill=\"#C94A63\"/>"},
+    panda:{"name": "パンダ", "eyeInk": "#fff", "gem": "#1FA98E", "gemAt": [100.0, 153.0], "clipAt": [140, 58], "crownT": "", "eyeY": 90.0, "eyeX": [75.0, 125.0], "back": "", "body": "<circle cx=\"54\" cy=\"42\" r=\"17\" fill=\"#2E2A3D\" /><circle cx=\"146\" cy=\"42\" r=\"17\" fill=\"#2E2A3D\" /><ellipse cx=\"34\" cy=\"128\" rx=\"15\" ry=\"26\" fill=\"#2E2A3D\" transform=\"rotate(14 34 128)\" /><ellipse cx=\"166\" cy=\"128\" rx=\"15\" ry=\"26\" fill=\"#2E2A3D\" transform=\"rotate(-14 166 128)\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#FAFAFC\" stroke=\"#DAD5E3\" stroke-width=\"2.5\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#FAFAFC\" stroke=\"#DAD5E3\" stroke-width=\"2.5\" /><ellipse cx=\"100\" cy=\"128\" rx=\"62\" ry=\"48\" fill=\"#FAFAFC\" /><circle cx=\"100\" cy=\"85\" r=\"52\" fill=\"#FAFAFC\" /><ellipse cx=\"74\" cy=\"90\" rx=\"15\" ry=\"19\" fill=\"#2E2A3D\" transform=\"rotate(18 74 90)\" /><ellipse cx=\"126\" cy=\"90\" rx=\"15\" ry=\"19\" fill=\"#2E2A3D\" transform=\"rotate(-18 126 90)\" />", "deco": "<ellipse cx=\"56\" cy=\"112\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"144\" cy=\"112\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"100\" cy=\"104\" rx=\"7\" ry=\"4.5\" fill=\"#2E2A3D\" />", "eyesC": "<ellipse cx=\"75\" cy=\"90\" rx=\"6.5\" ry=\"8.5\" fill=\"#FFFFFF\" /><ellipse cx=\"125\" cy=\"90\" rx=\"6.5\" ry=\"8.5\" fill=\"#FFFFFF\" /><circle cx=\"76\" cy=\"91\" r=\"4\" fill=\"#2E2A3D\" /><circle cx=\"124\" cy=\"91\" r=\"4\" fill=\"#2E2A3D\" /><circle cx=\"77.5\" cy=\"89\" r=\"1.4\" fill=\"#fff\" /><circle cx=\"125.5\" cy=\"89\" r=\"1.4\" fill=\"#fff\" />", "mouthN": "<path d=\"M100,108 L100,112 M100,112 Q94,118 89,113 M100,112 Q106,118 111,113\" stroke=\"#2E2A3D\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M93,112 Q100,127 107,112 Q100,116 93,112 Z\" fill=\"#C94A63\"/>"},
+    dog:{"name": "いぬ", "gem": "#E5484D", "gemAt": [100.0, 141.0], "clipAt": [140, 58], "crownT": "", "eyeY": 90.0, "eyeX": [75.0, 125.0], "back": "", "body": "<path d=\"M148,124 Q176,108 172,138 Q166,150 148,144 Z\" fill=\"#F5D9A8\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#F5D9A8\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#F5D9A8\" /><ellipse cx=\"100\" cy=\"142\" rx=\"38\" ry=\"28\" fill=\"#FFF3DD\" /><circle cx=\"125\" cy=\"86\" r=\"19\" fill=\"#B9814F\" /><ellipse cx=\"42\" cy=\"82\" rx=\"15\" ry=\"32\" fill=\"#B9814F\" transform=\"rotate(10 42 82)\" /><ellipse cx=\"158\" cy=\"82\" rx=\"15\" ry=\"32\" fill=\"#B9814F\" transform=\"rotate(-10 158 82)\" /><ellipse cx=\"100\" cy=\"108\" rx=\"21\" ry=\"15\" fill=\"#FFF3DD\" />", "deco": "<ellipse cx=\"62\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".7\" /><ellipse cx=\"138\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".7\" /><ellipse cx=\"100\" cy=\"102\" rx=\"7.5\" ry=\"5\" fill=\"#3B2A20\" />", "mouthN": "<path d=\"M100,107 L100,111 M100,111 Q94,117 89,112 M100,111 Q106,117 111,112\" stroke=\"#3B2A20\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" /><ellipse cx=\"100\" cy=\"120\" rx=\"5\" ry=\"6\" fill=\"#FF8FA3\" />", "mouthH": "<path d=\"M92,112 Q100,126 108,112 Q100,115 92,112 Z\" fill=\"#C94A63\"/>"},
+    fox:{"name": "きつね", "gem": "#1FA98E", "gemAt": [100.0, 141.0], "clipAt": [140, 58], "crownT": "", "eyeY": 88.0, "eyeX": [75.0, 125.0], "back": "", "body": "<path d=\"M146,124 Q190,96 182,148 Q172,168 144,148 Z\" fill=\"#FF9A4D\" /><path d=\"M180,116 Q192,132 182,150 Q172,156 166,148 Q176,136 180,116 Z\" fill=\"#FFFFFF\" stroke=\"#F1E4D6\" stroke-width=\"2\" /><polygon points=\"58,50 62,6 96,44\" fill=\"#FF9A4D\" /><polygon points=\"142,50 138,6 104,44\" fill=\"#FF9A4D\" /><polygon points=\"66,44 66,20 84,40\" fill=\"#7A4A2B\" /><polygon points=\"134,44 134,20 116,40\" fill=\"#7A4A2B\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#FF9A4D\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#FF9A4D\" /><ellipse cx=\"100\" cy=\"142\" rx=\"38\" ry=\"28\" fill=\"#FFF1DC\" /><ellipse cx=\"68\" cy=\"108\" rx=\"24\" ry=\"14\" fill=\"#FFF1DC\" transform=\"rotate(-14 68 108)\" /><ellipse cx=\"132\" cy=\"108\" rx=\"24\" ry=\"14\" fill=\"#FFF1DC\" transform=\"rotate(14 132 108)\" /><ellipse cx=\"100\" cy=\"112\" rx=\"18\" ry=\"11\" fill=\"#FFF1DC\" />", "deco": "<ellipse cx=\"58\" cy=\"102\" rx=\"9\" ry=\"5.5\" fill=\"#FF7B6B\" opacity=\".6\" /><ellipse cx=\"142\" cy=\"102\" rx=\"9\" ry=\"5.5\" fill=\"#FF7B6B\" opacity=\".6\" /><ellipse cx=\"100\" cy=\"104\" rx=\"5.5\" ry=\"4\" fill=\"#2E2A3D\" />", "eyesC": "<ellipse cx=\"75\" cy=\"88\" rx=\"9\" ry=\"12\" fill=\"#2E2A3D\" /><ellipse cx=\"125\" cy=\"88\" rx=\"9\" ry=\"12\" fill=\"#2E2A3D\" /><circle cx=\"72\" cy=\"83\" r=\"3\" fill=\"#fff\" /><circle cx=\"122\" cy=\"83\" r=\"3\" fill=\"#fff\" />", "mouthN": "<path d=\"M92,113 Q100,119 108,113\" stroke=\"#2E2A3D\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M91,112 Q100,128 109,112 Q100,115 91,112 Z\" fill=\"#C94A63\"/>"},
+    hamster:{"name": "ハムスター", "gem": "#5B7CFA", "gemAt": [100.0, 147.0], "clipAt": [140, 58], "crownT": "", "eyeY": 90.0, "eyeX": [76.0, 124.0], "back": "", "body": "<circle cx=\"56\" cy=\"50\" r=\"15\" fill=\"#F2D3A0\" /><circle cx=\"144\" cy=\"50\" r=\"15\" fill=\"#F2D3A0\" /><circle cx=\"56\" cy=\"51\" r=\"7.5\" fill=\"#FFB6C8\" /><circle cx=\"144\" cy=\"51\" r=\"7.5\" fill=\"#FFB6C8\" /><ellipse cx=\"100\" cy=\"132\" rx=\"66\" ry=\"50\" fill=\"#F2D3A0\" /><ellipse cx=\"100\" cy=\"90\" rx=\"62\" ry=\"52\" fill=\"#F2D3A0\" /><ellipse cx=\"100\" cy=\"144\" rx=\"36\" ry=\"26\" fill=\"#FFF7E8\" /><ellipse cx=\"100\" cy=\"52\" rx=\"26\" ry=\"14\" fill=\"#C98F5A\" /><ellipse cx=\"60\" cy=\"110\" rx=\"26\" ry=\"19\" fill=\"#FFF7E8\" /><ellipse cx=\"140\" cy=\"110\" rx=\"26\" ry=\"19\" fill=\"#FFF7E8\" />", "deco": "<ellipse cx=\"52\" cy=\"112\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"148\" cy=\"112\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"100\" cy=\"102\" rx=\"5\" ry=\"3.5\" fill=\"#FF9DB0\" /><rect x=\"96\" y=\"112\" width=\"8\" height=\"8\" rx=\"2\" fill=\"#FFFFFF\" stroke=\"#E0C9A4\" stroke-width=\"1.5\" />", "eyesC": "<ellipse cx=\"76\" cy=\"90\" rx=\"9\" ry=\"12\" fill=\"#2E2A3D\" /><ellipse cx=\"124\" cy=\"90\" rx=\"9\" ry=\"12\" fill=\"#2E2A3D\" /><circle cx=\"73\" cy=\"85\" r=\"3\" fill=\"#fff\" /><circle cx=\"121\" cy=\"85\" r=\"3\" fill=\"#fff\" />", "mouthN": "<path d=\"M100,105 L100,110 M100,110 Q94,115 90,111 M100,110 Q106,115 110,111\" stroke=\"#2E2A3D\" stroke-width=\"2.4\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M94,110 Q100,124 106,110 Q100,113 94,110 Z\" fill=\"#C94A63\"/>"},
+    penguin:{"name": "ペンギン", "gem": "#FF6F4C", "gemAt": [100.0, 147.0], "clipAt": [140, 58], "crownT": "", "eyeY": 90.0, "eyeX": [76.0, 124.0], "back": "", "body": "<ellipse cx=\"74\" cy=\"172\" rx=\"16\" ry=\"7\" fill=\"#F2A134\" /><ellipse cx=\"126\" cy=\"172\" rx=\"16\" ry=\"7\" fill=\"#F2A134\" /><ellipse cx=\"36\" cy=\"128\" rx=\"14\" ry=\"28\" fill=\"#3A3D66\" transform=\"rotate(16 36 128)\" /><ellipse cx=\"164\" cy=\"128\" rx=\"14\" ry=\"28\" fill=\"#3A3D66\" transform=\"rotate(-16 164 128)\" /><ellipse cx=\"100\" cy=\"128\" rx=\"66\" ry=\"52\" fill=\"#3A3D66\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#3A3D66\" /><ellipse cx=\"100\" cy=\"142\" rx=\"42\" ry=\"30\" fill=\"#FFFFFF\" /><circle cx=\"80\" cy=\"94\" r=\"25\" fill=\"#FFFFFF\" /><circle cx=\"120\" cy=\"94\" r=\"25\" fill=\"#FFFFFF\" />", "deco": "<ellipse cx=\"60\" cy=\"108\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".8\" /><ellipse cx=\"140\" cy=\"108\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".8\" />", "eyesC": "<ellipse cx=\"76\" cy=\"90\" rx=\"8.5\" ry=\"11.5\" fill=\"#2E2A3D\" /><ellipse cx=\"124\" cy=\"90\" rx=\"8.5\" ry=\"11.5\" fill=\"#2E2A3D\" /><circle cx=\"73\" cy=\"85\" r=\"3\" fill=\"#fff\" /><circle cx=\"121\" cy=\"85\" r=\"3\" fill=\"#fff\" />", "mouthN": "<polygon points=\"88,101 112,101 100,116\" fill=\"#F2A134\" />", "mouthH": "<polygon points=\"89,107 111,107 109,113 91,113\" fill=\"#C94A63\"/><polygon points=\"88,107 112,107 100,98\" fill=\"#F2A134\"/><polygon points=\"91,113 109,113 100,122.5\" fill=\"#E08A1E\"/>"},
+    seal:{"name": "あざらし", "gem": "#F2A134", "gemAt": [100.0, 141.0], "clipAt": [140, 58], "crownT": "", "eyeY": 88.0, "eyeX": [72.0, 128.0], "back": "", "body": "<path d=\"M150,150 Q184,150 182,170 Q166,172 152,164 Q166,164 150,150 Z\" fill=\"#B4C2DA\" /><ellipse cx=\"36\" cy=\"134\" rx=\"17\" ry=\"10\" fill=\"#B4C2DA\" transform=\"rotate(28 36 134)\" /><ellipse cx=\"164\" cy=\"134\" rx=\"17\" ry=\"10\" fill=\"#B4C2DA\" transform=\"rotate(-28 164 134)\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#C9D4E6\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#C9D4E6\" /><ellipse cx=\"100\" cy=\"144\" rx=\"40\" ry=\"28\" fill=\"#F4F7FC\" /><ellipse cx=\"100\" cy=\"108\" rx=\"26\" ry=\"17\" fill=\"#F4F7FC\" />", "deco": "<ellipse cx=\"54\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"146\" cy=\"106\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"100\" cy=\"100\" rx=\"7.5\" ry=\"5\" fill=\"#2E2A3D\" /><g fill=\"#7C8AA5\"><circle cx=\"86\" cy=\"106\" r=\"1.4\" /><circle cx=\"82\" cy=\"111\" r=\"1.4\" /><circle cx=\"114\" cy=\"106\" r=\"1.4\" /><circle cx=\"118\" cy=\"111\" r=\"1.4\" /></g>", "eyesC": "<ellipse cx=\"72\" cy=\"88\" rx=\"10.5\" ry=\"13.5\" fill=\"#2E2A3D\" /><ellipse cx=\"128\" cy=\"88\" rx=\"10.5\" ry=\"13.5\" fill=\"#2E2A3D\" /><circle cx=\"69\" cy=\"83\" r=\"3.4\" fill=\"#fff\" /><circle cx=\"125\" cy=\"83\" r=\"3.4\" fill=\"#fff\" />", "mouthN": "<path d=\"M100,105 L100,110 M100,110 Q94,116 89,111 M100,110 Q106,116 111,111\" stroke=\"#2E2A3D\" stroke-width=\"2.4\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M94,110 Q100,124 106,110 Q100,113 94,110 Z\" fill=\"#C94A63\"/>"},
+    unicorn:{"name": "ユニコーン", "gem": "#B05CE8", "gemAt": [100.0, 141.0], "clipAt": [140, 58], "crownT": "translate(-30 14) rotate(-20 100 30)", "eyeY": 92.0, "eyeX": [75.0, 125.0], "back": "", "body": "<path d=\"M148,124 Q190,110 180,150 Q172,166 148,148 Z\" fill=\"#B58CFF\" /><path d=\"M156,136 Q178,132 176,152\" stroke=\"#FF9EC8\" stroke-width=\"6\" fill=\"none\" stroke-linecap=\"round\" /><polygon points=\"60,52 64,14 92,46\" fill=\"#F6F0FF\" stroke=\"#E4D8F5\" stroke-width=\"2\" stroke-linejoin=\"round\" /><polygon points=\"140,52 136,14 108,46\" fill=\"#F6F0FF\" stroke=\"#E4D8F5\" stroke-width=\"2\" stroke-linejoin=\"round\" /><polygon points=\"66,46 68,26 82,44\" fill=\"#FFB6C8\" /><polygon points=\"134,46 132,26 118,44\" fill=\"#FFB6C8\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#F6F0FF\" stroke=\"#E4D8F5\" stroke-width=\"2\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#F6F0FF\" stroke=\"#E4D8F5\" stroke-width=\"2\" /><ellipse cx=\"100\" cy=\"128\" rx=\"65\" ry=\"51\" fill=\"#F6F0FF\" /><circle cx=\"100\" cy=\"85\" r=\"53\" fill=\"#F6F0FF\" /><ellipse cx=\"100\" cy=\"144\" rx=\"38\" ry=\"26\" fill=\"#FFFFFF\" /><circle cx=\"62\" cy=\"40\" r=\"13\" fill=\"#FF9EC8\" /><circle cx=\"76\" cy=\"34\" r=\"12\" fill=\"#B58CFF\" /><circle cx=\"50\" cy=\"56\" r=\"11\" fill=\"#8FE0C6\" /><polygon points=\"91,44 100,-2 109,44\" fill=\"#FFD24C\" /><path d=\"M94,32 L106,28 M92,40 L108,36 M96,22 L104,19\" stroke=\"#F2A134\" stroke-width=\"2.4\" stroke-linecap=\"round\" />", "deco": "<ellipse cx=\"60\" cy=\"108\" rx=\"11\" ry=\"7\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"140\" cy=\"108\" rx=\"11\" ry=\"7\" fill=\"#FFB6C8\" opacity=\".75\" /><ellipse cx=\"94\" cy=\"108\" rx=\"2.6\" ry=\"2\" fill=\"#C7A9E0\" /><ellipse cx=\"106\" cy=\"108\" rx=\"2.6\" ry=\"2\" fill=\"#C7A9E0\" />", "mouthN": "<path d=\"M92,116 Q100,122 108,116\" stroke=\"#2E2A3D\" stroke-width=\"2.5\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M91,115 Q100,131 109,115 Q100,118 91,115 Z\" fill=\"#C94A63\"/>"},
+    dolphin:{"name": "イルカ", "gem": "#FF6F4C", "gemAt": [100.0, 147.0], "clipAt": [140, 58], "crownT": "", "eyeY": 84.0, "eyeX": [68.0, 132.0], "back": "", "body": "<path d=\"M146,152 Q176,152 182,124 Q170,128 164,138 Q168,120 156,110 Q150,130 146,152 Z\" fill=\"#6EB8FF\" /><path d=\"M92,32 Q104,6 122,34 Q106,30 92,32 Z\" fill=\"#5AA6F0\" /><ellipse cx=\"32\" cy=\"134\" rx=\"15\" ry=\"9\" fill=\"#5AA6F0\" transform=\"rotate(30 32 134)\" /><ellipse cx=\"168\" cy=\"134\" rx=\"15\" ry=\"9\" fill=\"#5AA6F0\" transform=\"rotate(-30 168 134)\" /><ellipse cx=\"100\" cy=\"128\" rx=\"68\" ry=\"54\" fill=\"#6EB8FF\" /><circle cx=\"100\" cy=\"85\" r=\"56\" fill=\"#6EB8FF\" /><ellipse cx=\"100\" cy=\"146\" rx=\"40\" ry=\"28\" fill=\"#F1F8FF\" /><ellipse cx=\"100\" cy=\"110\" rx=\"28\" ry=\"15\" fill=\"#A8D4FF\" /><ellipse cx=\"100\" cy=\"104\" rx=\"16\" ry=\"7\" fill=\"#A8D4FF\" /><path d=\"M92,36 Q100,40 108,36\" stroke=\"#3E86D0\" stroke-width=\"2.4\" fill=\"none\" stroke-linecap=\"round\" />", "deco": "<ellipse cx=\"54\" cy=\"104\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".8\" /><ellipse cx=\"146\" cy=\"104\" rx=\"10\" ry=\"6\" fill=\"#FFB6C8\" opacity=\".8\" />", "mouthN": "<path d=\"M80,114 Q100,128 120,114\" stroke=\"#2E2A3D\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\" />", "mouthH": "<path d=\"M79,113 Q100,129 121,113 Q100,116 79,113 Z\" fill=\"#C94A63\"/>"},
+    squirrel:{
+      name:'りす', gem:'#1FA98E', gemAt:[100,141], clipAt:[140,58], crownT:'', eyeY:88,
+      back:'<path d="M144,156 Q206,160 200,94 Q196,30 150,22 Q118,20 120,48 Q146,42 156,62 Q166,86 156,112 Q150,130 144,140 Z" fill="#D98E4E"/><path d="M160,46 Q188,64 188,100 Q186,136 160,148 Q174,116 172,92 Q170,66 150,50 Z" fill="#F2B77A"/>',
+      body:'<ellipse cx="100" cy="128" rx="66" ry="54" fill="#E0A066"/><path d="M60,54 L64,14 Q78,22 90,44 Z" fill="#E0A066"/><path d="M140,54 L136,14 Q122,22 110,44 Z" fill="#E0A066"/><path d="M64,16 Q58,4 63,-2 Q70,6 67,16 Z" fill="#C97A3E"/><path d="M136,16 Q142,4 137,-2 Q130,6 133,16 Z" fill="#C97A3E"/><circle cx="100" cy="85" r="56" fill="#E0A066"/><path d="M67,44 L69,24 Q78,30 83,42 Z" fill="#FFB6C8"/><path d="M133,44 L131,24 Q122,30 117,42 Z" fill="#FFB6C8"/><ellipse cx="100" cy="142" rx="38" ry="28" fill="#FFF1DC"/><ellipse cx="100" cy="109" rx="27" ry="17" fill="#FFF1DC"/>',
+      deco:'<ellipse cx="58" cy="106" rx="10" ry="6" fill="#FFB6C8" opacity=".7"/><ellipse cx="142" cy="106" rx="10" ry="6" fill="#FFB6C8" opacity=".7"/><ellipse cx="100" cy="102" rx="5.5" ry="3.8" fill="#8A5A3C"/>',
+      mouthN:'<path d="M100,105 L100,110 M100,110 Q94,115 90,111 M100,110 Q106,115 110,111" stroke="'+INK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M93,110 Q100,125 107,110 Q100,113 93,110 Z" fill="#C94A63"/>'
+    },
+    koala:{
+      name:'コアラ', gem:'#FF6F4C', gemAt:[100,142], clipAt:[134,34], crownT:'', eyeY:82,
+      body:'<ellipse cx="100" cy="128" rx="68" ry="54" fill="#A7ADB9"/><circle cx="48" cy="54" r="28" fill="#A7ADB9"/><circle cx="152" cy="54" r="28" fill="#A7ADB9"/><circle cx="51" cy="57" r="16" fill="#F4F2F6"/><circle cx="149" cy="57" r="16" fill="#F4F2F6"/><circle cx="100" cy="86" r="56" fill="#A7ADB9"/><ellipse cx="100" cy="142" rx="38" ry="28" fill="#F4F2F6"/>',
+      deco:'<ellipse cx="57" cy="102" rx="10" ry="6" fill="#FFB6C8" opacity=".65"/><ellipse cx="143" cy="102" rx="10" ry="6" fill="#FFB6C8" opacity=".65"/><ellipse cx="100" cy="97" rx="11" ry="12.5" fill="#4A4552"/><ellipse cx="96.5" cy="92" rx="2.6" ry="3.4" fill="#fff" opacity=".35"/>',
+      mouthN:'<path d="M93,113 Q100,118 107,113" stroke="'+INK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M93,112 Q100,124 107,112 Q100,115 93,112 Z" fill="#C94A63"/>'
+    },
+    sheep:{
+      name:'ひつじ', gem:'#B05CE8', gemAt:[100,146], clipAt:[140,52], crownT:'', eyeY:98, eyeX:[80,120],
+      body:'<ellipse cx="80" cy="177" rx="12" ry="6" fill="#B39A86"/><ellipse cx="120" cy="177" rx="12" ry="6" fill="#B39A86"/><circle cx="156.6" cy="109.3" r="12" fill="#F1E6D4"/><circle cx="161.8" cy="124.0" r="12" fill="#F1E6D4"/><circle cx="160.2" cy="139.1" r="12" fill="#F1E6D4"/><circle cx="152.0" cy="153.1" r="12" fill="#F1E6D4"/><circle cx="138.2" cy="164.2" r="12" fill="#F1E6D4"/><circle cx="120.2" cy="171.5" r="12" fill="#F1E6D4"/><circle cx="100.0" cy="174.0" r="12" fill="#F1E6D4"/><circle cx="79.8" cy="171.5" r="12" fill="#F1E6D4"/><circle cx="61.8" cy="164.2" r="12" fill="#F1E6D4"/><circle cx="48.0" cy="153.1" r="12" fill="#F1E6D4"/><circle cx="39.8" cy="139.1" r="12" fill="#F1E6D4"/><circle cx="38.2" cy="124.0" r="12" fill="#F1E6D4"/><circle cx="43.4" cy="109.3" r="12" fill="#F1E6D4"/><circle cx="155.7" cy="108.9" r="10.5" fill="#FFFCF5"/><circle cx="160.8" cy="123.3" r="10.5" fill="#FFFCF5"/><circle cx="159.2" cy="138.1" r="10.5" fill="#FFFCF5"/><circle cx="151.2" cy="151.7" r="10.5" fill="#FFFCF5"/><circle cx="137.6" cy="162.7" r="10.5" fill="#FFFCF5"/><circle cx="119.9" cy="169.7" r="10.5" fill="#FFFCF5"/><circle cx="100.0" cy="172.2" r="10.5" fill="#FFFCF5"/><circle cx="80.1" cy="169.7" r="10.5" fill="#FFFCF5"/><circle cx="62.4" cy="162.7" r="10.5" fill="#FFFCF5"/><circle cx="48.8" cy="151.7" r="10.5" fill="#FFFCF5"/><circle cx="40.8" cy="138.1" r="10.5" fill="#FFFCF5"/><circle cx="39.2" cy="123.3" r="10.5" fill="#FFFCF5"/><circle cx="44.3" cy="108.9" r="10.5" fill="#FFFCF5"/><ellipse cx="100" cy="128" rx="62" ry="46" fill="#FFFCF5"/><circle cx="51.9" cy="71.3" r="17" fill="#F1E6D4"/><circle cx="51.9" cy="69.8" r="14.5" fill="#FFFCF5"/><circle cx="58.8" cy="57.9" r="17" fill="#F1E6D4"/><circle cx="58.8" cy="56.4" r="14.5" fill="#FFFCF5"/><circle cx="69.9" cy="47.3" r="17" fill="#F1E6D4"/><circle cx="69.9" cy="45.8" r="14.5" fill="#FFFCF5"/><circle cx="84.1" cy="40.4" r="17" fill="#F1E6D4"/><circle cx="84.1" cy="38.9" r="14.5" fill="#FFFCF5"/><circle cx="100.0" cy="38.0" r="17" fill="#F1E6D4"/><circle cx="100.0" cy="36.5" r="14.5" fill="#FFFCF5"/><circle cx="115.9" cy="40.4" r="17" fill="#F1E6D4"/><circle cx="115.9" cy="38.9" r="14.5" fill="#FFFCF5"/><circle cx="130.1" cy="47.3" r="17" fill="#F1E6D4"/><circle cx="130.1" cy="45.8" r="14.5" fill="#FFFCF5"/><circle cx="141.2" cy="57.9" r="17" fill="#F1E6D4"/><circle cx="141.2" cy="56.4" r="14.5" fill="#FFFCF5"/><circle cx="148.1" cy="71.3" r="17" fill="#F1E6D4"/><circle cx="148.1" cy="69.8" r="14.5" fill="#FFFCF5"/><circle cx="100" cy="84" r="50" fill="#FFFCF5"/><path d="M100,135 Q144,135 144,97 Q144,67 100,67 Q56,67 56,97 Q56,135 100,135 Z" fill="#F8E4CC"/><circle cx="72" cy="74" r="11" fill="#FFFCF5"/><circle cx="86" cy="68" r="11" fill="#FFFCF5"/><circle cx="100" cy="66" r="11" fill="#FFFCF5"/><circle cx="114" cy="68" r="11" fill="#FFFCF5"/><circle cx="128" cy="74" r="11" fill="#FFFCF5"/><circle cx="52" cy="96" r="18" fill="#F7CB45"/><path d="M52,96 m-6,0 a6,6 0 1,1 12,0 a11,11 0 1,1 -22,0" stroke="#E0A92A" stroke-width="3.2" fill="none" stroke-linecap="round"/><circle cx="148" cy="96" r="18" fill="#F7CB45"/><path d="M148,96 m6,0 a6,6 0 1,0 -12,0 a11,11 0 1,0 22,0" stroke="#E0A92A" stroke-width="3.2" fill="none" stroke-linecap="round"/><ellipse cx="76" cy="150" rx="10" ry="8" transform="rotate(-20 76 150)" fill="#F3D6B8"/><ellipse cx="124" cy="150" rx="10" ry="8" transform="rotate(20 124 150)" fill="#F3D6B8"/>',
+      deco:'<ellipse cx="70" cy="114" rx="9" ry="5.5" fill="#FFB0B8" opacity=".8"/><ellipse cx="130" cy="114" rx="9" ry="5.5" fill="#FFB0B8" opacity=".8"/><ellipse cx="100" cy="106" rx="4.5" ry="3.2" fill="#C98A7A"/>',
+      mouthN:'<path d="M100,108 L100,111 M100,111 Q95,116 91,112 M100,111 Q105,116 109,112" stroke="'+INK+'" stroke-width="2.3" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M93,110 Q100,124 107,110 Q100,113 93,110 Z" fill="#C94A63"/>'
+    },
+    mouse:{
+      name:'ねずみ', gem:'#E5484D', gemAt:[100,141], clipAt:[146,40], crownT:'', eyeY:90, eyeX:[76,124],
+      back:'<path d="M150,152 Q192,156 190,124 Q188,100 168,106" stroke="#F4AFC0" stroke-width="6" fill="none" stroke-linecap="round"/>',
+      body:'<circle cx="44" cy="50" r="31" fill="#C9C6D3"/><circle cx="156" cy="50" r="31" fill="#C9C6D3"/><circle cx="46" cy="52" r="20" fill="#FFC2CF"/><circle cx="154" cy="52" r="20" fill="#FFC2CF"/><ellipse cx="100" cy="128" rx="68" ry="54" fill="#C9C6D3"/><circle cx="100" cy="85" r="56" fill="#C9C6D3"/><ellipse cx="100" cy="142" rx="38" ry="28" fill="#F7F5FA"/><ellipse cx="100" cy="106" rx="22" ry="14" fill="#F7F5FA"/>',
+      deco:'<ellipse cx="58" cy="108" rx="10" ry="6" fill="#FFB6C8" opacity=".7"/><ellipse cx="142" cy="108" rx="10" ry="6" fill="#FFB6C8" opacity=".7"/><ellipse cx="100" cy="100" rx="6" ry="4.5" fill="#FF8FA8"/><path d="M72,104 L50,99 M72,110 L50,112 M128,104 L150,99 M128,110 L150,112" stroke="#ADA8BA" stroke-width="2" fill="none" stroke-linecap="round"/>',
+      mouthN:'<path d="M100,104 L100,109 M100,109 Q94,114 90,110 M100,109 Q106,114 110,110" stroke="'+INK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M93,110 Q100,124 107,110 Q100,113 93,110 Z" fill="#C94A63"/>'
+    },
+    cow:{
+      name:'うし', gem:'#1FA98E', gemAt:[100,146], clipAt:[140,52], crownT:'', eyeY:82, eyeX:[75,125],
+      back:'<path d="M150,150 Q182,152 184,122" stroke="#FBF8F4" stroke-width="5" fill="none" stroke-linecap="round"/><ellipse cx="184" cy="116" rx="6" ry="9" fill="#3D3842"/>',
+      body:'<path d="M72,42 Q58,24 68,10 Q76,28 88,36 Z" fill="#F3E2B8"/><path d="M128,42 Q142,24 132,10 Q124,28 112,36 Z" fill="#F3E2B8"/><ellipse cx="40" cy="74" rx="22" ry="11" fill="#FBF8F4" transform="rotate(-20 40 74)"/><ellipse cx="160" cy="74" rx="22" ry="11" fill="#FBF8F4" transform="rotate(20 160 74)"/><ellipse cx="42" cy="74" rx="12" ry="5.5" fill="#FFC2CF" transform="rotate(-20 42 74)"/><ellipse cx="158" cy="74" rx="12" ry="5.5" fill="#FFC2CF" transform="rotate(20 158 74)"/><ellipse cx="100" cy="128" rx="68" ry="54" fill="#FBF8F4"/><circle cx="100" cy="85" r="56" fill="#FBF8F4"/><ellipse cx="150" cy="142" rx="20" ry="24" fill="#3D3842" transform="rotate(20 150 142)"/><ellipse cx="54" cy="154" rx="15" ry="11" fill="#3D3842"/><ellipse cx="77" cy="56" rx="17" ry="13" fill="#3D3842" transform="rotate(-25 77 56)"/><ellipse cx="100" cy="142" rx="38" ry="28" fill="#FFFFFF"/><ellipse cx="100" cy="108" rx="32" ry="17" fill="#FFC9CF"/>',
+      deco:'<ellipse cx="58" cy="98" rx="9" ry="5.5" fill="#FFB6C8" opacity=".7"/><ellipse cx="142" cy="98" rx="9" ry="5.5" fill="#FFB6C8" opacity=".7"/><ellipse cx="89" cy="104" rx="3.6" ry="2.6" fill="#D98A98"/><ellipse cx="111" cy="104" rx="3.6" ry="2.6" fill="#D98A98"/>',
+      mouthN:'<path d="M92,114 Q100,120 108,114" stroke="'+INK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M93,113 Q100,127 107,113 Q100,116 93,113 Z" fill="#C94A63"/>'
+    },
+    horse:{
+      name:'うま', gem:'#5B7CFA', gemAt:[100,146], clipAt:[140,56], crownT:'translate(0 -6)', eyeY:84, eyeX:[75,125],
+      back:'<path d="M148,138 Q190,128 186,172 Q172,160 150,156 Z" fill="#6B4430"/>',
+      body:'<polygon points="58,54 62,12 92,44" fill="#C98A55"/><polygon points="142,54 138,12 108,44" fill="#C98A55"/><polygon points="65,46 67,26 82,42" fill="#E8B48A"/><polygon points="135,46 133,26 118,42" fill="#E8B48A"/><ellipse cx="100" cy="128" rx="68" ry="54" fill="#C98A55"/><circle cx="100" cy="85" r="56" fill="#C98A55"/><ellipse cx="100" cy="142" rx="38" ry="28" fill="#F3D9B8"/><ellipse cx="100" cy="110" rx="31" ry="18" fill="#F3D9B8"/><ellipse cx="90" cy="34" rx="13" ry="10" fill="#6B4430" transform="rotate(-20 90 34)"/><ellipse cx="110" cy="34" rx="13" ry="10" fill="#6B4430" transform="rotate(20 110 34)"/><path d="M82,34 Q100,22 118,34 Q114,58 100,62 Q86,58 82,34 Z" fill="#6B4430"/>',
+      deco:'<ellipse cx="58" cy="100" rx="9" ry="5.5" fill="#FFB6C8" opacity=".7"/><ellipse cx="142" cy="100" rx="9" ry="5.5" fill="#FFB6C8" opacity=".7"/><ellipse cx="89" cy="108" rx="3.6" ry="2.8" fill="#8A5A3C"/><ellipse cx="111" cy="108" rx="3.6" ry="2.8" fill="#8A5A3C"/>',
+      mouthN:'<path d="M93,118 Q100,123 107,118" stroke="'+INK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M93,117 Q100,131 107,117 Q100,120 93,117 Z" fill="#C94A63"/>'
+    },
+    monkey:{
+      name:'さる', gem:'#F2A134', gemAt:[100,146], clipAt:[136,40], crownT:'', eyeY:86, eyeX:[80,120],
+      back:'<path d="M150,152 Q190,156 188,122 Q186,98 166,102 Q154,108 162,118" stroke="#A9714B" stroke-width="8" fill="none" stroke-linecap="round"/>',
+      body:'<circle cx="40" cy="90" r="20" fill="#A9714B"/><circle cx="160" cy="90" r="20" fill="#A9714B"/><circle cx="42" cy="90" r="12" fill="#F7D5B5"/><circle cx="158" cy="90" r="12" fill="#F7D5B5"/><ellipse cx="100" cy="128" rx="68" ry="54" fill="#A9714B"/><circle cx="100" cy="85" r="56" fill="#A9714B"/><ellipse cx="100" cy="142" rx="38" ry="28" fill="#F7D5B5"/><circle cx="81" cy="84" r="22" fill="#F7D5B5"/><circle cx="119" cy="84" r="22" fill="#F7D5B5"/><ellipse cx="100" cy="106" rx="34" ry="21" fill="#F7D5B5"/><path d="M92,32 Q98,20 106,28 Q100,30 96,36 Z" fill="#A9714B"/>',
+      deco:'<ellipse cx="64" cy="104" rx="8" ry="5" fill="#FF9DB0" opacity=".7"/><ellipse cx="136" cy="104" rx="8" ry="5" fill="#FF9DB0" opacity=".7"/><ellipse cx="96" cy="99" rx="2.4" ry="2" fill="#7A4E34"/><ellipse cx="104" cy="99" rx="2.4" ry="2" fill="#7A4E34"/>',
+      mouthN:'<path d="M91,108 Q100,116 109,108" stroke="'+INK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M93,108 Q100,122 107,108 Q100,111 93,108 Z" fill="#C94A63"/>'
+    },
+    hen:{
+      name:'にわとり', gem:'#B05CE8', gemAt:[100,154], clipAt:[140,60], crownT:'translate(-28 10) rotate(-18 100 30)', eyeY:86,
+      back:'<ellipse cx="158" cy="100" rx="9" ry="26" fill="#E39A4E" transform="rotate(25 158 100)"/><ellipse cx="172" cy="112" rx="9" ry="26" fill="#4FA88A" transform="rotate(50 172 112)"/><ellipse cx="178" cy="130" rx="8" ry="22" fill="#E39A4E" transform="rotate(78 178 130)"/><ellipse cx="50" cy="124" rx="17" ry="11" fill="#EFE6D8" transform="rotate(-25 50 124)"/><ellipse cx="150" cy="124" rx="17" ry="11" fill="#EFE6D8" transform="rotate(25 150 124)"/>',
+      body:'<circle cx="86" cy="32" r="11" fill="#F0545C"/><circle cx="100" cy="25" r="13" fill="#F0545C"/><circle cx="114" cy="32" r="11" fill="#F0545C"/><ellipse cx="100" cy="130" rx="66" ry="52" fill="#FFFBF4"/><circle cx="100" cy="85" r="58" fill="#FFFBF4"/><ellipse cx="100" cy="144" rx="36" ry="26" fill="#FFFFFF"/><ellipse cx="44" cy="128" rx="13" ry="22" fill="#EFE6D8" transform="rotate(15 44 128)"/><ellipse cx="156" cy="128" rx="13" ry="22" fill="#EFE6D8" transform="rotate(-15 156 128)"/>',
+      deco:'<ellipse cx="62" cy="104" rx="10" ry="6" fill="#FF9D6A" opacity=".55"/><ellipse cx="138" cy="104" rx="10" ry="6" fill="#FF9D6A" opacity=".55"/>',
+      mouthN:'<ellipse cx="100" cy="114" rx="5.5" ry="7" fill="#F0545C"/><polygon points="90,100 110,100 100,111" fill="#F7B731"/>',
+      mouthH:'<ellipse cx="100" cy="118" rx="5.5" ry="7" fill="#F0545C"/><polygon points="91,103 109,103 107,108 93,108" fill="#C94A63"/><polygon points="90,103 110,103 100,94" fill="#F2A134"/><polygon points="92,108 108,108 100,116" fill="#E08A1E"/>'
+    },
+    boar:{
+      name:'いのしし', gem:'#1FA98E', gemAt:[100,146], clipAt:[142,52], crownT:'', eyeY:84, eyeX:[74,126],
+      back:'<path d="M150,150 Q170,152 172,142 Q174,132 166,134 Q160,138 168,146 Q176,152 184,146" stroke="#B9805A" stroke-width="4.5" fill="none" stroke-linecap="round"/>',
+      body:'<polygon points="50,62 52,22 84,40" fill="#B9805A"/><polygon points="150,62 148,22 116,40" fill="#B9805A"/><polygon points="57,52 58,32 75,42" fill="#F2A3A0"/><polygon points="143,52 142,32 125,42" fill="#F2A3A0"/><ellipse cx="100" cy="128" rx="68" ry="54" fill="#B9805A"/><circle cx="100" cy="85" r="56" fill="#B9805A"/><ellipse cx="100" cy="142" rx="38" ry="28" fill="#DDAE86"/><path d="M86,34 L88,52 M100,31 L100,52 M114,34 L112,52" stroke="#5A3524" stroke-width="6.5" fill="none" stroke-linecap="round"/>',
+      deco:'<ellipse cx="56" cy="102" rx="10" ry="6" fill="#FFB6C8" opacity=".7"/><ellipse cx="144" cy="102" rx="10" ry="6" fill="#FFB6C8" opacity=".7"/><path d="M78,100 Q71,92 76,85 Q78,94 85,97 Z" fill="#FFFFFF"/><path d="M122,100 Q129,92 124,85 Q122,94 115,97 Z" fill="#FFFFFF"/><ellipse cx="100" cy="96" rx="19" ry="12.5" fill="#F2A3A0"/><ellipse cx="93" cy="96" rx="3" ry="4.2" fill="#6B3A33"/><ellipse cx="107" cy="96" rx="3" ry="4.2" fill="#6B3A33"/>',
+      mouthN:'<path d="M94,110 Q100,114 106,110" stroke="'+INK+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>',
+      mouthH:'<path d="M93,110 Q100,124 107,110 Q100,113 93,110 Z" fill="#C94A63"/>'
+    }
+  };
+
+  var sexFn = null;
+  var capeOn = false, wearFn = null, wearUid = 0, skinFn = null, skinUid = 0;
+  /* おしゃれ(漢字アプリから): oshareFn(sp) → [{s:つける所, vb:viewBox, inner:SVGの中身}] */
+  var oshareFn = null;
+  function oshPlace(it, cx, cy, size){
+    return '<svg class="ta" x="'+(cx-size/2)+'" y="'+(cy-size/2)+'" width="'+size+'" height="'+size+'" viewBox="'+it.vb+'" overflow="visible">'+it.inner+'</svg>';
+  }
+  /* e が ない 古い コードでも、漢字アプリの 新しい ぼうし・リボンなら 同じ 所に のせる */
+  function oshFit(it){
+    if(it.e) return it.e;
+    if(it.s !== 'head' || it.vb !== '0 0 64 64') return null;
+    var t = it.inner || '';
+    if(/ぼうし$/.test(it.n) && t.indexOf('rotate(14 32 40)') >= 0) return [1.4, -10, -30, 6];
+    if(/ぼうし$/.test(it.n) && t.indexOf('M12.5 44C12.5 31') >= 0) return [1.55, -10, -26, 18];
+    if(/リボン$/.test(it.n) && t.indexOf('#fffdf6') >= 0) return [1.6, 0, 0, 18];
+    return null;
+  }
+  /* 漢字アプリの マフラー(v73〜)：小物の 絵から 色・しましま・ぽんぽん・もこもこ・宝石を 読みとる */
+  function oshScarf(it){
+    if(it.s !== 'neck' || !/マフラー$/.test(it.n || '')) return null;
+    var t = it.inner || '';
+    var m = /d="M7 25Q32 41 57 25[^"]*" fill="(#[0-9A-Fa-f]{3,6})"/.exec(t), k = /d="M41 39Q47 40 52 36[^"]*" fill="(#[0-9A-Fa-f]{3,6})"/.exec(t);
+    var g = /<svg\b[\s\S]*?<\/svg>/.exec(t);
+    return { m: m ? m[1] : '#E8524C', dk: k ? k[1] : '#C9383A', st: /fill="#fff" fill-opacity="\.9"/.test(t),
+      pom: /r="4\.2" fill="#fff"/.test(t), fl: (t.match(/r="3\.4"/g) || []).length > 6, gem: g ? g[0] : '' };
+  }
+  /* 首の 高さ：口の いちばん 下から 少し 下(口が ない・はなれた 相棒は 目から) */
+  var SCARF_NY = { 'ひよこ':128, 'うし':132 };
+  function scarfNeckY(d){
+    if(SCARF_NY[d.name]) return SCARF_NY[d.name];
+    var nums = (d.mouthN || '').match(/-?\d+(\.\d+)?/g) || [], my = -1;
+    for(var i = 1; i < nums.length; i += 2) my = Math.max(my, +nums[i]);
+    if(my < 0) my = d.eyeY + 26;
+    return Math.max(122, Math.min(134, Math.min(my, d.eyeY + 34) + 10));
+  }
+  function scarfWrap(d, o, back){
+    var ny = scarfNeckY(d), W = 15, f = function(v){ return (+v).toFixed(1); };
+    function strip(p, w, col, cap){
+      var s = '';
+      if(o.fl) s += '<path d="'+p+'" stroke="'+col+'" stroke-width="'+(w+7)+'" stroke-dasharray="0.1 6.5" stroke-linecap="round" fill="none"/>';
+      s += '<path d="'+p+'" stroke="'+col+'" stroke-width="'+w+'" fill="none" stroke-linecap="'+(cap || 'round')+'"/>';
+      if(o.st) s += '<path d="'+p+'" stroke="#fff" stroke-opacity=".9" stroke-width="'+(w-4)+'" stroke-dasharray="4 5" fill="none"/>';
+      return s;
+    }
+    if(back) return strip('M58,'+(ny-7)+' Q100,'+(ny+11)+' 142,'+(ny-7), W, o.m) +
+      (o.st ? '' : '<path d="M66,'+(ny-3)+' Q100,'+(ny+10)+' 134,'+(ny-3)+'" stroke="'+o.dk+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>');
+    function end(x, y, a){
+      if(o.pom) return '<g stroke="'+o.dk+'" stroke-width="1.3" fill="#fff"><circle cx="'+f(x-3)+'" cy="'+f(y+1)+'" r="3.4"/><circle cx="'+f(x+3)+'" cy="'+f(y+1)+'" r="3.4"/><circle cx="'+f(x)+'" cy="'+f(y+4)+'" r="3.4"/></g><circle cx="'+f(x)+'" cy="'+f(y+1.5)+'" r="4.2" fill="#fff"/>';
+      var p = '';
+      for(var i = -2; i <= 2; i++){ var fx = x + i*2.4*Math.cos(a), fy = y + i*2.4*Math.sin(a); p += 'M'+f(fx)+','+f(fy)+' l'+f(-5*Math.sin(a))+','+f(5*Math.cos(a)); }
+      return '<path d="'+p+'" stroke="'+o.dk+'" stroke-width="1.8" stroke-linecap="round"/>';
+    }
+    var t1 = 'M118,'+(ny+6)+' Q114,'+(ny+22)+' 116,'+(ny+38), t2 = 'M124,'+(ny+6)+' Q134,'+(ny+20)+' 138,'+(ny+33);
+    var s = strip(t1, 12, o.dk, 'butt') + end(116, ny+38, .1) + strip(t2, 12, o.dk, 'butt') + end(138, ny+33, -.35);
+    var band = 'M58,'+(ny-7)+' Q100,'+(ny+15)+' 142,'+(ny-7);
+    s += strip(band, W, o.m);
+    if(!o.st) s += '<path d="M66,'+(ny-3)+' Q84,'+(ny+7)+' 98,'+(ny+8)+'M106,'+(ny+8)+' Q120,'+(ny+6)+' 134,'+(ny-3)+'" stroke="'+o.dk+'" stroke-width="2.4" fill="none" stroke-linecap="round"/>';
+    /* 結び目と 宝石 */
+    var kx = 121, ky = ny + 5;
+    s += '<ellipse cx="'+kx+'" cy="'+ky+'" rx="8" ry="7.5" fill="'+o.m+'"/>';
+    if(o.gem){
+      s += '<circle cx="'+kx+'" cy="'+ky+'" r="6.2" fill="#ffe680" stroke="#c9951a" stroke-width="1"/>' +
+        o.gem.replace(/\s(x|y|width|height)="[^"]*"/g, '').replace(/^<svg/, '<svg x="'+(kx-4.5)+'" y="'+(ky-4.5)+'" width="9" height="9"');
+    } else if(o.st) s += '<path d="M'+(kx-3)+','+(ky-6)+' L'+(kx-3)+','+(ky+6)+'M'+(kx+3)+','+(ky-6)+' L'+(kx+3)+','+(ky+6)+'" stroke="#fff" stroke-width="2.5" stroke-opacity=".9"/>';
+    else s += '<path d="M'+(kx-4)+','+(ky-3)+' Q'+kx+','+(ky+2)+' '+(kx+4)+','+(ky-3)+'" stroke="'+o.dk+'" stroke-width="2" fill="none" stroke-linecap="round"/>';
+    return s;
+  }
+  function oshDraw(it, d){
+    var ex = d.eyeX || [75, 125];
+    var fit = it.pos === 'ear' ? oshFit(it) : null;
+    if(fit){
+      /* 漢字アプリの ぼうし・リボン：耳の つけねに ななめに のせる */
+      var e = fit, w = 64 / e[0], o = 32 - 32 / e[0];
+      return oshPlace({ vb:(o - e[1])+' '+(o - e[2])+' '+w+' '+w, inner:'<g transform="rotate('+e[3]+' 32 44)">'+it.inner+'</g>' }, d.clipAt[0], d.clipAt[1], 44);
+    }
+    if(it.s === 'head' && it.pos === 'ear') return oshPlace(it, d.clipAt[0], d.clipAt[1], 44);
+    /* 花かんむりは ななめに のせない 仲間だと 頭の 上で うくので、少し さげる */
+    if(it.s === 'head') return '<g transform="'+(d.crownT||'')+(/花かんむり|花冠/.test(it.n || '') && !/rotate/.test(d.crownT || '') ? ' translate(0 11)' : '')+'">'+oshPlace(it, 100, 22, 56)+'</g>';
+    if(it.s === 'eyes'){ var k = (ex[1]-ex[0])/26; return oshPlace(it, 100, d.eyeY - 2*k, 64*k); }
+    /* マフラーは 首に まいて、結び目から 2本 たらす(相棒の 形に 合わせて ここで かく) */
+    var sc = oshScarf(it);
+    if(sc) return scarfWrap(d, sc, false);
+    /* 首の 真ん中(口の 下と 胸の 宝石の あいだ) */
+    if(it.s === 'neck') return oshPlace(it, 100, Math.max(130, (d.eyeY + 40 + d.gemAt[1]) / 2), 44);
+    if(it.s === 'back') return oshPlace(it, 100, 120, 176);
+    if(it.s === 'ears') return oshPlace(it, 200 - d.clipAt[0], d.clipAt[1], 40);
+    if(it.s === 'side') return oshPlace(it, 166, 150, 50);
+    return '';
+  }
+  // きせかえ (Lv.3): body colour + pattern
+  function hexHsl(hx){
+    var r = parseInt(hx.substr(1,2),16)/255, g = parseInt(hx.substr(3,2),16)/255, b = parseInt(hx.substr(5,2),16)/255;
+    var mx = Math.max(r,g,b), mn = Math.min(r,g,b), l = (mx+mn)/2, h = 0, s = 0, dd = mx-mn;
+    if(dd){ s = l > .5 ? dd/(2-mx-mn) : dd/(mx+mn);
+      h = mx === r ? (g-b)/dd + (g<b?6:0) : mx === g ? (b-r)/dd + 2 : (r-g)/dd + 4; h *= 60; }
+    return [h, s, l, dd];
+  }
+  function hslHex(h, s, l){
+    l = Math.max(0, Math.min(1, l)); s = Math.max(0, Math.min(1, s));
+    var k = function(n){ return (n + h/30) % 12; }, a = s*Math.min(l, 1-l);
+    var f = function(n){ var v = l - a*Math.max(-1, Math.min(k(n)-3, 9-k(n), 1)); return ('0'+Math.round(v*255).toString(16)).slice(-2); };
+    return '#' + f(0) + f(8) + f(4);
+  }
+  /* 後ろ姿: 体の 形は そのままで、顔・おなか・ほっぺ などを 体の 色で ぬりつぶす(くるっと 回る あいだだけ 見せる) */
+  function backView(body, back, eyeY, extra){
+    var M = mainColor({ body:body }).toUpperCase(), keep = {};
+    (back.match(/fill="(#[0-9A-Fa-f]{6})"/g) || []).forEach(function(f){ keep[f.slice(6, 13).toUpperCase()] = 1; });
+    function lum(h){ var r = parseInt(h.substr(1,2),16), g = parseInt(h.substr(3,2),16), b = parseInt(h.substr(5,2),16); return (Math.max(r,g,b) + Math.min(r,g,b)) / 510; }
+    function sat(h){ var r = parseInt(h.substr(1,2),16)/255, g = parseInt(h.substr(3,2),16)/255, b = parseInt(h.substr(5,2),16)/255, mx = Math.max(r,g,b), mn = Math.min(r,g,b); return mx === mn ? 0 : (mx - mn) / (1 - Math.abs(mx + mn - 1)); }
+    var LM = lum(M), ey = eyeY || 90;
+    /* きせかえの もよう(しま・せなかの 色など)は せなかにも あるので そのまま のこす。顔だけの もよう(まゆ など)は かくす */
+    var pats = [], src = '', pos = 0, re = /<g clip-path="url\(#sk[ck]\d+\)"/g, gm;
+    while((gm = re.exec(body))){
+      var depth = 0, k = gm.index, tag = /<\/?g\b[^>]*>/g;
+      tag.lastIndex = k;
+      for(var t; (t = tag.exec(body));){ depth += t[0].charAt(1) === '/' ? -1 : (/\/>$/.test(t[0]) ? 0 : 1); if(!depth){ k = tag.lastIndex; break; } }
+      var grp = body.slice(gm.index, k), pts = [], pr = /\b(?:cx="(-?[\d.]+)"[^>]*\bcy="(-?[\d.]+)"|d="M\s*(-?[\d.]+)[ ,](-?[\d.]+))/g, pm;
+      while((pm = pr.exec(grp))) pts.push([+(pm[1] || pm[3]), +(pm[2] || pm[4])]);
+      var faceOnly = pts.length && pts.every(function(q){ return q[1] > ey - 26 && q[1] < ey + 32 && q[0] > 40 && q[0] < 160; });
+      src += body.slice(pos, gm.index) + '\u0001' + pats.length + '\u0002';
+      /* せなか 全体が こい 色の もよう(こいせなか・ハスキー・ハチワレ など)は、うしろから 見ると 頭の うしろまで その 色 */
+      var all = /<ellipse cx="100" cy="128" rx="72" ry="58" fill="([^"]+)"\/>/.exec(grp);
+      if(all) grp = grp.replace(/ mask="url\(#skm\d+\)"/, '').replace(all[0], '<rect width="200" height="200" fill="'+all[1]+'"/>');
+      pats.push(faceOnly ? '' : grp);
+      pos = k; re.lastIndex = k;
+    }
+    body = src + body.slice(pos);
+    var patAt = pats.some(function(g){ return g; }) ? body.indexOf('\u0001') : -1;
+    var b = body.replace(/<(circle|ellipse|path|polygon|rect)\b[^>]*\/>/g, function(el, _t, at){
+      var fm = /fill="(#[0-9A-Fa-f]{6})"/.exec(el);
+      /* もようの 上に ある 顔・おなかは 体の 色で ぬらずに 消す(せなかの もようが 見える ように) */
+      var overPat = patAt >= 0 && at > patAt;
+      /* 体の 色は そのまま。顔の まわり(目・鼻・口・ほっぺ・おなか)は 体の 色に。顔から はなれた 耳・しま・たてがみ などの 色は のこす */
+      var nums = (/\b(?:cx|x)="(-?[\d.]+)"[^>]*\b(?:cy|y)="(-?[\d.]+)"/.exec(el) || /\bd="M\s*(-?[\d.]+)[ ,](-?[\d.]+)/.exec(el) || /points="(-?[\d.]+)[ ,](-?[\d.]+)/.exec(el));
+      var x = nums ? +nums[1] : 100, y = nums ? +nums[2] : 120;
+      var inFace = x > 58 && x < 142 && y > ey - 22 && y < 178;
+      if(!fm) return overPat && inFace ? '' : el.replace(/ stroke="(?!none)[^"]*"/g, ' stroke="'+M+'"');
+      var c = fm[1].toUpperCase();
+      var distinct = keep[c] || LM - lum(c) > .14 || (sat(c) > .35 && Math.abs(lum(c) - LM) > .04 && c !== M);
+      if(overPat && inFace && c !== M.toUpperCase()) return '';
+      var out = (!inFace && distinct) ? el : el.replace(/fill="#[0-9A-Fa-f]{6}"/, 'fill="'+M+'"');
+      return out.replace(/ stroke="(?!none)[^"]*"/g, ' stroke="'+M+'"');
+    });
+    b = b.replace(/ stroke="(?!none)[^"]*"/g, ' stroke="'+M+'"');
+    b = b.replace(/\u0001(\d+)\u0002/g, function(_, i){ return pats[+i]; });
+    return '<g class="p-backv">' + b + (extra || '') + '</g>';
+  }
+  /* 後ろ姿で 体の 上に 見える しっぽ(体の うしろに かくれて いた ぶんも 見える ように 前に 出す)。まるい しっぽ(うさぎ・くま)は おしりの まんなかへ */
+  var tailUid = 0;
+  function backTail(str){
+    var els = str.match(/<(?:circle|ellipse|path|polygon|rect)\b[^>]*\/>/g) || [], out = '', ball = '', on = false;
+    els.forEach(function(el){
+      var nums = (/\bcx="(-?[\d.]+)"[^>]*\bcy="(-?[\d.]+)"/.exec(el) || /\bd="M\s*(-?[\d.]+)[ ,](-?[\d.]+)/.exec(el));
+      var x = nums ? +nums[1] : 0, y = nums ? +nums[2] : 0, flip = /rotate\(/.test(el) && /<ellipse/.test(el);
+      var start = !flip && x >= 144 && x <= 162 && y >= 108 && y <= 156 && (/<path/.test(el) || /\br="1[0-2]"/.test(el));
+      if(start || (on && !flip && x >= 144 && y >= 90 && y <= 160)){
+        /* 体と 同じ 色の しっぽは、体の 上で 見えるように すこし こい 色に する */
+        var fm = /fill="(#[0-9A-Fa-f]{6})"/.exec(el);
+        if(fm && !/stroke=/.test(el)){ var hh = hexHsl(fm[1]); el = el.replace(fm[0], 'fill="'+hslHex(hh[0], hh[1], hh[2] - (hh[2] > .85 ? .07 : .05))+'"'); }
+        var cm = /<circle\b[^>]*\bcx="(-?[\d.]+)"[^>]*\bcy="(-?[\d.]+)"/.exec(el);
+        if(cm) ball += '<g transform="translate('+(100 - cm[1])+' '+(156 - cm[2])+')">' + el + '</g>';
+        else out += el;
+        on = true;
+      }
+      else on = false;
+    });
+    if(!out) return ball;
+    /* しっぽの きせかえ もよう(ねこの しま・ハチワレ など) */
+    var km = /<g clip-path="url\(#skk\d+\)">[\s\S]*?<\/g>/.exec(str);
+    if(km) out += km[0];
+    /* しっぽの つけねは 体に とけこむ ように(つけねの 線が 見えない ように) */
+    var gid = 'ptg'+tailUid, mid = 'ptm'+(tailUid++);
+    return '<defs><linearGradient id="'+gid+'" gradientUnits="userSpaceOnUse" x1="146" y1="0" x2="164" y2="0"><stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#fff"/></linearGradient>' +
+      '<mask id="'+mid+'" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200"><rect width="200" height="200" fill="url(#'+gid+')"/></mask></defs>' +
+      '<g mask="url(#'+mid+')">' + out + '</g>' + ball;
+  }
+  /* 後ろ姿の 頭: マント・はねを 頭に かさねない ための マスク */
+  function headMask(body, id){
+    var m = /<(circle|ellipse) cx="100(?:\.0)?" cy="(8\d|9\d)(?:\.0)?" r(?:x)?="(4[89]|5\d|6\d)(?:\.0)?"[^>]*\/>/.exec(body);
+    if(!m) return '';
+    return '<defs><mask id="'+id+'" maskUnits="userSpaceOnUse" x="-40" y="-40" width="280" height="280"><rect x="-40" y="-40" width="280" height="280" fill="#fff"/>' +
+      m[0].replace(/ (?:fill|stroke|stroke-width)="[^"]*"/g, '').replace(/\/>$/, ' fill="#000"/>') + '</mask></defs>';
+  }
+  /* うしろから 見た マント(首から せなかに たれる) */
+  var CAPE_BACK = '<path d="M64,116 Q30,148 24,180 Q100,196 176,180 Q170,148 136,116 Q100,128 64,116 Z" fill="#5B4BC4"/><path d="M72,124 Q52,150 46,176 M128,124 Q148,150 154,176 M100,130 L100,186" stroke="#7565E0" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/><path d="M64,116 Q100,130 136,116" stroke="#7565E0" stroke-width="6" fill="none" stroke-linecap="round"/>';
+  /* おしゃれの おもな 色(うすい 光の まるを のぞいて、さいしょの 色) */
+  function oshColor(it){
+    var els = (it.inner || '').match(/<[a-z]+\b[^>]*>/gi) || [];
+    for(var i = 0; i < els.length; i++){
+      if(/opacity/.test(els[i])) continue;
+      var m = /(?:fill|stroke)="(#[0-9A-Fa-f]{3,6})"/.exec(els[i]);
+      if(m) return m[1];
+    }
+    return '#E8B93A';
+  }
+  /* マスク・お面は うしろ向きだと うらがわ(顔の ない 金の かたち) */
+  /* せおう かばん(ランドセル・リュック): 前からは かたの ベルト、うしろ向きで かばんが 見える */
+  function oshIsPack(it){ return it.s === 'back' && /ランドセル|リュック/.test(it.n || ''); }
+  function oshIsMask(it){ return it.s === 'side' && /マスク|仮面|かめん|お面|おめん/.test(it.n || ''); }
+  /* 耳の横の かみかざり(リボン・おはな・ぼうし など)を うしろから 見た 形: 前に ついている 宝石と 台・光は 見えず、少し かげに なる */
+  function oshBackOf(it){
+    var t = (it.inner || '').replace(/<svg\b[\s\S]*?<\/svg>/g, '')
+      .replace(/<circle\b[^>]*fill="#ffe680"[^>]*>(?:<\/circle>)?/gi, '')
+      .replace(/<circle\b[^>]*fill-opacity[^>]*>(?:<\/circle>)?/g, '')
+      .replace(/<g class="ta-twinkle" style="animation-delay[^>]*>[\s\S]*?<\/g>/g, '');
+    return { s:it.s, n:it.n, vb:it.vb, e:it.e, pos:it.pos, inner:'<g style="filter:brightness(.9)">' + t + '</g>' };
+  }
+  function oshBackSide(it, d){
+    var c = oshColor(it);
+    var flat = oshDraw({ s:it.s, n:it.n, vb:it.vb, e:it.e, pos:it.pos, inner:(it.inner || '').replace(/(fill|stroke)="(?!none)[^"]*"/g, '$1="'+c+'"') }, d);
+    return '<g opacity=".95">' + flat + '</g>';
+  }
+  function mainColor(d){
+    var m = d.body.match(/<ellipse cx="100" cy="1[2-5]\d(?:\.0)?" rx="(?:6\d|7\d)(?:\.0)?" ry="\d+(?:\.0)?" fill="(#[0-9A-Fa-f]{6})"/);
+    if(m) return m[1];
+    m = d.body.match(/fill="(#[0-9A-Fa-f]{6})"/);
+    return m ? m[1] : '#FFE3CC';
+  }
+  // recolour every shade in the body's colour family, keeping how light or dark each one is
+  function recolor(str, M, T){
+    var hm = hexHsl(M), pale = hm[3] < .12;   // hm[3] = chroma (near-white bodies like panda, rabbit)
+    return str.replace(/#[0-9A-Fa-f]{6}/g, function(hx){
+      if(hx.toUpperCase() === M.toUpperCase()) return hslHex(T[0], T[1], T[2]);
+      var lit = function(l){ var dl = l - hm[2]; return T[2] + dl * (dl > 0 ? (0.96 - T[2]) / Math.max(.04, 1 - hm[2]) : T[2] / Math.max(.04, hm[2])); };
+      var c = hexHsl(hx);
+      if(pale){
+        if(c[3] < .12 && Math.abs(c[2]-hm[2]) < .12 && c[2] < .97) return hslHex(T[0], T[1]*.8, lit(c[2]));
+        return hx;
+      }
+      var dh = Math.abs(c[0]-hm[0]); dh = Math.min(dh, 360-dh);
+      if(c[1] > .15 && dh < 26) return hslHex(T[0], T[1], lit(c[2]));
+      return hx;
+    });
+  }
+  /* 生き物ごとの 自然な 体の色 [id, 名前, 色相, さいど, 明るさ, (かえる元の色)]。前の 色(pink など)は いちばん 近い 色に 読みかえる */
+  var NAT_COLORS = {
+    cat:     [['shiro','しろ',36,.25,.95],['kuro','くろ',250,.08,.3],['chatora','ちゃトラ',28,.85,.66],['gray','グレー',220,.1,.64],['kogecha','こげちゃ',24,.38,.44]],
+    tiger:   [['white','ホワイト',40,.25,.93],['kin','きんいろ',42,.82,.68],['koi','こいオレンジ',24,.86,.58]],
+    dog:     [['shiro','しろ',38,.3,.95],['kuro','くろ',250,.08,.3],['aka','あかしば',26,.78,.64],['cha','ちゃいろ',28,.48,.52],['gray','グレー',220,.08,.66]],
+    fox:     [['kiiro','きつね色',36,.78,.64],['gin','ぎんいろ',220,.07,.5],['shiro','しろ',210,.15,.95]],
+    wolf:    [['shiro','しろ',210,.15,.94],['kuro','くろ',230,.08,.32],['cha','ちゃいろ',30,.3,.56]],
+    bear:    [['kuro','くろ',250,.08,.28],['shiro','しろ',45,.35,.94],['aka','あかちゃ',20,.46,.5],['kogecha','こげちゃ',24,.38,.36]],
+    panda:   [['qinling','ちゃいろ',22,.32,.4,'#2E2A3D']],
+    rabbit:  [['kuro','くろ',250,.08,.32],['cha','ちゃいろ',28,.42,.62],['gray','グレー',230,.08,.68],['cream','クリーム',40,.6,.86]],
+    hamster: [['golden','ゴールデン',30,.72,.64],['shiro','しろ',40,.3,.95],['gray','グレー',215,.14,.72],['pudding','プディング',42,.72,.78]],
+    chick:   [['kuro','くろ',250,.08,.32],['cha','ちゃいろ',30,.5,.6],['shiro','しろ',48,.45,.92]],
+    owl:     [['shiro','しろ',40,.15,.94],['gray','グレー',30,.06,.6],['kogecha','こげちゃ',24,.4,.38]],
+    penguin: [['kuro','くろ',240,.1,.22],['ao','あお',212,.45,.5]],
+    seal:    [['shiro','しろ',210,.25,.95],['koi','こいグレー',215,.14,.5],['cha','ちゃいろ',30,.25,.58]],
+    dolphin: [['gray','グレー',210,.12,.62],['pink','ピンク',345,.6,.8],['koi','こいあお',214,.6,.5]],
+    squirrel:[['aka','あかちゃ',22,.62,.52],['gray','はいいろ',220,.08,.62],['kuro','くろ',250,.08,.3]],
+    koala:   [['cha','ちゃいろ',28,.22,.56],['koi','こいグレー',225,.06,.5]],
+    sheep:   [['cream','クリーム',40,.55,.88],['cha','ちゃいろ',28,.35,.6],['kuro','くろ',250,.06,.32]],
+    mouse:   [['shiro','しろ',40,.3,.95],['cha','ちゃいろ',28,.38,.6]],
+    cow:     [['kuro','くろげ',250,.06,.3]],
+    horse:   [['kage','かげ',20,.45,.36],['ashige','あしげ',220,.06,.78],['kuro','あおげ',240,.1,.28]],
+    monkey:  [['nihon','ニホンザル',30,.2,.62],['koge','こげちゃ',24,.4,.36]],
+    hen:     [['cha','ちゃいろ',22,.55,.55],['kuro','くろ',250,.08,.3]],
+    boar:    [['koge','こげちゃ',22,.38,.36],['kuro','くろ',250,.08,.3]],
+    whale:   [['ao','あお',214,.5,.6],['shiro','しろ',200,.25,.94],['kuro','くろ',230,.12,.3]],
+    snake:   [['kiiro','きいろ',50,.8,.62],['cha','ちゃいろ',30,.45,.5],['ao','あおみどり',170,.4,.5],['shiro','しろ',50,.2,.92]],
+    dragon:  [['midori','みどり',110,.45,.6],['aka','あか',5,.62,.6],['ao','あお',210,.6,.64],['murasaki','むらさき',270,.42,.68],['kin','きんいろ',45,.78,.62]],
+    unicorn: [['kuri','くりげ',25,.5,.55],['ashige','あしげ',220,.08,.76],['kuro','くろ',240,.1,.3]]
+  };
+  var OLD_COLORS = { pink:[340,.82,.86], sky:[200,.78,.80], mint:[158,.52,.76], lav:[265,.68,.85], lemon:[48,.9,.76], cocoa:[24,.36,.56] };
+  /* 体と ちがう 色みだけど いっしょに かえたい 所(あざらしの ひれ) */
+  var NAT_RECOLOR = { seal:['#B4C2DA'] };
+  function natColor(sp, c){
+    if(!c) return null;
+    var L = NAT_COLORS[sp] || [], i;
+    for(i = 0; i < L.length; i++) if(L[i][0] === c) return L[i];
+    var o = OLD_COLORS[c]; if(!o || !L.length) return null;
+    var best = null, bd = 1e9;
+    L.forEach(function(x){
+      var dh = Math.abs(x[2]-o[0]); dh = Math.min(dh, 360-dh)/180;
+      var dd = dh*Math.min(x[3], o[1])*2 + Math.abs(x[4]-o[2])*1.5 + Math.abs(x[3]-o[1])*.5;
+      if(dd < bd){ bd = dd; best = x; }
+    });
+    return best;
+  }
+  /* 生き物ごとの 自然な もよう(Lv.3 きせかえ)。
+     f(c) → { h:頭・耳もふくむ 体の色の所, b:体だけ(頭の うしろ), ob:おなかの 上, o:いちばん上(目の 下) }
+     c = { m:今の 体の色, dk:少し こい色, dk2:こい色, lt:うすい色 }
+     old = 前の もよう(しま・水玉・ハート・ほし)を えらんでいた子は、これに 読みかえる */
+  var CAL_O = '#F2A65A', CAL_K = '#5B4F4B';
+  function pS(d, w, col){ return '<path d="'+d+'" stroke="'+col+'" stroke-width="'+w+'" fill="none" stroke-linecap="round"/>'; }
+  function pE(x, y, rx, ry, col, rot){ return '<ellipse cx="'+x+'" cy="'+y+'" rx="'+rx+'" ry="'+ry+'" fill="'+col+'"'+(rot ? ' transform="rotate('+rot+' '+x+' '+y+')"' : '')+'/>'; }
+  function pD(list, col){ return list.map(function(p){ return pE(p[0], p[1], p[2], p[3] || p[2], col, p[4]); }).join(''); }
+  function pM(str){ return str + '<g transform="matrix(-1 0 0 1 200 0)">' + str + '</g>'; }
+  function pStar(x, y, r, col){
+    var pts = [];
+    for(var i = 0; i < 10; i++){ var a = Math.PI*i/5 - Math.PI/2, rr = i % 2 ? r*.45 : r; pts.push((x + rr*Math.cos(a)).toFixed(1)+','+(y + rr*Math.sin(a)).toFixed(1)); }
+    return '<polygon points="'+pts.join(' ')+'" fill="'+col+'"/>';
+  }
+  function pScales(rows, col){
+    return rows.map(function(r){ var s = ''; for(var x = r[0]; x <= r[1]; x += 11) s += 'M'+(x-4.5)+','+r[2]+' q4.5,5 9,0 '; return pS(s, 2.4, col); }).join('');
+  }
+  var BODY_ALL = function(col){ return pE(100, 128, 72, 58, col); };
+  var NAT_PATS = {
+    cat: [
+      { id:'tabby', n:'トラねこ', old:'stripe', f:function(c){ return {
+        h: pS('M100,31 L100,50', 5, c.dk) + pM(pS('M86,34 L89,51', 5, c.dk) + pS('M45,87 L59,91', 4, c.dk) + pS('M44,98 L58,98', 4, c.dk)),
+        b: pM(pS('M30,121 Q44,126 53,117', 6, c.dk) + pS('M31,140 Q46,143 57,132', 6, c.dk) + pS('M37,159 Q50,159 61,149', 6, c.dk)),
+        k: pS('M166,140 L168,152', 4, c.dk) + pS('M177,128 L188,134', 4, c.dk) + pS('M178,112 L190,113', 4, c.dk) + pS('M177,96 L189,94', 4, c.dk) }; } },
+      { id:'buchi', n:'ぶち', old:'dot', f:function(c){ return {
+        h: pE(70, 47, 30, 19, c.dk2, -20),
+        b: pE(158, 140, 20, 30, c.dk2) + pE(44, 162, 14, 12, c.dk2),
+        k: pE(76, 28, 20, 28, c.dk2) }; } },
+      { id:'mike', n:'みけ', old:'heart', f:function(c){ return {
+        h: pE(70, 47, 30, 19, CAL_O, -20) + pE(133, 45, 20, 13, CAL_K, 20),
+        b: pE(158, 140, 20, 30, CAL_O) + pE(42, 146, 14, 22, CAL_K) + pE(58, 178, 18, 10, CAL_O),
+        k: pE(76, 28, 20, 28, CAL_O) + pE(124, 28, 20, 28, CAL_K) + pE(185, 108, 9, 15, CAL_O) }; } },
+      { id:'hachi', n:'ハチワレ', old:'star', f:function(c){ return {
+        h: pM('<path d="M20,10 L97,10 L97,40 Q90,62 72,71 Q56,74 40,82 L20,82 Z" fill="'+c.dk2+'"/>'),
+        b: BODY_ALL(c.dk2),
+        k: '<rect width="200" height="200" fill="'+c.dk2+'"/>' }; } }
+    ],
+    tiger: [
+      { id:'koi', n:'しま いっぱい', old:'stripe', f:function(c){ return {
+        h: pM(pS('M78,41 L82,54', 4, c.dk2) + pS('M47,111 L60,109', 4, c.dk2) + pS('M52,70 L62,74', 4, c.dk2)),
+        b: pM(pS('M30,121 Q44,126 53,117', 7, c.dk2) + pS('M31,140 Q46,143 57,132', 7, c.dk2) + pS('M37,159 Q50,159 61,149', 7, c.dk2) + pS('M52,176 Q60,170 66,164', 6, c.dk2)) }; } },
+      { id:'mayu', n:'白まゆ', old:'dot', f:function(c){ return {
+        h: pM(pE(72, 67, 9, 5, '#FFF7EC', -8) + pE(50, 113, 9, 7, '#FFF7EC')) }; } }
+    ],
+    dog: [
+      { id:'buchi', n:'ぶち', old:'dot', f:function(c){ return {
+        h: pD([[62,56,5],[84,44,4],[116,44,5],[142,58,4],[52,118,4],[148,116,5],[100,34,3.5]], c.dk2),
+        b: pD([[38,140,6],[50,161,5],[156,150,6],[146,171,5],[34,124,4],[166,132,4],[64,178,4],[136,180,4]], c.dk2) }; } },
+      { id:'sedo', n:'くろせなか', old:'stripe', f:function(c){ return {
+        h: '<path d="M20,0 L180,0 L180,60 Q100,38 20,60 Z" fill="'+c.dk2+'"/>',
+        b: BODY_ALL(c.dk2) }; } },
+      { id:'maro', n:'まろまゆ', old:'heart', f:function(c){ return {
+        h: pE(74, 64, 7.5, 5, c.dk2) + pE(126, 61, 7.5, 5, c.dk2) }; } }
+    ],
+    fox: [
+      { id:'juji', n:'じゅうじ', old:'stripe', f:function(c){ return {
+        h: pS('M100,30 L100,58', 11, c.dk2),
+        b: pM(pS('M27,114 Q38,100 56,94', 13, c.dk2)) }; } },
+      { id:'kutsu', n:'くつした', old:'dot', f:function(c){ return {
+        b: pM(pE(56, 180, 26, 16, c.dk2)) }; } }
+    ],
+    wolf: [
+      { id:'sedo', n:'こいせなか', old:'stripe', f:function(c){ return {
+        h: '<path d="M20,0 L180,0 L180,64 Q100,40 20,64 Z" fill="'+c.dk+'"/>',
+        b: BODY_ALL(c.dk) }; } },
+      { id:'husky', n:'ハスキー', old:'dot', f:function(c){ return {
+        h: '<path d="M10,0 L190,0 L190,100 L152,100 Q146,70 124,68 Q108,68 104,52 L100,40 L96,52 Q92,68 76,68 Q54,70 48,100 L10,100 Z" fill="'+c.dk2+'"/>',
+        b: BODY_ALL(c.dk2) }; } },
+      { id:'mayu', n:'白まゆ', old:'heart', f:function(c){ return {
+        h: pE(73, 68, 8, 4.5, c.lt, -6) + pE(127, 68, 8, 4.5, c.lt, 6) }; } }
+    ],
+    bear: [
+      { id:'tsuki', n:'ツキノワ', old:'dot', f:function(c){ return {
+        ob: pE(100, 142, 39, 29, c.m) + pS('M70,134 Q86,150 100,154 Q114,150 130,134', 8, '#FFF6E6') }; } },
+      { id:'koge', n:'こげちゃ', old:'stripe', f:function(c){ return {
+        h: '<path d="M20,0 L180,0 L180,58 Q100,36 20,58 Z" fill="'+c.dk+'"/>',
+        b: BODY_ALL(c.dk) }; } }
+    ],
+    panda: [
+      { id:'kata', n:'かたの 黒', old:'stripe', f:function(c){ return {
+        b: pE(100, 116, 74, 22, '#2E2A3D') }; } },
+      { id:'ashi', n:'くろあし', old:'dot', f:function(c){ return {
+        b: pM(pE(58, 180, 28, 18, '#2E2A3D')) + pE(100, 116, 74, 22, '#2E2A3D') }; } }
+    ],
+    rabbit: [
+      { id:'dutch', n:'ダッチ', old:'stripe', f:function(c){ return {
+        h: pM(pE(70, 28, 14.5, 32.5, c.dk, -8) + pE(70, 30, 7, 22, '#FFB6C8', -8) + pE(63, 80, 27, 31, c.dk)),
+        b: pE(100, 176, 84, 40, c.dk) }; } },
+      { id:'eng', n:'ぶち', old:'dot', f:function(c){ return {
+        h: pM(pE(70, 28, 14.5, 32.5, c.dk, -8) + pE(70, 30, 7, 22, '#FFB6C8', -8) + pE(89, 106, 7, 5, c.dk, 20)),
+        b: pM(pD([[34,128,5],[42,146,6],[36,160,4],[52,170,5]], c.dk)) }; } },
+      { id:'hima', n:'ヒマラヤン', old:'heart', f:function(c){ return {
+        h: pM(pE(70, 28, 14.5, 32.5, c.dk2, -8) + pE(70, 30, 7, 22, '#FFB6C8', -8)) + pE(100, 103, 13, 10, c.dk2) }; } }
+    ],
+    hamster: [
+      { id:'jan', n:'ジャンガリアン', old:'stripe', f:function(c){ return {
+        h: pS('M100,30 L100,46', 7, c.dk2),
+        b: BODY_ALL(c.dk) }; } },
+      { id:'buchi', n:'ぶち', old:'dot', f:function(c){ return {
+        h: pE(152, 70, 14, 15, c.dk2, 20),
+        b: pE(46, 160, 17, 15, c.dk2) + pE(156, 152, 13, 11, c.dk2) }; } }
+    ],
+    chick: [
+      { id:'uzura', n:'うずら', old:'stripe', f:function(c){ return {
+        h: pS('M100,28 L100,54', 6, c.dk2) + pM(pS('M85,32 L89,54', 5, c.dk2)),
+        b: pM(pS('M34,118 Q38,150 56,172', 5, c.dk2)) }; } },
+      { id:'goma', n:'ごまふ', old:'dot', f:function(c){ return {
+        h: pD([[64,54,2.5],[82,40,2.2],[100,46,2.5],[118,40,2.2],[136,54,2.5],[52,72,2],[148,72,2]], c.dk2),
+        b: pD([[38,132,2.6],[46,150,2.4],[40,164,2.2],[56,174,2.4],[162,132,2.6],[154,150,2.4],[160,164,2.2],[144,174,2.4]], c.dk2) }; } }
+    ],
+    owl: [
+      { id:'ten', n:'白てん', old:'dot', f:function(c){ return {
+        h: pD([[62,50,3],[80,40,3],[100,36,3],[120,40,3],[138,50,3],[90,54,2.4],[110,54,2.4],[54,64,2.4],[146,64,2.4]], c.lt),
+        b: pD([[40,150,3],[52,166,3],[160,150,3],[148,166,3],[38,134,2.4],[162,134,2.4]], c.lt) }; } },
+      { id:'yoko', n:'よこじま', old:'stripe', f:function(c){ return {
+        h: pM(pS('M66,46 Q74,43 82,45', 3, c.dk2) + pS('M86,38 Q93,36 98,37', 3, c.dk2)) + pS('M92,52 Q100,50 108,52', 3, c.dk2),
+        b: pM(pS('M38,138 Q45,140 52,138', 3.5, c.dk2) + pS('M40,152 Q48,154 56,152', 3.5, c.dk2) + pS('M46,166 Q54,168 62,166', 3.5, c.dk2)) }; } }
+    ],
+    penguin: [
+      { id:'obi', n:'むねの おび', old:'stripe', f:function(c){ return {
+        ob: pS('M56,138 Q100,166 144,138', 7, c.m) }; } },
+      { id:'iwa', n:'イワトビ', old:'dot', f:function(c){ return {
+        o: pM(pS('M70,68 Q58,60 52,44', 5, '#FFD24C') + pS('M66,70 Q52,64 44,52', 4.5, '#FFD24C') + pS('M63,73 Q50,70 42,62', 4, '#FFE380')) }; } },
+      { id:'kotei', n:'コウテイ', old:'heart', f:function(c){ return {
+        h: pM(pE(52, 104, 9, 17, '#FFB547', 14)) }; } }
+    ],
+    seal: [
+      { id:'goma', n:'ごまふ', old:'dot', f:function(c){ return {
+        h: pD([[56,52,3.5,2.8],[78,40,3,2.4],[96,50,2.6],[118,38,3.5,2.6],[140,52,3,2.4],[62,68,2.6],[150,72,3,2.4],[47,92,3],[153,98,2.6],[64,124,3],[136,126,3.5,2.8],[106,32,2.4]], c.dk2),
+        b: pD([[36,130,3],[44,150,3.5,2.8],[40,166,2.6],[162,136,3],[156,156,3.5,2.8],[150,172,2.6],[54,176,3],[146,179,3]], c.dk2) }; } },
+      { id:'wa', n:'わもん', old:'stripe', f:function(c){
+        var ring = function(l){ return l.map(function(p){ return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+p[2]+'" fill="'+c.dk+'" stroke="'+c.lt+'" stroke-width="2.2"/>'; }).join(''); };
+        return { h: ring([[62,52,5],[100,38,5],[138,52,5],[50,82,4],[150,82,4]]), b: ring([[38,138,5],[46,160,5],[162,138,5],[154,160,5]]) }; } }
+    ],
+    squirrel: [
+      { id:'shima', n:'シマリス', old:'stripe', f:function(c){ return {
+        h: pS('M100,30 L100,52', 6, c.dk2),
+        b: pM(pS('M66,100 Q60,132 68,168', 5, c.dk2)) + pS('M100,96 L100,176', 7, c.dk2) }; } },
+      { id:'ezo', n:'エゾリス', old:'dot', f:function(c){ return {
+        h: '<path d="M20,-10 L180,-10 L180,56 Q100,34 20,56 Z" fill="'+c.dk+'"/>',
+        b: BODY_ALL(c.dk) }; } }
+    ],
+    koala: [
+      { id:'mune', n:'しろい むね', old:'dot', f:function(c){ return {
+        ob: pE(100, 136, 52, 42, '#FFFFFF') + pE(100, 112, 30, 14, '#F4F2F6') }; } },
+      { id:'koge', n:'こいせなか', old:'stripe', f:function(c){ return {
+        h: '<path d="M20,-10 L180,-10 L180,50 Q100,30 20,50 Z" fill="'+c.dk+'"/>',
+        b: BODY_ALL(c.dk) }; } }
+    ],
+    sheep: [
+      { id:'buchi', n:'ぶち', old:'dot', f:function(c){ return {
+        b: pD([[44,140,13],[150,128,11],[66,168,10],[140,166,12]], '#9B8574') }; } },
+      { id:'jacob', n:'ジェイコブ', old:'stripe', f:function(c){ return {
+        h: pE(64, 50, 18, 14, '#8C7362') + pE(140, 46, 14, 11, '#8C7362'),
+        b: pD([[48,146,16,13],[152,140,14,12],[100,172,14,9]], '#8C7362') }; } }
+    ],
+    cow: [
+      { id:'obuchi', n:'おおきい ぶち', old:'dot', f:function(c){ return {
+        h: pE(134, 50, 18, 14, '#3D3842', 25),
+        b: pD([[60,122,15,13],[124,166,13,9]], '#3D3842') }; } }
+    ],
+    boar: [
+      { id:'uribo', n:'うりぼう', old:'stripe', f:function(c){ return {
+        b: pM(pS('M42,112 Q37,134 45,156', 5, '#F1D6B4') + pS('M56,102 Q49,134 57,168', 5, '#F1D6B4')) }; } }
+    ],
+    horse: [
+      { id:'ryusei', n:'りゅうせい', old:'star', f:function(c){ return {
+        o: '<path d="M96,60 Q100,56 104,60 L103,94 Q100,98 97,94 Z" fill="#FFFFFF" opacity=".9"/>' }; } }
+    ],
+    dolphin: [
+      { id:'madara', n:'まだら', old:'dot', f:function(c){ return {
+        h: pD([[60,56,3],[80,42,2.6],[100,48,3],[120,42,2.6],[140,56,3],[50,74,2.4],[150,74,2.4],[56,118,2.6],[144,118,2.6]], c.lt),
+        b: pD([[38,140,3],[46,156,3.4],[42,170,2.6],[162,140,3],[154,156,3.4],[158,170,2.6]], c.lt) }; } },
+      { id:'suji', n:'すじ', old:'stripe', f:function(c){ return {
+        h: pM(pS('M56,98 Q48,110 44,120', 2.6, c.dk)),
+        b: pM(pS('M34,120 Q42,146 62,168', 3, c.dk)) }; } }
+    ],
+    whale: [
+      { id:'hoshi', n:'ほし いっぱい', old:'star', f:function(c){ return {
+        h: pStar(100, 36, 5, '#FFE380') + pStar(54, 68, 4.5, '#FFE380') + pStar(148, 68, 4.5, '#FFE380'),
+        b: pStar(42, 128, 5, '#FFE380') + pStar(158, 124, 4.5, '#FFE380') + pStar(44, 156, 4, '#FFE380') + pStar(158, 154, 5, '#FFE380') }; } },
+      { id:'madara', n:'まだら', old:'dot', f:function(c){ return {
+        h: pD([[96,40,6,4,-10],[56,64,5,3.4,30],[146,62,5,3.4,-30],[52,120,4,3]], c.lt),
+        b: pD([[40,138,7,4.5,40],[48,162,5,3.4,20],[160,136,7,4.5,-40],[152,162,5,3.4,-20]], c.lt) }; } }
+    ],
+    snake: [
+      { id:'shima', n:'しま', old:'stripe', f:function(c){ return {
+        h: pS('M46,129 Q100,152 154,129', 4, c.dk) + pS('M34,153 Q100,178 166,153', 4, c.dk) }; } },
+      { id:'hishi', n:'ひしがた', old:'dot', f:function(c){
+        var dia = function(x, y){ return '<polygon points="'+(x-7)+','+y+' '+x+','+(y-5)+' '+(x+7)+','+y+' '+x+','+(y+5)+'" fill="'+c.dk+'"/>'; };
+        return { h: dia(56,136)+dia(144,136)+dia(84,144)+dia(116,144)+dia(42,160)+dia(158,160)+dia(84,168)+dia(116,168) }; } }
+    ],
+    dragon: [
+      { id:'hyou', n:'ヒョウもん', old:'dot', f:function(c){ return {
+        h: pD([[58,58,4],[80,42,3.5],[120,42,3.5],[142,58,4],[50,78,3],[150,78,3],[54,122,3.5],[146,122,3.5],[64,46,2.4],[136,46,2.4]], c.dk2),
+        b: pD([[38,130,4],[46,150,4.5],[40,166,3],[162,130,4],[154,150,4.5],[160,166,3],[56,176,3.4],[144,176,3.4]], c.dk2) }; } },
+      { id:'obi', n:'おび', old:'stripe', f:function(c){ return {
+        b: pM(pS('M30,118 Q42,124 52,116', 8, c.dk) + pS('M33,144 Q46,148 58,138', 8, c.dk) + pS('M42,166 Q54,166 64,156', 8, c.dk)) }; } },
+      { id:'uroko', n:'うろこ', old:'heart', f:function(c){ return {
+        h: pScales([[72,128,44],[62,138,54]], c.dk),
+        b: pScales([[34,56,118],[36,60,130],[38,64,142],[42,66,154],[48,68,166],[134,162,118],[140,164,130],[136,162,142],[134,158,154],[132,152,166]], c.dk) }; } }
+    ],
+    unicorn: [
+      { id:'pinto', n:'ぶち', old:'stripe', f:function(c){ return {
+        h: pE(140, 58, 20, 15, c.dk, 25),
+        b: pE(46, 150, 20, 26, c.dk) + pE(154, 162, 22, 18, c.dk) }; } },
+      { id:'appa', n:'てんてん', old:'dot', f:function(c){ return {
+        b: pD([[40,140,4],[50,156,5],[38,162,3],[62,174,4],[160,140,4],[150,156,5],[162,162,3],[138,176,4],[48,128,3],[152,128,3]], c.dk) }; } }
+    ]
+  };
+  /* 体と 頭いがいに 同じ もようを のせたい 色(へびの 2つめの とぐろ) */
+  var NAT_CLIP = { snake:['#86D466'] };
+  function natPats(sp){ return NAT_PATS[sp] || []; }
+  /* 前の もよう名(stripe/dot/heart/star)は、その子の 近い もように 読みかえる */
+  function natPat(sp, p){
+    if(!p) return null;
+    var L = natPats(sp), i;
+    for(i = 0; i < L.length; i++) if(L[i].id === p) return L[i];
+    for(i = 0; i < L.length; i++) if(L[i].old === p) return L[i];
+    return /^(stripe|dot|heart|star)$/.test(p) && L.length ? L[0] : null;
+  }
+  function patColors(cur){
+    var c = hexHsl(cur), pale = c[3] < .12, s = pale ? .14 : c[1];
+    return { m: cur,
+      dk: hslHex(c[0], s*.75, c[2] - (c[2] > .5 ? .2 : -.14)),
+      dk2: hslHex(c[0], s*.6, c[2] > .5 ? c[2]*.5 : c[2] + .3),
+      lt: hslHex(c[0], s*.5, Math.min(.97, c[2] + (1 - c[2])*.7)) };
+  }
+  function dressBody(d, sk, sp){
+    var M = mainColor(d), body = d.body, back = d.back || '', cur = M, T = null;
+    var nc = natColor(sp, sk.c);
+    var extra = { back2:d.back2 || '', deco:d.deco || '', front2:d.front2 || '' };
+    if(nc){
+      T = [nc[2], nc[3], nc[4]]; var F = nc[5] || M;
+      var rc = function(str){ str = recolor(str, F, T); (NAT_RECOLOR[sp] || []).forEach(function(h){ str = str.split(h).join(hslHex(T[0], T[1], T[2] - .06)); }); return str; };
+      body = rc(body); back = rc(back);
+      for(var k in extra) extra[k] = rc(extra[k]);
+      if(!nc[5]) cur = hslHex(T[0], T[1], T[2]); else T = null;
+    }
+    var defs = '', pat = natPat(sp, sk.p);
+    if(pat){
+      var fills = [cur.toUpperCase()].concat((NAT_CLIP[sp] || []).map(function(h){ return (T ? recolor(h, M, T) : h).toUpperCase(); }));
+      var parts = [], head = '', re = /<(?:circle|ellipse|path|polygon|rect)\b[^>]*fill="([^"]+)"[^>]*\/>/g, m, lastEnd = -1;
+      while((m = re.exec(body))){
+        if(fills.indexOf(m[1].toUpperCase()) < 0) continue;
+        var el = m[0].replace(/ stroke="[^"]*"| stroke-width="[^"]*"| stroke-linejoin="[^"]*"/g, '');
+        parts.push(el); lastEnd = m.index + m[0].length;
+        /* 頭(まんなかの 大きな まる) */
+        if(!head && /<(circle|ellipse) cx="100(?:\.0)?" cy="(8\d|9\d)(?:\.0)?" r/.test(el) && /r(?:x)?="(4[89]|5\d|6\d)(?:\.0)?"/.test(el)) head = el;
+      }
+      if(parts.length){
+        var L = pat.f(patColors(cur)), cid = 'skc'+skinUid, mid = 'skm'+skinUid; skinUid++;
+        defs = '<defs><clipPath id="'+cid+'">'+parts.join('')+'</clipPath>' +
+          (head && L.b ? '<mask id="'+mid+'" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="200"><rect width="200" height="200" fill="#fff"/>'+head.replace(/fill="[^"]+"/, 'fill="#000" stroke="#000" stroke-width="3"')+'</mask>' : '') + '</defs>';
+        var lay = (L.b ? '<g clip-path="url(#'+cid+')"'+(head ? ' mask="url(#'+mid+')"' : '')+'>'+L.b+'</g>' : '') +
+                  (L.h ? '<g clip-path="url(#'+cid+')">'+L.h+'</g>' : '');
+        body = body.slice(0, lastEnd) + lay + body.slice(lastEnd);
+        if(L.ob){
+          var bm = /<ellipse cx="100(?:\.0)?" cy="1[34]\d(?:\.0)?" rx="[34]\d(?:\.0)?" ry="[23]\d(?:\.0)?"[^>]*\/>/.exec(body.slice(lastEnd + lay.length));
+          var at = bm ? lastEnd + lay.length + bm.index + bm[0].length : body.length;
+          body = body.slice(0, at) + L.ob + body.slice(at);
+        }
+        if(L.o) body += L.o;
+        if(L.k){
+          var bp = [], bEnd = -1, re2 = /<(?:circle|ellipse|path|polygon|rect)\b[^>]*fill="([^"]+)"[^>]*\/>/g, m2;
+          while((m2 = re2.exec(back))){ if(m2[1].toUpperCase() === fills[0]){ bp.push(m2[0].replace(/ stroke="[^"]*"| stroke-width="[^"]*"/g, '')); bEnd = m2.index + m2[0].length; } }
+          if(bp.length){
+            var kid = 'skk'+(skinUid++);
+            defs += '<defs><clipPath id="'+kid+'">'+bp.join('')+'</clipPath></defs>';
+            back = back.slice(0, bEnd) + '<g clip-path="url(#'+kid+')">'+L.k+'</g>' + back.slice(bEnd);
+          }
+        }
+      }
+    }
+    return { body: body, back: back, defs: defs, back2: extra.back2, deco: extra.deco, front2: extra.front2 };
+  }
+  /* きせかえの ボタン用: 目の ない 小さな 体 */
+  function patThumb(sp, sk){
+    var d = SPECIES[sp] || SPECIES.cat, r = dressBody(d, sk || {}, sp);
+    return '<svg viewBox="8 0 184 190">'+r.defs+r.back+r.body+'</svg>';
+  }
+  var CAPE = '<g class="p-cape"><path d="M58,90 Q14,146 20,178 Q100,194 180,178 Q186,146 142,90 Z" fill="#5B4BC4"/><path d="M56,100 Q30,148 32,172" stroke="#7565E0" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M144,100 Q170,148 168,172" stroke="#7565E0" stroke-width="4" fill="none" stroke-linecap="round"/><polygon points="34.0,147.0 35.3,150.2 38.8,150.5 36.1,152.7 36.9,156.0 34.0,154.2 31.1,156.0 31.9,152.7 29.2,150.5 32.7,150.2" fill="#FFE380"/><polygon points="168.0,154.0 169.6,157.8 173.7,158.1 170.6,160.8 171.5,164.9 168.0,162.7 164.5,164.9 165.4,160.8 162.3,158.1 166.4,157.8" fill="#FFE380"/><polygon points="28.0,172.5 28.9,174.7 31.3,174.9 29.5,176.5 30.1,178.8 28.0,177.6 25.9,178.8 26.5,176.5 24.7,174.9 27.1,174.7" fill="#FFE380"/><polygon points="174.0,134.5 174.9,136.7 177.3,136.9 175.5,138.5 176.1,140.8 174.0,139.6 171.9,140.8 172.5,138.5 170.7,136.9 173.1,136.7" fill="#FFE380"/></g>';
+  function svg(sp, lv, sexOv){
+    var d = SPECIES[sp] || SPECIES.cat;
+    lv = Math.max(0, Math.min(3, lv|0));
+    var s = SCALE[lv];
+    var delay = (-Math.random()*3).toFixed(2);
+    var out = '<svg class="pet lv'+lv+'" viewBox="0 0 200 200" role="img" aria-label="'+d.name+' Lv.'+lv+'">';
+    out += '<ellipse class="p-shadow" cx="100" cy="180" rx="'+Math.round(56*s)+'" ry="9" fill="'+INK+'" opacity=".08"/>';
+    out += '<g class="p-jump"><g transform="translate(100 180) scale('+s+') translate(-100 -180)">';
+    out += '<g class="p-breathe" style="animation-delay:'+delay+'s">';
+    if(lv >= 3) out += '<circle cx="100" cy="104" r="86" fill="#FFE9A8" opacity=".45"/>';
+    if(capeOn) out += CAPE;
+    var osh = oshareFn ? (oshareFn(sp) || []) : [];
+    osh.forEach(function(it){ if(it.s === 'back' && !oshIsPack(it)) out += oshDraw(it, d); });
+    var sk = (skinFn && lv >= 3) ? skinFn(sp) : null, dressed = sk ? dressBody(d, sk, sp) : { body:d.body, back:d.back||'', defs:'', back2:d.back2||'', deco:d.deco||'', front2:d.front2||'' };
+    if(lv >= 2 && dressed.back2) out += dressed.back2;
+    /* 耳の横の リボン・かみかざりは、うしろから 見ると 頭の かげに なり、はしだけ 見える */
+    var behindHead = function(str){ var id = 'pbr'+(wearUid++), m = headMask(dressed.body, id); return m ? m + '<g mask="url(#'+id+')">' + str + '</g>' : str; };
+    var ex = d.eyeX || [75, 125];
+    var sx = sexOv !== undefined ? sexOv : (sexFn && sexFn(sp));
+    var boy = sx === 'm';
+    var girl = sx === 'f', lsh = girl ? lashes(d.eyeY, ex[0], ex[1], d.eyeInk) : '';
+    var en = d.eyesC ? '<g class="eyes face-n" style="animation-delay:'+(-Math.random()*4).toFixed(2)+'s">'+d.eyesC+lsh+wetG(d.eyeY, ex[0], ex[1])+'</g>' : eyesN(d.eyeY, ex[0], ex[1]).replace(/<g class="wet">/, lsh+'<g class="wet">');
+    var eh = eyesH(d.eyeY, ex[0], ex[1], d.eyeInk);
+    if(girl) eh = eh.replace(/<\/g>$/, lashesH(d.eyeY, ex[0], ex[1], d.eyeInk)+'</g>');
+    out += dressed.defs + dressed.back + dressed.body + en + eh + dressed.deco;
+    var mN = d.mouthN || '', flipM = /<path[^>]*Q/.test(mN) ? ' flip' : '', ey = d.eyeY;
+    // おなかが すいたときの への字口: にっこり口の 線(Q の 曲線)の 場所に かく
+    var mqx = [], mqy = [];
+    mN = mN.replace(/<path\b([^>]*)>/g, function(tag, at){
+      var dm = /\sd="([^"]*)"/.exec(at);
+      if(!dm || dm[1].indexOf('Q') < 0 || !/fill="none"/.test(at)) return tag;
+      var nums = dm[1].match(/-?\d+(\.\d+)?/g) || [];
+      for(var ni = 0; ni + 1 < nums.length; ni += 2){ mqx.push(+nums[ni]); mqy.push(+nums[ni+1]); }
+      return '<path class="mq"' + at + '>';
+    });
+    var faceHs = '';
+    if(mqx.length){
+      var mx0 = Math.min.apply(null, mqx), mx1 = Math.max.apply(null, mqx), my0 = Math.min.apply(null, mqy), my1 = Math.max.apply(null, mqy);
+      var fmx = (mx0 + mx1) / 2, fmy = Math.max(my0 + 2, (my0 + my1) / 2), fhw = Math.max(6, Math.min(9, (mx1 - mx0) / 2));
+      faceHs = '<g class="face-hs"><path d="M'+(fmx-fhw).toFixed(1)+','+(fmy+3).toFixed(1)+' Q'+fmx.toFixed(1)+','+(fmy-4).toFixed(1)+' '+(fmx+fhw).toFixed(1)+','+(fmy+3).toFixed(1)+'" stroke="'+INK+'" stroke-width="2.6" fill="none" stroke-linecap="round"/></g>';
+    }
+    out += '<g class="face-n"><g class="m-n' + flipM + '">' + mN + '</g>' + faceHs + '</g><g class="face-h">' + (d.mouthH||'') + '</g>';
+    out += '<g class="face-s" stroke="' + (d.eyeInk || INK) + '" stroke-width="3.6" stroke-linecap="round" fill="none"><path d="M'+(ex[0]-10)+','+(ey-18)+' L'+(ex[0]+7)+','+(ey-24)+'"/><path d="M'+(ex[1]-7)+','+(ey-24)+' L'+(ex[1]+10)+','+(ey-18)+'"/></g>';
+    var gc = (wearFn && wearFn(sp)) || d.gem;
+    if(gc === 'rainbow'){
+      var rid = 'prb'+(wearUid++);
+      out += '<defs><linearGradient id="'+rid+'" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF8FB1"/><stop offset=".35" stop-color="#FFD24C"/><stop offset=".65" stop-color="#6FD9BE"/><stop offset="1" stop-color="#7B83EB"/></linearGradient></defs>';
+      gc = 'url(#'+rid+')';
+    }
+    out += '<g class="p-frontv">';
+    if(boy && lv >= 1){ var tk = TIE_Y[sp] || 127; out += necktie(tk); out += gem(100, tk + 13, 7, gc); }
+    else out += gem(d.gemAt[0], d.gemAt[1], lv >= 1 ? 18 : 14, gc);
+    if(lv >= 2 && !boy) out += necklace();
+    out += '</g>';
+    if(lv >= 2 && dressed.front2) out += dressed.front2;
+    /* 後ろ姿で 見える もの: しっぽ・せなかの つばさ・首かざりの うしろ・マント・おしゃれの はね/マント */
+    var bx = backTail(dressed.back + dressed.body);
+    if(bx && lv >= 2 && dressed.front2) bx += dressed.front2;
+    (dressed.back.match(/<(?:path|polygon)\b[^>]*\/>/g) || []).forEach(function(el){
+      var nm = /\bd="M\s*(-?[\d.]+)[ ,](-?[\d.]+)/.exec(el);
+      if(nm && +nm[1] >= 60 && +nm[1] <= 140 && +nm[2] >= 90 && +nm[2] <= 125) bx += el;
+    });
+    if(lv >= 2 && dressed.back2) bx += dressed.back2;
+    var ny = Math.max(124, Math.min(136, (d.eyeY + 40 + d.gemAt[1]) / 2));
+    osh.forEach(function(it){
+      if(it.s !== 'neck') return;
+      var sc = oshScarf(it);
+      if(sc){ bx += scarfWrap(d, sc, true); return; }
+      var thick = /マフラー|スカーフ/.test(it.n || '');
+      bx += '<path d="M64,'+(ny-8)+' Q100,'+(ny+6)+' 136,'+(ny-8)+'" stroke="'+oshColor(it)+'" stroke-width="'+(thick ? 11 : 3.5)+'" fill="none" stroke-linecap="round"/>';
+    });
+    /* マントは 首から 下に たれるので 頭の 下に、はねは せなかから 大きく ひろがるので 頭に すこし かかっても 前に */
+    var bOsh = (capeOn ? CAPE_BACK : ''), bWing = '';
+    osh.forEach(function(it){
+      if(it.s !== 'back') return;
+      if(oshIsPack(it)) bWing += oshPlace(it, 100, 128, 104);
+      else if(/マント|ケープ/.test(it.n || '')) bOsh += oshDraw(it, d);
+      else {
+        /* 漢字アプリの はね(左右の はばたく つばさ)は、つばさだけ 大きく、まんなかの 宝石は 小さく */
+        var wg = (it.inner || '').match(/<g class="ta-flap[LR]"[^>]*>[\s\S]*?<\/g>/g);
+        if(wg && wg.length === 2){
+          var rest = it.inner.replace(wg[0], '').replace(wg[1], '');
+          bWing += oshPlace({ vb:it.vb, inner:'<g>' + wg.join('') + '</g>' }, 100, 124, 220) + oshPlace({ vb:it.vb, inner:rest }, 100, 134, 84);
+        } else bWing += oshPlace(it, 100, 136, 168);
+      }
+    });
+    if(bOsh){ var hm = 'pbh'+(wearUid++), hmd = headMask(dressed.body, hm); bx += hmd + (hmd ? '<g mask="url(#'+hm+')">' + bOsh + '</g>' : bOsh); }
+    bx += bWing;
+    out += backView(dressed.body, dressed.back, d.eyeY, bx);
+    /* 頭の おしゃれを 耳の横に つけた ときは、いつもの リボンと 交換する */
+    if(lv >= 1 && !boy && !osh.some(function(it){ return it.s === 'head' && it.pos === 'ear'; })) out += '<g class="p-frontv">' + bow(d.clipAt[0], d.clipAt[1], gc) + '</g><g class="p-backv">' + behindHead(bowBack(d.clipAt[0], d.clipAt[1])) + '</g>';
+    /* てっぺんの おしゃれ・耳の横の ぼうしが ある ときは、Lv3の 王冠は 出さない(ぼうしと 重なるので) */
+    var oshHead = osh.some(function(it){ return it.s === 'head' && (it.pos !== 'ear' || (oshFit(it) && /ぼうし/.test(it.n))); });
+    if(lv >= 3 && !oshHead) out += crown(d.crownT);
+    else if(boy && lv >= 2 && !oshHead) out += tophat(d.crownT);
+    osh.forEach(function(it){
+      if(oshIsPack(it)){
+        var py = scarfNeckY(d), pc = oshColor(it);
+        out += '<g class="p-frontv" stroke="'+pc+'" stroke-width="7" fill="none" stroke-linecap="round">' +
+          '<path d="M72,'+(py-6)+' Q66,'+(py+18)+' 72,'+(py+40)+'"/><path d="M128,'+(py-6)+' Q134,'+(py+18)+' 128,'+(py+40)+'"/></g>';
+        return;
+      }
+      if(it.s === 'back') return;
+      if(it.s === 'eyes' || it.s === 'neck') out += '<g class="p-frontv">' + oshDraw(it, d) + '</g>';
+      else if(oshIsMask(it)) out += '<g class="p-frontv">' + oshDraw(it, d) + '</g><g class="p-backv">' + oshBackSide(it, d) + '</g>';
+      else if(it.s === 'head' && it.pos === 'ear'){
+        var ob = oshDraw(oshBackOf(it), d);
+        out += '<g class="p-frontv">' + oshDraw(it, d) + '</g><g class="p-backv">' + (/ぼうし/.test(it.n || '') ? ob : behindHead(ob)) + '</g>';
+      }
+      else out += oshDraw(it, d);
+    });
+    out += '</g></g></g>';
+    if(lv >= 3){
+      out += sparkle(22, 48, 9, 0, '#FFC53D') + sparkle(178, 40, 7, -.8, '#FF9EC8') +
+             sparkle(14, 140, 6, -1.4, '#5B7CFA') + sparkle(186, 128, 8, -.4, '#1FA98E');
+    }
+    out += '</svg>';
+    return out;
+  }
+
+  function mount(el, sp, lv){ if(el) el.innerHTML = svg(sp, lv); return el; }
+
+  function play(el, cls, ms){
+    var s = el && el.querySelector('svg.pet');
+    if(!s) return;
+    s.classList.remove('hop','hop-s','oops','happy','spin');
+    void s.getBoundingClientRect();
+    cls.split(' ').forEach(function(c){ s.classList.add(c); });
+    clearTimeout(s._t);
+    s._t = setTimeout(function(){ s.classList.remove('hop','hop-s','oops','happy','spin'); }, ms);
+  }
+
+  return {
+    SPECIES: SPECIES,
+    LV_NAMES: LV_NAMES,
+    setCape: function(on){ capeOn = !!on; },
+    setWear: function(fn){ wearFn = fn; },
+    setOshare: function(fn){ oshareFn = fn; },
+    setSkin: function(fn){ skinFn = fn; },
+    setSex: function(fn){ sexFn = fn; },
+    natPats: function(sp){ return natPats(sp).map(function(p){ return { id:p.id, name:p.n }; }); },
+    natPat: function(sp, p){ var x = natPat(sp, p); return x ? x.id : ''; },
+    patThumb: patThumb,
+    natColors: function(sp){ return (NAT_COLORS[sp] || []).map(function(x){ return { id:x[0], name:x[1] }; }); },
+    natColor: function(sp, c){ var x = natColor(sp, c); return x ? x[0] : ''; },
+    svg: svg,
+    mount: mount,
+    cheer: function(el){ play(el, 'hop happy', 1100); },
+    tap: function(el){ play(el, 'hop-s happy', 750); },
+    spin: function(el){ play(el, 'spin happy', 1000); },
+    oops: function(el){ play(el, 'oops', 450); }
+  };
 })();
 </script>
 <script>
@@ -8730,6 +10251,17 @@ function treatPending(){
   if(newChoiceDate !== todayStr()) return false;
   return !treatPassed && appHasData() && !treatDoneToday() && treatUnlocked();
 }
+/* いま けいさんチャレンジで選んでいる相棒（同じ端末の keisan_pets）。なければ ねこ */
+function gatePetSvg(){
+  try{
+    if(typeof Pet === "undefined") return "";
+    const o = JSON.parse(localStorage.getItem("keisan_pets") || "null") || {};
+    let sp = o.active;
+    if(!sp || !Pet.SPECIES[sp]) sp = "cat";
+    const lv = Math.max(0, Math.min(3, parseInt((o.owned || {})[sp], 10) || 0));
+    return Pet.svg(sp, lv);
+  }catch(e){ return ""; }
+}
 function renderGate(){
   const o = todayOsarai();
   const oLeft = osaraiLeft().length, oLater = osaraiLaterLeft().length, oRetest = osaraiRetestLeft().length;
@@ -8752,8 +10284,9 @@ function renderGate(){
   const choose = newStepPending();
   if(choose) tasks.push({id:"gateNew", ico:"⭐", name:"新しい字", done:false, sub:"1字ごとに⭐がふえるよ", go: () => newStepChoose(true)});
   const left = tasks.filter(t => !t.done).length;
-  document.getElementById("gateMain").textContent = choose ? "新しい字は、やれる分だけ。やると⭐がもらえるよ" :
+  const gateMsg = choose ? "新しい字は、やれる分だけ。やると⭐がもらえるよ" :
     left === 2 ? "今日の道を、順番に進もう" : left === 1 ? "あと1つで、宝探しに進めるよ" : "今日の道を、順番に進もう";
+  document.getElementById("gateMain").innerHTML = '<div class="road-head"><div class="road-pet">' + gatePetSvg() + '</div><div class="road-bubble">' + gateMsg + '</div></div>';
   document.getElementById("gateNewSkip").hidden = !choose;
   const box = document.getElementById("gateTasks");
   /* 道：①おさらい ②プリント ③新しい字 ④おつかれさま宝探し（④はカギ付きで、終わると自動ではじまる） */
@@ -8778,7 +10311,7 @@ function renderGate(){
   svg += '</svg>';
   let html = '<div class="road-map tate" style="height:' + H + 'px">' + svg;
   steps.forEach((t, i) => {
-    const inner = t.st === "done" ? '<span class="stamp">✓</span>' : t.ico;
+    const inner = t.st === "done" ? '<span class="pet">' + gatePetSvg() + '</span><span class="stamp">✓</span>' : t.ico;
     html += '<div class="stop ' + t.st + (t.near ? ' near' : '') + '" style="left:24%;top:' + ys[i] + 'px">' +
       '<div class="ball">' + inner + '<span class="num">' + (i + 1) + '</span>' +
       (t.st === "now" ? '<span class="flag">今ここ！</span>' : '') + (t.st === "lock" ? '<span class="key">🔒</span>' : '') + '</div>' +
