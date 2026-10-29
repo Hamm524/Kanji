@@ -2071,6 +2071,7 @@ header.app{
       <div class="gate-label">今日やること</div>
       <div class="gate-main" id="gateMain"></div>
       <div class="gate-tasks" id="gateTasks"></div>
+      <div id="gateNewSkip" style="text-align:center;margin:8px 0 0;" hidden><a href="#" id="gateNewSkipLink" style="font-size:.8rem;color:var(--ink-soft);text-decoration:underline;">今日は、宝探しへ進む</a></div>
       <div id="gateGauge" style="margin:10px 0 0;border:2px solid var(--gold);border-radius:14px;background:#FFFBEF;padding:8px 12px;font-size:.8rem;" hidden></div>
       <div class="gate-foot">
         <span class="gate-streak" id="gateStreak"></span>
@@ -3526,7 +3527,27 @@ function gateSkippedToday(){
 function gateNeeded(){
   if(gateSkippedToday()) return false;
   if(!appHasData()) return false;
-  return !osaraiFinished() || (printAvailable() && printLeft().length > 0);
+  return !osaraiFinished() || (printAvailable() && printLeft().length > 0) || newStepPending();
+}
+/* 道の③「新しい字」（v81）：おさらいとプリントが終わったあと、宝探しの前に1回えらぶ。
+   「新しい字をやる」か「今日は、宝探しへ進む」をおすと、その日はもう出ない */
+const NEWCHOICE_KEY = "kanji-drill-newchoice-v1";
+let newChoiceDate = "";
+try{ newChoiceDate = localStorage.getItem(NEWCHOICE_KEY) || ""; }catch(e){}
+let treatHold = null;
+function newStepPending(){
+  if(gateSkippedToday() || !appHasData()) return false;
+  if(newChoiceDate === todayStr() || treatPassed || treatDoneToday() || !treatUnlocked()) return false;
+  return osaraiFinished() && (!printAvailable() || printLeft().length === 0);
+}
+function newStepChoose(withNew){
+  newChoiceDate = todayStr();
+  try{ localStorage.setItem(NEWCHOICE_KEY, newChoiceDate); }catch(e){}
+  if(withNew) treatHold = {n: newDayCount(), opened:false};
+  hideGate();
+  document.getElementById("screen-grid").classList.remove("hidden");
+  if(withNew) showToast("やってみたい新しい字を、えらんでね");
+  else if(treatPending()) startTreat();
 }
 
 /* ---------------- gem hunt (motivation reward system) ---------------- */
@@ -7753,6 +7774,7 @@ function openChar(idx){
     showOsaraiGate();
     return;
   }
+  if(treatHold) treatHold.opened = true;
   state.charIndex = idx;
   const ch = KANJI[idx];
   const p = getProg(ch.c);
@@ -8669,6 +8691,8 @@ function checkGate(){
    1まいもめくらずに もどったときは、次にアプリを開くまで出さない */
 let treatPassed = false;
 function treatPending(){
+  if(treatHold && !treatHold.opened && newDayCount() <= treatHold.n) return false;
+  if(newChoiceDate !== todayStr()) return false;
   return !treatPassed && appHasData() && !treatDoneToday() && treatUnlocked();
 }
 function renderGate(){
@@ -8690,9 +8714,12 @@ function renderGate(){
       sub: pDone ? "終わり ✓" : (pLeft < p.list.length ? "あと" + pLeft + "字" : p.list.length + "字") + "　文を読んで書こう",
       go: () => startPrint()});
   }
+  const choose = newStepPending();
+  if(choose) tasks.push({id:"gateNew", ico:"⭐", name:"新しい字", done:false, sub:"1字ごとに⭐がふえるよ", go: () => newStepChoose(true)});
   const left = tasks.filter(t => !t.done).length;
-  document.getElementById("gateMain").textContent =
+  document.getElementById("gateMain").textContent = choose ? "新しい字は、やれる分だけ。やると⭐がもらえるよ" :
     tasks.length >= 2 ? (left === 2 ? "2つ終わると、遊べるよ" : "あと1つで、遊べるよ") : "これが終わると、遊べるよ";
+  document.getElementById("gateNewSkip").hidden = !choose;
   const box = document.getElementById("gateTasks");
   box.innerHTML = "";
   tasks.forEach(t => {
@@ -8727,6 +8754,7 @@ function renderGate(){
   ["pointerup", "pointerleave", "pointercancel"].forEach(ev => skip.addEventListener(ev, clear));
   skip.addEventListener("contextmenu", e => e.preventDefault());
   document.getElementById("gateSaveBtn").onclick = () => exportBackup();
+  document.getElementById("gateNewSkipLink").onclick = e => { e.preventDefault(); newStepChoose(false); };
 })();
 /* ---------------- 今日のおさらい：始める・まとめ・「あとで」の練習（v54） ---------------- */
 function startOsarai(){
