@@ -1,4 +1,39 @@
-<!doctype html><html lang="ja"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="書き順ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#F6F1E7"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html><html lang="ja"><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png"><link rel="icon" href="icon-192.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="書き順ドリル"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="theme-color" content="#F6F1E7"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}/* 今日のスタンプロード（v81）：今日やること画面の縦の道 */
+.road-map{position:relative;margin-top:6px;}
+.road-map svg.path{position:absolute;inset:0;width:100%;height:100%;}
+.stop{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;}
+.stop .ball{width:84px;height:84px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.1rem;background:var(--paper-raised);border:3px solid var(--line);position:relative;}
+.stop .name{font-size:.84rem;font-weight:700;color:var(--ink);white-space:nowrap;text-align:center;line-height:1.3;}
+.stop .name small{display:block;font-weight:400;font-size:.74rem;color:var(--ink-soft);}
+.stop .num{position:absolute;top:-6px;left:-6px;width:26px;height:26px;border-radius:50%;background:var(--kon);color:#fff;font-size:.8rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--paper-raised);}
+.stop.now .ball{width:112px;height:112px;font-size:2.9rem;border:4px solid var(--shu);background:#fff;box-shadow:0 0 0 8px rgba(193,57,29,.13),0 0 26px 10px rgba(255,200,90,.55),0 5px 0 rgba(0,0,0,.12);}
+.stop.now .name{font-size:.98rem;color:var(--shu);}
+.stop.now .num{background:var(--shu);}
+.stop .go{margin-top:2px;background:var(--shu);color:#fff;border:0;border-radius:999px;padding:7px 18px;font-size:.9rem;font-weight:700;box-shadow:0 3px 0 rgba(0,0,0,.15);}
+.flag{position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:var(--gold);color:#fff;font-size:.72rem;font-weight:700;border-radius:999px;padding:3px 9px;white-space:nowrap;}
+.flag::after{content:"";position:absolute;bottom:-5px;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:var(--gold);border-bottom:0;}
+.stop.done .ball{border:3px solid var(--shu);background:#FFF8F0;}
+.stop.done .ball::after{content:"";position:absolute;inset:4px;border-radius:50%;border:2px dashed rgba(193,57,29,.45);}
+.stop.done .ball .hanko{position:absolute;bottom:-8px;right:-14px;background:var(--shu);color:#fff;font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:.8rem;padding:2px 8px;border-radius:999px;transform:rotate(-10deg);box-shadow:0 2px 0 rgba(0,0,0,.15);}
+.stop.done .name{color:var(--ink-soft);}
+.stop.done .num{background:var(--ink-soft);}
+.stop.lock .ball{filter:grayscale(.85);opacity:.55;border-style:dashed;background:var(--paper);}
+.stop.lock .key{position:absolute;bottom:-6px;right:-6px;font-size:1.25rem;width:32px;height:32px;border-radius:50%;background:var(--paper-raised);border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;filter:none;opacity:1;}
+.stop.lock .name{color:var(--ink-soft);}
+.stop.lock .num{background:var(--line);color:var(--ink-soft);}
+.stop.lock.near .ball{opacity:.8;filter:grayscale(.3);}
+.road-map.tate .stop{flex-direction:row;gap:14px;transform:translate(-50%,-50%);}
+.road-map.tate .stop .ball{flex:none;}
+.road-map.tate .stop .name{position:absolute;left:calc(50% + 66px);top:50%;transform:translateY(-50%);text-align:left;white-space:normal;width:170px;}
+.road-map.tate .stop .go{position:absolute;left:calc(50% + 66px);top:calc(50% + 34px);}
+.road-map.tate .stop.now .name{transform:translateY(-80%);}
+.road-map.tate .stop .go{white-space:nowrap;top:calc(50% + 12px);}
+.road-map.tate .stop.now .name{transform:translateY(-95%);}
+.stop.done .ball .stamp{font-size:2.6rem;color:var(--shu);font-weight:700;transform:rotate(-10deg);line-height:1;}
+.stop.todo .ball{border-style:solid;opacity:.9;}
+.road-hint{font-size:.78rem;color:var(--ink-soft);text-align:center;margin-top:4px;}
+
+</style></head><body>
 <title>書き順ドリル</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@700&family=Kosugi+Maru&display=swap">
 <style>
@@ -8718,19 +8753,41 @@ function renderGate(){
   if(choose) tasks.push({id:"gateNew", ico:"⭐", name:"新しい字", done:false, sub:"1字ごとに⭐がふえるよ", go: () => newStepChoose(true)});
   const left = tasks.filter(t => !t.done).length;
   document.getElementById("gateMain").textContent = choose ? "新しい字は、やれる分だけ。やると⭐がもらえるよ" :
-    tasks.length >= 2 ? (left === 2 ? "2つ終わると、遊べるよ" : "あと1つで、遊べるよ") : "これが終わると、遊べるよ";
+    left === 2 ? "今日の道を、順番に進もう" : left === 1 ? "あと1つで、宝探しに進めるよ" : "今日の道を、順番に進もう";
   document.getElementById("gateNewSkip").hidden = !choose;
   const box = document.getElementById("gateTasks");
-  box.innerHTML = "";
-  tasks.forEach(t => {
-    const b = document.createElement("button");
-    b.className = "gate-task" + (t.done ? " done" : "");
-    b.id = t.id;
-    b.disabled = t.done;
-    b.innerHTML = '<span class="gt-ico">' + t.ico + '</span><span class="gt-body"><b>' + t.name + '</b><small>' + t.sub + '</small></span><span class="gt-mark">' + (t.done ? "✓" : "→") + '</span>';
-    if(!t.done) b.onclick = t.go;
-    box.appendChild(b);
+  /* 道：①おさらい ②プリント ③新しい字 ④おつかれさま宝探し（④はカギ付きで、終わると自動ではじまる） */
+  const steps = tasks.filter(t => t.id !== "gateNew").map(t => Object.assign({}, t));
+  const nowIdx = steps.findIndex(t => !t.done);
+  const allDone = nowIdx < 0;
+  steps.forEach((t, i) => { t.st = t.done ? "done" : i === nowIdx ? "now" : "todo"; });
+  const newDone = newChoiceDate === todayStr();
+  steps.push({id:"gateNew", ico:"⭐", name:"新しい字",
+    sub: choose ? "1字ごとに⭐がふえるよ" : newDone ? (newDayCount() > 0 ? "今日 " + newDayCount() + "字" : "今日はおやすみ") : "おさらいとプリントの後",
+    st: choose ? "now" : newDone ? "done" : "lock", go: () => newStepChoose(true)});
+  steps.push({id:"gateTreat", ico:"🎁", name:"おつかれさま宝探し", sub:"終わると、自動で<br>はじまるよ", st:"lock", near: choose});
+  const N = steps.length, H = 72 + 150 * (N - 1) + 88;
+  const ys = steps.map((_, i) => 72 + 150 * i);
+  let svg = '<svg class="path" viewBox="0 0 100 ' + H + '" preserveAspectRatio="none">';
+  for(let i = 0; i < N - 1; i++){
+    const d = 'M24 ' + ys[i] + ' C 34 ' + (ys[i] + 58) + ', 14 ' + (ys[i] + 92) + ', 24 ' + ys[i + 1];
+    const dn = steps[i].st === "done";
+    svg += '<path d="' + d + '" fill="none" stroke="' + (dn ? '#F1C3B5' : '#E6DCCB') + '" stroke-width="' + (dn ? 16 : 14) + '" vector-effect="non-scaling-stroke" stroke-linecap="round"/>' +
+      '<path d="' + d + '" fill="none" stroke="' + (dn ? '#C1391D' : '#fff') + '" stroke-width="3" stroke-dasharray="1 9" vector-effect="non-scaling-stroke" stroke-linecap="round"/>';
+  }
+  svg += '</svg>';
+  let html = '<div class="road-map tate" style="height:' + H + 'px">' + svg;
+  steps.forEach((t, i) => {
+    const inner = t.st === "done" ? '<span class="stamp">✓</span>' : t.ico;
+    html += '<div class="stop ' + t.st + (t.near ? ' near' : '') + '" style="left:24%;top:' + ys[i] + 'px">' +
+      '<div class="ball">' + inner + '<span class="num">' + (i + 1) + '</span>' +
+      (t.st === "now" ? '<span class="flag">今ここ！</span>' : '') + (t.st === "lock" ? '<span class="key">🔒</span>' : '') + '</div>' +
+      '<div class="name">' + t.name + '<small>' + t.sub + '</small></div>' +
+      (t.st === "now" ? '<button class="go" id="' + t.id + '">はじめる</button>' : '') + '</div>';
   });
+  html += '</div>';
+  box.innerHTML = html;
+  steps.forEach(t => { const b = document.getElementById(t.id); if(b && t.go && t.st === "now") b.onclick = t.go; });
   const gg = document.getElementById("gateGauge"), gn = newDayCount();
   gg.hidden = gn === 0;
   if(gn > 0) gg.innerHTML = '<b style="color:var(--gold)">新しい字ゲージ</b>　' + newDayGaugeHtml(gn) + '<span style="color:var(--ink-soft)">　今日 ' + gn + '字</span>';
