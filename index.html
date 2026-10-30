@@ -1923,6 +1923,8 @@ header.app{
 .ws-sub .quiz-prompt{margin-bottom:10px;}
 .word-context.small{font-size:1.9rem;margin-bottom:6px;}
 .word-context.sent{font-size:1.4rem;line-height:1.5;}
+.word-context rt{font-size:.5em;}
+.word-context.sent:has(ruby){line-height:2.1;}
 .ctx-hint{max-width:300px;margin:2px auto 10px;background:var(--gold-soft);border-radius:12px;padding:6px 12px;font-size:.95rem;line-height:1.4;}
 .ctx-hint-k{display:block;font-size:.74rem;color:var(--gold);}
 .ctx-hint-w{font-size:1.4rem;letter-spacing:.03em;}
@@ -11048,15 +11050,36 @@ function ctxHintHtml(ch, ctx){
   return '<div class="ctx-hint"><span class="ctx-hint-k">🔑 この字を使う言葉</span>' +
     '<span class="ctx-hint-w">' + e.w.slice(0, i) + '<span class="blank-slot">　</span>' + e.w.slice(i + 1) + '</span>（' + e.y + '）</div>';
 }
-function renderWriteQuestion(ch){
+/* 新しい字のお話の文：その字をふくむ DI のお話から1枚。その字が□、ほかの字はマスター済みか、ふりがなつきで出す。なければ null */
+function diStory(ch){
+  const c = ch.c, ok = x => !CHAR_MAP[x] || x === c || getProg(x).mastered;
+  const pool = diSheets().filter(s => s.ks.some(k => k[0] === c)).map(s => ({s, segs: diSegs(s.t).map(sg => ({plain:sg.b.replace(/【(.)】/g, "$1"), y:sg.y}))}))
+    .filter(o => o.segs.every(sg => { const cs = [...sg.plain]; return (sg.y && !cs.includes(c)) || cs.every(ok); }));
+  if(!pool.length) return null;
+  const o = pool[Math.floor(Math.random() * pool.length)];
+  const html = o.segs.map(sg => {
+    const cs = [...sg.plain];
+    if(!cs.includes(c)) return sg.y && cs.some(x => CHAR_MAP[x] && !getProg(x).mastered) ? "<ruby>" + sg.plain + "<rt>" + sg.y + "</rt></ruby>" : sg.plain;
+    return cs.map(x => x === c ? '<span class="blank-slot">　</span>' : x).join("");
+  }).join("");
+  const k = o.s.ks.find(k => k[0] === c);
+  return {html, k};
+}
+function renderWriteQuestion(ch, story){
   rvStrokeIndex = 0;
   rvSettled = false;
   rvUserStrokes = [];
   rvMiss = 0;
   const body = document.getElementById("reviewBody");
-  const ctx = pickWordContext(ch);
+  const ctx = story ? null : pickWordContext(ch);
   let promptHtml;
-  if(ctx){
+  if(story){
+    promptHtml =
+      '<div class="quiz-kind-label">お話の文</div>' +
+      '<div class="di-mean" style="text-align:center;margin-bottom:6px;">' + story.k[1] + '</div>' +
+      '<div class="word-context sent">' + story.html + '</div>' +
+      '<div class="quiz-prompt">□に入る字を、お手本なしで書いてね</div>';
+  }else if(ctx){
     promptHtml =
       '<div class="quiz-kind-label">書き取り</div>' +
       '<div class="word-context' + (ctx.sentence ? ' sent' : '') + '">' + ctxWordHtml(ctx) + '</div>' +
@@ -11255,7 +11278,7 @@ function finishReviewWrite(ch, ok){
 function settleReview(chC, ok, delay){
   endTimerVisual();
   if(rv && rv.confirm){
-    if(!ok) rv.confirmPassed = false;
+    if(!ok && !["writeMore", "story"].includes(rv.confirmTypes[rv.confirmIdx])) rv.confirmPassed = false;
     setTimeout(() => {
       if(!rv) return;
       rv.confirmIdx++;
@@ -11281,6 +11304,9 @@ function buildConfirmTypes(ch){
   if(ch.ku && ch.ku.length) types.push("kun");
   if(ch.ex && ch.ex.length) types.push("word");
   types.push("write");
+  /* 新しい字は、書き取りを合わせて3回書いてから、その字が□のお話の文を書く。2回目から先は合格・不合格に関係なし */
+  types.push("writeMore", "writeMore");
+  if(diStory(ch)) types.push("story");
   return types;
 }
 function startConfirmCheck(chC, pendingStars){
@@ -11302,7 +11328,8 @@ function renderConfirmQuestion(){
   const ch = CHAR_MAP[rv.queue[0]];
   document.getElementById("reviewProgressText").textContent = "確かめ " + (rv.confirmIdx+1) + " / " + rv.confirmTypes.length;
   const type = rv.confirmTypes[rv.confirmIdx];
-  if(type === "write") renderWriteQuestion(ch);
+  if(type === "write" || type === "writeMore") renderWriteQuestion(ch);
+  else if(type === "story") renderWriteQuestion(ch, diStory(ch));
   else renderYomiQuestion(ch, type);
 }
 function pickGenericDistractors(correctVal, excludeCharC, getVals, n){
