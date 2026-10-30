@@ -10171,15 +10171,20 @@ function diRecent(c){
   const d = getProg(c).masteredAt;
   return !!d && d >= addDaysStr(todayStr(), -DI_RECENT_DAYS);
 }
+/* 文の中（□のほか）に、まだマスターしていない字があるか。表の字は表で見られるのでよい */
+function diTextOk(s){
+  return [...s.t.replace(/【.】/g, "")].every(x => !CHAR_MAP[x] || getProg(x).mastered || s.ks.some(k => k[0] === x));
+}
 function pickDiSheets(chars){
-  const ok = diSheets().filter(s => s.ks.some(k => CHAR_MAP[k[0]] && getProg(k[0]).mastered));
+  const ok = diSheets().filter(s => s.ks.some(k => CHAR_MAP[k[0]] && getProg(k[0]).mastered) && diTextOk(s));
   const key = s => {
     const seenRecently = !!diData.seen && diData.seen[s.id] && diData.seen[s.id] >= addDaysStr(todayStr(), -3);
     return (seenRecently ? 1 : 0) + ":" + (s.ks.some(k => diRecent(k[0])) ? 0 : 1) + ":" +
       (s.ks.every(k => getProg(k[0]).mastered) ? 0 : 1) + ":" + (s.ks.some(k => chars.includes(k[0])) ? 0 : 1) + ":" +
       (diData.done[s.id] || "0000-00-00") + ":" + Math.random();
   };
-  ok.sort((a, b) => key(a) < key(b) ? -1 : 1);
+  const keys = new Map(ok.map(s => [s, key(s)]));
+  ok.sort((a, b) => keys.get(a) < keys.get(b) ? -1 : 1);
   return ok.slice(0, PRINT_DI_SIZE);
 }
 const DI_NUM = ["①","②","③","④","⑤","⑥","⑦","⑧","⑨"];
@@ -10190,7 +10195,10 @@ function startPrintDi(){
   const items = [];
   sheets.forEach((sh, si) => {
     sh.parts = [];
-    sh.t.split(/(【.】)/).forEach(seg => {
+    /* □にする字が文のほかの所にそのまま書いてあると答えが見えるので、そこも□にする */
+    let t = sh.t;
+    sh.ks.forEach(k => { if(CHAR_MAP[k[0]] && getProg(k[0]).mastered) t = t.split("【" + k[0] + "】").map(x => x.split(k[0]).join("【" + k[0] + "】")).join("【" + k[0] + "】"); });
+    t.split(/(【.】)/).forEach(seg => {
       const m = seg.match(/^【(.)】$/);
       if(!m){ if(seg) sh.parts.push({t:seg}); return; }
       if(!(CHAR_MAP[m[1]] && getProg(m[1]).mastered)){ sh.parts.push({t:m[1]}); return; }
