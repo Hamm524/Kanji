@@ -11018,8 +11018,10 @@ function writeContextAmbiguous(){
   return writeContextAmb;
 }
 /* 毎回ちがう言葉を選ぶ（前回とおなじ言葉は、ほかに候補があるかぎり出さない） */
-function pickWordContext(ch){
-  const list = writeContextCandidates(ch);
+function pickWordContext(ch, used){
+  let list = writeContextCandidates(ch);
+  /* 確かめの中で同じ言葉・文をくり返さない。使いきったら言葉なし（読みだけ）で出す */
+  if(used){ list = list.filter(o => !used.has(o.key)); if(!list.length) return null; }
   if(!list.length) return null;
   const last = (progress[ch.c] || {}).lastWord;
   const pool = list.length > 1 ? list.filter(o => o.key !== last) : list;
@@ -11071,7 +11073,9 @@ function renderWriteQuestion(ch, story){
   rvUserStrokes = [];
   rvMiss = 0;
   const body = document.getElementById("reviewBody");
-  const ctx = story ? null : pickWordContext(ch);
+  const used = rv && rv.confirm ? (rv.usedCtx = rv.usedCtx || new Set()) : null;
+  const ctx = story ? null : pickWordContext(ch, used);
+  if(ctx && used) used.add(ctx.key);
   let promptHtml;
   if(story){
     promptHtml =
