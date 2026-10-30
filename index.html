@@ -10163,10 +10163,22 @@ function saveDi(){ try{ localStorage.setItem(DI_KEY, JSON.stringify(diData)); }c
 function diSheets(){
   return DI_DATA.map((r, i) => ({id:i, theme:r[0], ks:r[1], t:r[2]}));
 }
-/* 3字ともマスターした枚だけ。今日の字をふくむ枚を先に、あとは まだやっていない枚→前にやった日が古い枚 */
+/* 新しく習った字（マスターして7日以内）をふくむ枚を、いちばん先に出す。
+   枚の3字がそろっていなくてよい：マスターした字だけを□にして、まだの字は文の中にふつうに印刷する（表で見るだけ）。
+   そのあと、今日のプリントの字をふくむ枚、まだやっていない枚、前にやった日が古い枚の順。 */
+const DI_RECENT_DAYS = 7;
+function diRecent(c){
+  const d = getProg(c).masteredAt;
+  return !!d && d >= addDaysStr(todayStr(), -DI_RECENT_DAYS);
+}
 function pickDiSheets(chars){
-  const ok = diSheets().filter(s => s.ks.every(k => CHAR_MAP[k[0]] && getProg(k[0]).mastered));
-  const key = s => (s.ks.some(k => chars.includes(k[0])) ? 0 : 1) + ":" + (diData.done[s.id] || "0000-00-00") + ":" + Math.random();
+  const ok = diSheets().filter(s => s.ks.some(k => CHAR_MAP[k[0]] && getProg(k[0]).mastered));
+  const key = s => {
+    const seenRecently = !!diData.seen && diData.seen[s.id] && diData.seen[s.id] >= addDaysStr(todayStr(), -3);
+    return (seenRecently ? 1 : 0) + ":" + (s.ks.some(k => diRecent(k[0])) ? 0 : 1) + ":" +
+      (s.ks.every(k => getProg(k[0]).mastered) ? 0 : 1) + ":" + (s.ks.some(k => chars.includes(k[0])) ? 0 : 1) + ":" +
+      (diData.done[s.id] || "0000-00-00") + ":" + Math.random();
+  };
   ok.sort((a, b) => key(a) < key(b) ? -1 : 1);
   return ok.slice(0, PRINT_DI_SIZE);
 }
@@ -10181,6 +10193,7 @@ function startPrintDi(){
     sh.t.split(/(【.】)/).forEach(seg => {
       const m = seg.match(/^【(.)】$/);
       if(!m){ if(seg) sh.parts.push({t:seg}); return; }
+      if(!(CHAR_MAP[m[1]] && getProg(m[1]).mastered)){ sh.parts.push({t:m[1]}); return; }
       const it = {
         idx: items.length, c: m[1], ch: CHAR_MAP[m[1]], sheet: si, no: sh.parts.filter(p => p.c).length,
         strokeIndex: 0, drawing: false, userPoints: [], guideEl: null, livePath: null,
@@ -10298,7 +10311,12 @@ function finishPrintBack(){
     st.diDone = wsState.items.filter(it => it.settled).length;
     st.diTotal = wsState.items.length;
     /* 全部の字を書き終えた枚だけ「やった」とする（また別の枚が出るように） */
-    wsState.sheets.forEach((sh, si) => { if(wsState.items.filter(it => it.sheet === si).every(it => it.settled)){ diData.done[sh.id] = todayStr(); } });
+    if(!diData.seen) diData.seen = {};
+    wsState.sheets.forEach((sh, si) => {
+      const its = wsState.items.filter(it => it.sheet === si);
+      if(its.some(it => it.settled)) diData.seen[sh.id] = todayStr();
+      if(sh.ks.every(k => getProg(k[0]).mastered) && its.every(it => it.settled)) diData.done[sh.id] = todayStr();
+    });
     saveDi();
     showPrintSummary();
     return;
@@ -11375,7 +11393,7 @@ function finishConfirm(){
   document.getElementById("reviewProgressText").textContent = "";
   rv = null;
   if(passed){
-    setProg(chC, {mastered:true, stars: Math.max(pendingStars, getProg(chC).stars||0), traced:true});
+    setProg(chC, {mastered:true, stars: Math.max(pendingStars, getProg(chC).stars||0), traced:true, masteredAt: getProg(chC).masteredAt || todayStr()});
     addToReview(chC);
     const gotTicket = awardMasteryTicket(chC);
     renderGridStats();
