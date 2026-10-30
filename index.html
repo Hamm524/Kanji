@@ -10188,7 +10188,7 @@ function diTextOk(s){
   const inTable = c => s.ks.some(k => k[0] === c);
   return diSegs(s.t).every(sg => {
     const chars = [...sg.b.replace(/【(.)】/g, "$1")];
-    if(sg.y && !chars.some(c => mk.has(c))) return true;
+    if(sg.y) return true; /* □をふくむ語も、まだの字があれば語ぜんたいにふりがなをつけて出す */
     return chars.every(x => !CHAR_MAP[x] || getProg(x).mastered || inTable(x));
   });
 }
@@ -10222,6 +10222,8 @@ function startPrintDi(){
         sh.parts.push([...plain].some(x => CHAR_MAP[x] && !getProg(x).mastered) ? {h:"<ruby>" + plain + "<rt>" + sg.y + "</rt></ruby>"} : {t:plain});
         return;
       }
+      const rb = sg.y && [...plain].some(x => !mk.has(x) && CHAR_MAP[x] && !getProg(x).mastered);
+      if(rb) sh.parts.push({h:"<ruby>"});
       t.split(/(【.】)/).forEach(seg => {
         const m = seg.match(/^【(.)】$/);
         if(!m){ if(seg) sh.parts.push({t:seg}); return; }
@@ -10233,6 +10235,7 @@ function startPrintDi(){
         items.push(it);
         sh.parts.push({c:m[1], it});
       });
+      if(rb) sh.parts.push({h:"<rt>" + sg.y + "</rt></ruby>"});
     });
   });
   wsState = {items, print: true, back: true, di: true, sheets};
