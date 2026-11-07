@@ -9498,7 +9498,7 @@ function renderReviewCard(){
     todayAction = () => startOsarai();
   }else if(oLater.length > 0){
     main.textContent = "練習　あと" + oLater.length + "字";
-    sub.textContent = "お手本を見て5回書いて、さいごは見ないで書こう";
+    sub.textContent = "お手本を見て1回、あとは自分で書いて、さいごは見ないで書こう";
     btn.textContent = "練習する";
     todayAction = () => startOsaraiPractice();
   }else if(oRetest.length > 0){
@@ -9843,7 +9843,7 @@ function handleWorksheetStroke(item){
 function practiceNoteHtml(item){
   if(!wsState || !wsState.osarai || !osaraiMissed(item)) return "";
   return '<div class="osarai-more" style="margin-top:8px;padding:8px 10px;border-radius:10px;background:var(--cream,#fff7e0);color:var(--ink);font-size:.9rem;">' +
-    '<b>🌱 もう少し練習しよう！</b><br>この字は、あとでお手本を見て5回書いて覚えるよ。' + (item.later ? '' : '大じょうぶ、書けているよ。') + '</div>';
+    '<b>🌱 もう少し練習しよう！</b><br>この字は、あとで5回書いて覚えるよ。' + (item.later ? '' : '大じょうぶ、書けているよ。') + '</div>';
 }
 function finishWorksheetWrite(item, ok){
   if(item.settled) return;
@@ -10621,7 +10621,7 @@ function showOsaraiSummary(){
     msg = '<div style="color:var(--ink-soft);font-size:.9rem;">残りの' + left + '字は、ホームの「今日のおさらい」から続きができるよ</div>';
     btns = '<button class="ctrl-btn primary" id="reviewDoneBtn">閉じる</button>';
   }else if(laterN > 0){
-    msg = '<div style="font-size:.95rem;">もう少し練習する字が' + laterN + '字あるよ。お手本を見て5回書いて、さいごは見ないで書こう。<br>書けたら今日のおさらいは終わり！</div>';
+    msg = '<div style="font-size:.95rem;">もう少し練習する字が' + laterN + '字あるよ。お手本を見て1回、あとは自分で書いて、さいごは見ないで書こう。<br>書けたら今日のおさらいは終わり！</div>';
     btns = '<button class="ctrl-btn primary" id="osaraiPracticeBtn">練習する</button><button class="ctrl-btn" id="reviewDoneBtn">あとでする</button>';
   }else if(osaraiRetestLeft().length > 0){
     msg = '<div style="font-size:.95rem;">もう一度問題を解いたら、今日のおさらいは終わり！</div>';
@@ -10663,7 +10663,9 @@ function osaraiModelSvg(ch){
 /* L＝お手本を見て書く、T＝お手本なしで書く（問題）、F＝さいごにお手本を見て1回 */
 function osaraiFirstSteps(){
   const steps = [];
-  for(let i = 0; i < OSARAI_LOOK; i++) steps.push("L");
+  // L＝お手本あり（最初の1回だけ）、P＝お手本はかくす（見たいときに「お手本を見る」）
+  steps.push("L");
+  for(let i = 1; i < OSARAI_LOOK; i++) steps.push("P");
   steps.push("T");
   return steps;
 }
@@ -10685,9 +10687,10 @@ function renderOsaraiPracticeRep(){
   const st = wsState;
   const c = st.chars[st.pos], ch = CHAR_MAP[c];
   const kind = st.steps[st.step];
-  const look = kind !== "T";
+  const look = kind === "L" || kind === "F";
+  const peek = kind === "P";
   const item = {
-    idx: 0, c, ch, showMiss: look, kind,
+    idx: 0, c, ch, showMiss: kind !== "T", kind,
     strokeIndex: 0, drawing: false, userPoints: [], guideEl: null, livePath: null,
     settled: false, userStrokes: [], miss: kind === "T" ? (st.carryMiss || 0) : 0
   };
@@ -10698,7 +10701,7 @@ function renderOsaraiPracticeRep(){
   for(let i = 0; i < st.steps.length; i++)
     reps += '<span class="' + (st.steps[i] === "T" ? 'test ' : '') + (i < st.step ? 'done' : i === st.step ? 'now' : '') + '"></span>';
   const label = kind === "T" ? (st.round > 0 ? 'もう一度、お手本を見ないで書こう！' : 'お手本を見ないで書こう！') :
-    kind === "F" ? 'お手本を見て、もう1回書こう' : 'お手本を見て書こう';
+    kind === "F" ? 'お手本を見て、もう1回書こう' : peek ? 'お手本なしで書こう（見たいときは下のボタン）' : 'お手本を見て書こう';
   // 追加の練習は、追加の分だけで数える（「7/10回目」だと重く見えるので）
   const base = st.round > 0 ? OSARAI_LOOK + 1 + (st.round - 1) * (OSARAI_EXTRA_LOOK + 1) : 0;
   const head = kind === "T" ? '<b>見ないで</b> 書く問題' :
@@ -10715,15 +10718,22 @@ function renderOsaraiPracticeRep(){
         '<div class="quiz-kind-label">' + label + '</div>' +
         '<div class="osp-yomi">読み：' + ch.r + '</div>' +
         '<div class="osp-row">' +
-          (look ? '<div class="osp-model" id="ospModel"></div>' : '') +
+          ((look || peek) ? '<div class="osp-model" id="ospModel"' + (peek ? ' hidden' : '') + '></div>' : '') +
           '<div class="pad-frame small"><svg id="wsPad-0" viewBox="0 0 109 109"></svg></div>' +
         '</div>' +
         '<div class="dots-row" id="wsDots-0"></div>' +
         '<div class="review-feedback" id="wsWriteFb-0">&nbsp;</div>' +
-        '<div class="ws-item-btns"><button class="repeat-stop ws-redo-btn" id="wsRedo-0">消して書き直す</button></div>' +
+        '<div class="ws-item-btns">' + (peek ? '<button class="repeat-stop" id="ospPeekBtn">👀 お手本を見る</button>' : '') + '<button class="repeat-stop ws-redo-btn" id="wsRedo-0">消して書き直す</button></div>' +
       '</div>' +
     '</div>' +
     '<div id="osaraiPracticeEnd"></div>';
+  if(peek){
+    const box = document.getElementById("ospModel");
+    box.appendChild(osaraiModelSvg(ch));
+    box.appendChild(document.createTextNode("お手本"));
+    const pb = document.getElementById("ospPeekBtn");
+    pb.onclick = () => { box.hidden = !box.hidden; pb.textContent = box.hidden ? "👀 お手本を見る" : "🙈 お手本をかくす"; };
+  }
   if(look){
     const box = document.getElementById("ospModel");
     box.appendChild(osaraiModelSvg(ch));
@@ -10770,9 +10780,10 @@ function finishOsaraiPracticeRep(item){
     }else if(st.round < OSARAI_EXTRA_ROUNDS){
       st.round++;
       st.step++;
-      for(let i = 0; i < OSARAI_EXTRA_LOOK; i++) st.steps.push("L");
+      st.steps.push("L");
+      for(let i = 1; i < OSARAI_EXTRA_LOOK; i++) st.steps.push("P");
       st.steps.push("T");
-      say("おしい！あと" + OSARAI_EXTRA_LOOK + "回、お手本を見て書こう", "");
+      say("おしい！あと" + OSARAI_EXTRA_LOOK + "回、書いて練習しよう", "");
       next(1800);
       return;
     }else{
@@ -10788,8 +10799,8 @@ function finishOsaraiPracticeRep(item){
   }else{
     st.step++;
     const toTest = st.steps[st.step] === "T";
-    say(toTest ? "できた！次は、お手本を見ないで書いてみよう" : "できた！", "ok");
-    next(toTest ? 1500 : 700);
+    say(toTest ? "できた！次は、お手本を見ないで書いてみよう" : item.kind === "L" ? "できた！次からはお手本をかくすよ（見たいときはボタン）" : "できた！", "ok");
+    next(toTest || item.kind === "L" ? 1500 : 700);
     return;
   }
   o.practiced[item.c] = 2;
