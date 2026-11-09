@@ -10653,7 +10653,7 @@ function showOsaraiSummary(){
    見ないで3回続けて書けたら終わり」。
    ① 横のお手本を見て1回（L）→ ② お手本はかくして書く（P、「👀 お手本を見る」で見られる）。
    ボタンを押さず、まちがいも osaraiMissed より少なく書けたら1回と数え、OSARAI_STREAK 回続いたらその字は終わり（最短4回）。
-   お手本を見たか、まちがえたら、数えた回数は0にもどる。書くのは OSARAI_MAX_WRITES 回まで。届かなかったら
+   お手本を見たか、まちがえたら、数えた回数は0にもどる。見ないで書くのは OSARAI_MAX_WRITES 回まで（お手本を見る1回は数えない）。届かなかったら
    お手本を見て1回書いて終わり（F、明日もう一度出る）。終わった字は practiced=2 と retest（"ok"|"again"）で記録する
    （前の「10回練習→もう一度問題」の記録と同じ形。途中の回数は残さない）。記録・ごほうびは変えない */
 const OSARAI_STREAK = 3, OSARAI_MAX_WRITES = 10;
@@ -10696,7 +10696,7 @@ function renderOsaraiPracticeRep(){
   let marks = '';
   for(let i = 0; i < OSARAI_STREAK; i++) marks += '<span class="test' + (i < st.streak ? ' done' : i === st.streak && peek ? ' now' : '') + '"></span>';
   const head = kind === "L" ? 'お手本を見て書こう' : kind === "F" ? '<b>さいごの1回</b>' :
-    '<b>' + (st.writes + 1) + '</b>回目';
+    '見ないで <b>' + (st.writes + 1) + '</b>回目';
   const label = kind === "L" ? 'お手本を見て書こう' : kind === "F" ? 'お手本を見て、もう1回書こう' :
     '見ないで' + OSARAI_STREAK + '回続けて書けたら終わり！';
   document.getElementById("reviewBody").innerHTML =
@@ -10765,7 +10765,7 @@ function finishOsaraiPracticeRep(item){
   const next = (ms) => setTimeout(() => { if(wsState === st) renderOsaraiPracticeRep(); }, ms);
   let charDone = null;  // "ok"｜"again"
   if(item.kind === "L"){
-    st.writes++;
+    // お手本を見る1回は、回数に数えない（見ないで書く回数は OSARAI_MAX_WRITES まで）
     st.kind = "P";
     say("できた！次からはお手本をかくすよ（見たいときはボタン）", "ok");
     next(1500);
