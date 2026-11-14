@@ -619,24 +619,25 @@ svg.pet { display: block; width: 100%; height: auto; overflow: visible; }
 .stop .ball .nk-star{position:absolute;bottom:-6px;right:-8px;font-size:1.3rem;transform:rotate(12deg);}
 .stop .bonus{display:inline-block;margin-top:2px;font-size:.7rem;font-weight:700;color:#fff;background:var(--gold);border-radius:999px;padding:1px 8px;}
 #homeCountdown{max-width:360px;margin:6px auto 4px;}
-#homeNewList{max-width:360px;margin:6px auto 8px;padding:10px 12px;border-color:var(--gold);background:linear-gradient(135deg,#FFF6DC,var(--paper-raised));}
-.nl-head{display:flex;justify-content:space-between;align-items:baseline;font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;color:var(--gold);margin-bottom:6px;}
-.nl-head span{font-size:.85rem;color:var(--ink-soft);}
+/* 明るいときも暗いときも同じ、あかるい黄色のカード（暗い表示で色がにごらないように、色は固定） */
+#homeNewList{max-width:360px;margin:6px auto 8px;padding:10px 12px;border:2.5px solid #F2B33D;background:linear-gradient(180deg,#FFF3C4,#FFE7A8);}
+.nl-head{display:flex;justify-content:space-between;align-items:baseline;font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;color:#8A4B00;margin-bottom:6px;}
+.nl-head span{font-size:.85rem;color:#8A6A33;}
 .nl-row{display:flex;gap:6px;justify-content:space-between;}
-.nl-tile{flex:1;min-width:0;padding:6px 0 4px;border:1.5px solid var(--gold);border-radius:12px;background:var(--paper-raised);display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;font-family:inherit;color:var(--ink);}
+.nl-tile{flex:1;min-width:0;padding:6px 0 4px;border:2px solid #F2B33D;border-radius:14px;background:#FFFFFF;display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;font-family:inherit;color:#3A2A12;}
 .nl-ch{font-size:1.9rem;line-height:1.15;}
-.nl-st{font-size:.62rem;color:var(--ink-soft);height:1em;line-height:1;white-space:nowrap;overflow:hidden;}
-.nl-tile.done{background:#FFF1C9;border-style:solid;}
-.nl-tile.done .nl-ch{color:var(--gold);}
-.cd-card{position:relative;overflow:hidden;padding:12px 16px 12px;border:2px solid var(--gold);border-radius:20px;background:linear-gradient(135deg,#FFF6DC,var(--paper-raised));text-align:center;}
-.cd-lead{font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:1rem;color:var(--ink);}
-.cd-main{font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:1.25rem;color:var(--ink);margin-top:2px;}
-.cd-num{display:inline-block;font-size:3.4rem;font-weight:700;color:var(--shu);line-height:1.05;margin:0 4px;min-width:1.2em;}
+.nl-st{font-size:.62rem;color:#8A6A33;height:1em;line-height:1;white-space:nowrap;overflow:hidden;}
+.nl-tile.done{background:#FFD84D;border-color:#E39A00;}
+.nl-tile.done .nl-ch{color:#7A4200;}
+.cd-card{position:relative;overflow:hidden;padding:12px 16px 12px;border:2.5px solid #F2B33D;border-radius:22px;background:linear-gradient(180deg,#FFF3C4,#FFE7A8);text-align:center;color:#3A2A12;}
+.cd-lead{font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:1rem;color:#6B4A12;}
+.cd-main{font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:1.25rem;color:#3A2A12;margin-top:2px;}
+.cd-num{display:inline-block;font-size:3.4rem;font-weight:700;color:#E8590C;line-height:1.05;margin:0 4px;min-width:1.2em;}
 .cd-num.flip{animation:cd-flip .7s ease;}
-.cd-bar{height:10px;border-radius:999px;background:var(--line);margin:8px 4px 2px;overflow:hidden;}
-.cd-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#F2B33D,var(--shu));transition:width .8s ease;}
-.cd-sub{font-size:.78rem;color:var(--ink-soft);}
-.cd-minus{position:absolute;left:50%;top:38%;font-size:1.6rem;font-weight:700;color:var(--gold);pointer-events:none;animation:cd-up 1.4s ease forwards;}
+.cd-bar{height:12px;border-radius:999px;background:#FFFFFF;border:1.5px solid #F2B33D;margin:8px 4px 2px;overflow:hidden;}
+.cd-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#FFB020,#FF7A2F);transition:width .8s ease;}
+.cd-sub{font-size:.78rem;color:#8A6A33;}
+.cd-minus{position:absolute;left:50%;top:38%;font-size:1.6rem;font-weight:700;color:#E8590C;pointer-events:none;animation:cd-up 1.4s ease forwards;}
 .cd-spark{position:absolute;font-size:1.2rem;pointer-events:none;animation:cd-spark 1.1s ease-out forwards;}
 @keyframes cd-flip{0%{transform:scale(1);}35%{transform:scale(.4) rotateX(80deg);opacity:.3;}60%{transform:scale(1.35);opacity:1;}100%{transform:scale(1);}}
 @keyframes cd-up{0%{opacity:0;transform:translate(-50%,10px);}20%{opacity:1;}100%{opacity:0;transform:translate(-50%,-46px);}}
