@@ -5088,7 +5088,7 @@ function osaraiFinished(){
    宝探し（ゴール）の前に、その日の新しい字が ROAD_NEW_N 字になるように。おさらいの数は変えない。
    新しい字は、前半が終わったら練習できる（openChar）。マスの「はじめる」は、カウントダウンの学年の次の字を開く */
 const ROAD_NEW_N = 2;  /* ごほうびのボーナスは、その日の1・2字目 */
-const ROAD_NEW_GOALS = [2, 5];  /* 道の⭐マスが終わる字数（合わせて5字） */
+const ROAD_NEW_GOALS = [5, 5];  /* 道の⭐マスが終わる字数（1日で合計5字。マスは道に1つ） */
 function osaraiSplit(){
   const n = todayOsarai().list.length;
   return n >= 4 ? Math.ceil(n / 2) : n;
@@ -10661,7 +10661,6 @@ function renderHomeRoad(){
     sub: oSub(), go: () => startOsarai()});
   if(p.list.length > 0) items.push({id:"roadPrint", ico:"📝", name:"今日のプリント", done: pDone,
     sub: pDone ? "終わり ✓" : (pLeft < p.list.length ? "あと" + pLeft + "字" : p.list.length + "字") + "　文を読んで書こう", go: () => startPrint()});
-  if(hasTarget || gn >= ROAD_NEW_GOALS[1]) items.push(newStep(2));
   /* 前半を書いたら、前の⭐マスより先に後ろのおさらいをやってもよい。順番は道の上の最初のまだのマス */
   const nowIdx = items.findIndex(t => !t.done);
   const steps = items.map((t, i) => Object.assign(t, {st: t.done ? "done" : i === nowIdx ? "now" : "todo"}));
