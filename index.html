@@ -5077,7 +5077,8 @@ function osaraiFinished(){
    おさらいを前半（4字以上なら半分）と後半に分け、そのあいだと、プリントのあとに「⭐新しい字」のマスを置く。
    宝探し（ゴール）の前に、その日の新しい字が ROAD_NEW_N 字になるように。おさらいの数は変えない。
    新しい字は、前半が終わったら練習できる（openChar）。マスの「はじめる」は、カウントダウンの学年の次の字を開く */
-const ROAD_NEW_N = 2;
+const ROAD_NEW_N = 2;  /* ごほうびのボーナスは、その日の1・2字目 */
+const ROAD_NEW_GOALS = [2, 5];  /* 道の⭐マスが終わる字数（合わせて5字） */
 function osaraiSplit(){
   const n = todayOsarai().list.length;
   return n >= 4 ? Math.ceil(n / 2) : n;
@@ -6360,6 +6361,8 @@ function awardNewKanjiStar(chC){
   if(n <= NEWDAY_STAR_MAX) head = "⭐ 新しい字ゲージ　" + newDayGaugeHtml(n) + '<br>コイン +3' + (item ? '　小物「' + item.name + '」をゲット！' : '');
   else if(n <= NEWDAY_SPROUT_MAX) head = "🌱 がんばり印がふえたよ　" + newDayGaugeHtml(n) + "<br>コイン +1";
   else head = "今日はもう十分！よくがんばったね。<br>あとは、あした、おさらいで会おう。";
+  if(n < ROAD_NEW_GOALS[1]) head += '<br><span style="color:var(--ink-soft);font-weight:400;">今日 ' + n + '字目　めやすの' + ROAD_NEW_GOALS[1] + '字まで、あと' + (ROAD_NEW_GOALS[1] - n) + '字！</span>';
+  else if(n === ROAD_NEW_GOALS[1]) head += '<br><span style="color:var(--shu);">🎉 今日の新しい字、' + n + '字ぜんぶ達成！</span>';
   if(bonusItem) head += '<br><span style="color:var(--shu);">🌟 道のボーナス！　小物「' + bonusItem.name + '」とコイン+' + ROAD_BONUS_COIN + 'も！</span>';
   return '<div class="ticket-gained" style="line-height:1.7;">' + msg + head + '</div>';
 }
@@ -10604,14 +10607,15 @@ function renderHomeRoad(){
     sub: firstLeft === 0 ? "終わり ✓" : "あと" + firstLeft + "字", go: () => startOsarai()});
   /* おさらいが3字までのときは分けない：おさらい →⭐新しい字 →プリント →⭐新しい字 */
   if(o.list.length > 0 && !twoParts) items.push({id:"roadOsarai2", ico:"📖", name:"今日のおさらい", done: oDone, sub: oSub(), go: () => startOsarai()});
-  const newStep = k => ({id:"roadNew" + k, ico:"⭐", name:"新しい字", newk:true, done: gn >= k, ch: gChars[k - 1] || "",
-    sub: gn >= k ? "覚えたよ！" : "1字覚えよう", bonus: gn < k, go: () => openRoadNew()});
-  if(hasTarget || gn >= 1) items.push(newStep(1));
+  /* 新しい字は次々と：前の⭐マスで2字、プリントのあとで合わせて5字（ROAD_NEW_GOALS）。字をマスターするたびに「次の字へ」 */
+  const newStep = k => { const goal = ROAD_NEW_GOALS[k - 1]; return {id:"roadNew" + k, ico:"⭐", name:"新しい字　" + goal + "字", newk:true, done: gn >= goal, ch: gChars[goal - 1] || gChars[gChars.length - 1] || "",
+    sub: gn >= goal ? "覚えたよ！" : gn > 0 ? "今日 " + gn + "字　あと" + (goal - gn) + "字" : "次々と" + goal + "字覚えよう", bonus: gn < 2, go: () => openRoadNew()}; };
+  if(hasTarget || gn >= ROAD_NEW_GOALS[0]) items.push(newStep(1));
   if(o.list.length > 0 && twoParts) items.push({id:"roadOsarai2", ico:"📖", name:"おさらい（後半）", done: oDone,
     sub: oSub(), go: () => startOsarai()});
   if(p.list.length > 0) items.push({id:"roadPrint", ico:"📝", name:"今日のプリント", done: pDone,
     sub: pDone ? "終わり ✓" : (pLeft < p.list.length ? "あと" + pLeft + "字" : p.list.length + "字") + "　文を読んで書こう", go: () => startPrint()});
-  if(hasTarget || gn >= 2) items.push(newStep(2));
+  if(hasTarget || gn >= ROAD_NEW_GOALS[1]) items.push(newStep(2));
   /* 前半を書いたら、前の⭐マスより先に後ろのおさらいをやってもよい。順番は道の上の最初のまだのマス */
   const nowIdx = items.findIndex(t => !t.done);
   const steps = items.map((t, i) => Object.assign(t, {st: t.done ? "done" : i === nowIdx ? "now" : "todo"}));
@@ -11751,7 +11755,7 @@ function finishConfirm(){
         (gotTicket ? awardNewKanjiStar(chC) : '') +
         (gotTicket && LEGEND_RECIPES.some(r => r.unlockAt > 0 && r.unlockAt === masteredCount()) ? '<div class="ticket-gained">📜 伝説の巻物が、宝探しで見つかるようになったよ！</div>' : '') +
         '<div class="complete-row" style="margin-top:18px;">' +
-          '<button class="ctrl-btn primary" id="confirmNextBtn">次の漢字へ</button>' +
+          '<button class="ctrl-btn primary" id="confirmNextBtn">次の新しい字へ</button>' +
           '<button class="ctrl-btn" id="confirmGridBtn">一覧にもどる</button>' +
         '</div>' +
       '</div>';
@@ -11760,7 +11764,14 @@ function finishConfirm(){
       closeReview();
       const idxs = gradeIndices();
       const curPos = idxs.indexOf(state.charIndex);
-      if(curPos >= 0 && curPos+1 < idxs.length){ openChar(idxs[curPos+1]); }
+      /* まだマスターしていない次の字へ（なければ順番で次の字） */
+      let nx = -1;
+      for(let k = 1; k <= idxs.length; k++){
+        const j = idxs[(curPos + k) % idxs.length];
+        if(!getProg(KANJI[j].c).mastered){ nx = j; break; }
+      }
+      if(nx < 0 && curPos >= 0 && curPos + 1 < idxs.length) nx = idxs[curPos + 1];
+      if(nx >= 0) openChar(nx);
     };
   }else{
     document.getElementById("reviewBody").innerHTML =
