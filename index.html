@@ -619,6 +619,15 @@ svg.pet { display: block; width: 100%; height: auto; overflow: visible; }
 .stop .ball .nk-star{position:absolute;bottom:-6px;right:-8px;font-size:1.3rem;transform:rotate(12deg);}
 .stop .bonus{display:inline-block;margin-top:2px;font-size:.7rem;font-weight:700;color:#fff;background:var(--gold);border-radius:999px;padding:1px 8px;}
 #homeCountdown{max-width:360px;margin:6px auto 4px;}
+#homeNewList{max-width:360px;margin:6px auto 8px;padding:10px 12px;border-color:var(--gold);background:linear-gradient(135deg,#FFF6DC,var(--paper-raised));}
+.nl-head{display:flex;justify-content:space-between;align-items:baseline;font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;color:var(--gold);margin-bottom:6px;}
+.nl-head span{font-size:.85rem;color:var(--ink-soft);}
+.nl-row{display:flex;gap:6px;justify-content:space-between;}
+.nl-tile{flex:1;min-width:0;padding:6px 0 4px;border:1.5px solid var(--gold);border-radius:12px;background:var(--paper-raised);display:flex;flex-direction:column;align-items:center;gap:0;cursor:pointer;font-family:inherit;color:var(--ink);}
+.nl-ch{font-size:1.9rem;line-height:1.15;}
+.nl-st{font-size:.62rem;color:var(--ink-soft);height:1em;line-height:1;white-space:nowrap;overflow:hidden;}
+.nl-tile.done{background:#FFF1C9;border-style:solid;}
+.nl-tile.done .nl-ch{color:var(--gold);}
 .cd-card{position:relative;overflow:hidden;padding:12px 16px 12px;border:2px solid var(--gold);border-radius:20px;background:linear-gradient(135deg,#FFF6DC,var(--paper-raised));text-align:center;}
 .cd-lead{font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:1rem;color:var(--ink);}
 .cd-main{font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:1.25rem;color:var(--ink);margin-top:2px;}
@@ -2642,6 +2651,7 @@ header.app{
     </div>
 
     <div class="cd-card" id="homeCountdown" hidden></div>
+    <div class="gate-card nl-card" id="homeNewList" hidden></div>
     <div class="gate-card" id="homeRoad" hidden></div>
 
     <div class="today-card" id="reviewCard">
@@ -5100,17 +5110,52 @@ function countdownGrade(){
   return down || COUNTDOWN_BASE_GRADE;
 }
 /* 道の⭐マスで開く字：その学年の、書きかけの字（なぞった字）を先に。なければ順番で最初のまだの字 */
-function roadNewTarget(){
+/* 今日習う字（1日で合計5字）：その日の最初に決めて、一覧に出す。書きかけの字を先に、あとは順番で。
+   1字も覚える前なら、記録が変わったら選び直す */
+const NEWLIST_KEY = "kanji-drill-newlist-v1";
+let newListData = {date:"", list:[]};
+try{ const o = JSON.parse(localStorage.getItem(NEWLIST_KEY)); if(o && typeof o.date === "string" && Array.isArray(o.list)) newListData = {date:o.date, list:o.list.filter(c => typeof c === "string").slice(0, 10)}; }catch(e){}
+function todayNewList(){
+  const t = todayStr();
+  if(newListData.date === t && (newDayCount() > 0 || newListData.list.some(c => getProg(c).mastered))) return newListData.list;
   const g = countdownGrade();
-  let first = -1;
-  for(let i = 0; i < KANJI.length; i++){
-    if(KANJI[i].g !== g) continue;
-    const p = getProg(KANJI[i].c);
-    if(p.mastered) continue;
-    if(p.traced) return i;
-    if(first < 0) first = i;
+  const pool = KANJI.filter(k => k.g >= g && !getProg(k.c).mastered).sort((a, b) => (a.g - b.g) || ((getProg(b.c).traced ? 1 : 0) - (getProg(a.c).traced ? 1 : 0)));
+  const list = pool.slice(0, ROAD_NEW_GOALS[1]).map(k => k.c);
+  if(newListData.date !== t || list.join("") !== newListData.list.join("")){
+    newListData = {date:t, list};
+    try{ localStorage.setItem(NEWLIST_KEY, JSON.stringify(newListData)); }catch(e){}
   }
-  return first;
+  return list;
+}
+/* 今日習う字のうち、まだ覚えていない最初の字（なければ -1） */
+function roadNewTarget(){
+  if(newDayCount() >= ROAD_NEW_GOALS[1]) return -1;
+  const c = todayNewList().find(c => CHAR_MAP[c] && !getProg(c).mastered);
+  return c ? KANJI.findIndex(k => k.c === c) : -1;
+}
+/* ホームの「今日習う漢字」：5字の一覧。覚えた字は金のスタンプ */
+function renderHomeNewList(){
+  const card = document.getElementById("homeNewList");
+  if(!card) return;
+  if(!appHasData()){ card.hidden = true; return; }
+  const list = todayNewList();
+  const doneN = newDayCount();
+  if(list.length === 0 && doneN === 0){ card.hidden = true; return; }
+  card.hidden = false;
+  const todaySet = new Set(newDayChars());
+  const shown = list.slice();
+  newDayChars().forEach(c => { if(!shown.includes(c)) shown.push(c); });
+  card.innerHTML = '<div class="nl-head"><b>⭐ 今日習う漢字</b><span>' + Math.min(doneN, ROAD_NEW_GOALS[1]) + ' / ' + ROAD_NEW_GOALS[1] + '字</span></div><div class="nl-row">' +
+    shown.slice(0, ROAD_NEW_GOALS[1] + 2).map(c => {
+      const done = getProg(c).mastered;
+      return '<button type="button" class="nl-tile' + (done ? ' done' : '') + '" data-c="' + c + '"><span class="nl-ch">' + c + '</span><span class="nl-st">' + (done ? '⭐' : (CHAR_MAP[c] ? CHAR_MAP[c].r.split("、")[0] : '')) + '</span></button>';
+    }).join("") + '</div>';
+  card.querySelectorAll(".nl-tile").forEach(b => b.onclick = () => {
+    const i = KANJI.findIndex(k => k.c === b.dataset.c);
+    if(i < 0) return;
+    if(state.grade !== KANJI[i].g){ state.grade = KANJI[i].g; saveGradePref(state.grade); }
+    openChar(i);
+  });
 }
 function openRoadNew(){
   const idx = roadNewTarget();
@@ -10583,6 +10628,7 @@ function gatePetSvg(){
 /* ホームの上に出す、今日のスタンプロード（v81）：①おさらい ②プリント ③新しい字（下の一覧から） ④おつかれさま宝探し */
 function renderHomeRoad(){
   try{ renderHomeCountdown(); }catch(e){}
+  try{ renderHomeNewList(); }catch(e){}
   const card = document.getElementById("homeRoad");
   if(!card) return;
   if(!appHasData()){ card.hidden = true; return; }
@@ -11755,7 +11801,7 @@ function finishConfirm(){
         (gotTicket ? awardNewKanjiStar(chC) : '') +
         (gotTicket && LEGEND_RECIPES.some(r => r.unlockAt > 0 && r.unlockAt === masteredCount()) ? '<div class="ticket-gained">📜 伝説の巻物が、宝探しで見つかるようになったよ！</div>' : '') +
         '<div class="complete-row" style="margin-top:18px;">' +
-          '<button class="ctrl-btn primary" id="confirmNextBtn">次の新しい字へ</button>' +
+          '<button class="ctrl-btn primary" id="confirmNextBtn">' + (roadNewTarget() >= 0 ? "次の字へ" : "今日の新しい字は終わり！") + '</button>' +
           '<button class="ctrl-btn" id="confirmGridBtn">一覧にもどる</button>' +
         '</div>' +
       '</div>';
@@ -11765,13 +11811,9 @@ function finishConfirm(){
       const idxs = gradeIndices();
       const curPos = idxs.indexOf(state.charIndex);
       /* まだマスターしていない次の字へ（なければ順番で次の字） */
-      let nx = -1;
-      for(let k = 1; k <= idxs.length; k++){
-        const j = idxs[(curPos + k) % idxs.length];
-        if(!getProg(KANJI[j].c).mastered){ nx = j; break; }
-      }
-      if(nx < 0 && curPos >= 0 && curPos + 1 < idxs.length) nx = idxs[curPos + 1];
+      const nx = roadNewTarget();
       if(nx >= 0) openChar(nx);
+      else if(newDayCount() >= ROAD_NEW_GOALS[1]) showToast("今日の新しい字は、5字ぜんぶ終わり！");
     };
   }else{
     document.getElementById("reviewBody").innerHTML =
