@@ -4550,6 +4550,8 @@ function buildBackupPayload(){
     osaraiData: osaraiData,
     printData: printData,
     treatOwn: treatOwn,
+    treatColOwn: treatColOwn,
+    treatHide: treatHide,
     treatDay: treatDay,
     treatMade: treatMade,
     treatNature: treatNature,
@@ -4748,6 +4750,10 @@ function applyBackupData(data){
     savePrint();
     treatOwn = normalizeTreatOwn(data.treatOwn);
     saveTreatOwn();
+    treatColOwn = normalizeTreatColOwn(data.treatColOwn);
+    saveTreatColOwn();
+    treatHide = normalizeTreatHide(data.treatHide);
+    saveTreatHide();
     treatDay = typeof data.treatDay === "string" ? data.treatDay : "";
     saveTreatDay();
     treatMade = normalizeTreatMade(data.treatMade);
@@ -4756,6 +4762,7 @@ function applyBackupData(data){
     saveTreatNature();
     treatStyle = normalizeTreatStyle(data.treatStyle);
     saveTreatStyle();
+    treatColMigrate();
     kotobaData = normalizeKotobaData(data.kotobaData);
     saveKotoba();
     saveGemCuts();
@@ -6203,8 +6210,7 @@ function awardNewKanjiStar(){
     if(n === 3){ coins += 10; msg += "💰コインの袋を見つけた！（+10コイン）<br>"; }
     if(n === 5){ coins += 20; msg += "💰大きなコインの袋を見つけた！（+20コイン）<br>"; }
     item = rollTreat(true);
-    treatOwn[item.id] = (treatOwn[item.id] || 0) + 1;
-    saveTreatOwn(); noteFound();
+    treatRecordFind(item);
   }else if(n <= NEWDAY_SPROUT_MAX){
     coins = 1;
   }
@@ -6762,7 +6768,26 @@ const TREAT_ITEMS = [
   {id:"ta_bag", name:"カバン", rarity:"uncommon"},
   {id:"ta_plush", name:"ぬいぐるみ", rarity:"uncommon"},
   {id:"ta_backpack", name:"リュックサック", rarity:"uncommon"},
-  {id:"ta_randoseru", name:"ランドセル", rarity:"rare"}
+  {id:"ta_randoseru", name:"ランドセル", rarity:"rare"},
+  /* v85：季節の小物（その季節の3か月だけ宝探しに出る。ちょうちょは1年中） */
+  {id:"ta_sakura", name:"さくら", rarity:"common", season:"spring"},
+  {id:"ta_dandelion", name:"たんぽぽ", rarity:"common", season:"spring"},
+  {id:"ta_easter", name:"イースターエッグ", rarity:"uncommon", season:"spring"},
+  {id:"ta_tulip", name:"チューリップ", rarity:"common", season:"spring"},
+  {id:"ta_sunflower", name:"ひまわり", rarity:"common", season:"summer"},
+  {id:"ta_fuurin", name:"ふうりん", rarity:"uncommon", season:"summer"},
+  {id:"ta_ukiwa", name:"うきわ", rarity:"common", season:"summer"},
+  {id:"ta_kakigori", name:"かき氷", rarity:"uncommon", season:"summer"},
+  {id:"ta_shirokuma", name:"しろくまかき氷", rarity:"rare", season:"summer"},
+  {id:"ta_momiji", name:"もみじ", rarity:"common", season:"autumn"},
+  {id:"ta_pumpkin", name:"ハロウィンかぼちゃ", rarity:"uncommon", season:"autumn"},
+  {id:"ta_usagi", name:"おつきみうさぎ", rarity:"rare", season:"autumn"},
+  {id:"ta_grape", name:"ぶどう", rarity:"uncommon", season:"autumn"},
+  {id:"ta_snow", name:"ゆきのけっしょう", rarity:"common", season:"winter"},
+  {id:"ta_santa", name:"サンタぼうし", rarity:"uncommon", season:"winter"},
+  {id:"ta_holly", name:"ヒイラギ", rarity:"common", season:"winter"},
+  {id:"ta_clematis", name:"クレマチス", rarity:"rare", season:"winter"},
+  {id:"ta_butterfly", name:"ちょうちょ", rarity:"common", season:"all"}
 ];
 const TREAT_BY_ID = {};
 TREAT_ITEMS.forEach(it => { TREAT_BY_ID[it.id] = it; });
@@ -6996,8 +7021,8 @@ function treatRecolor(accId, svg){
 }
 function treatColHtml(accId, made){
   const cur = treatColOf(accId).id;
-  return '<div class="ts-label">色を選ぶ</div><div class="ts-row">' + TREAT_COLS[accId].map(c =>
-    '<button class="ts-dot' + (c.id === cur ? ' on' : '') + '" data-col="' + accId + ':' + c.id + '"><i style="background:' + c.dot + ';border-color:rgba(0,0,0,.25)"></i><span>' + c.name + '</span></button>').join("") + '</div>' +
+  return '<div class="ts-label">' + treatColLabel(accId, "色を選ぶ") + '</div><div class="ts-row">' + treatColFilter(accId, TREAT_COLS[accId], cur, c =>
+    '<button class="ts-dot' + (c.id === cur ? ' on' : '') + '" data-col="' + accId + ':' + c.id + '"><i style="background:' + c.dot + ';border-color:rgba(0,0,0,.25)"></i><span>' + c.name + '</span></button>') + '</div>' +
     (made ? '<div class="ts-note">色を変えたら、相棒にはもう一度つけ直してね</div>' : '');
 }
 /* v83：ふうせん・おはなの形と色、花かんむりの色 */
@@ -7035,10 +7060,13 @@ function treatFlowerBody(){
     '<path d="M18 22Q18 42 32 42Q46 42 46 22L39 28L32 16L25 28Z" fill="' + c.c[0] + '" stroke="' + c.c[1] + '" stroke-width="1.8" stroke-linejoin="round"/><path d="M32 16Q28 30 32 42Q36 30 32 16Z" fill="' + c.c[1] + '" fill-opacity=".25"/></g>';
   return '<g class="ta-spin"><g fill="' + c.c[0] + '" stroke="' + c.c[1] + '" stroke-width="1">' + rot(5, a => '<ellipse cx="32" cy="16" rx="8" ry="11" transform="rotate(' + a + ' 32 32)"/>') + '</g><circle cx="32" cy="32" r="7" fill="' + c.mid[0] + '" stroke="' + c.mid[1] + '" stroke-width="1.5"/></g>';
 }
+const TREAT_PICK_ACC = {bc:"ta_balloon", fc:"ta_flower", hb:"ta_strawhat", gc:"ta_glasses", ec:"ta_earstar", wc:"ta_wings", bw:"ta_bowtie", cc:"ta_crown"};
 function treatPickHtml(label, list, cur, attr, dots){
-  return '<div class="ts-label">' + label + '</div><div class="ts-row">' + list.map(x => dots ?
+  const acc = dots ? TREAT_PICK_ACC[attr] : null;
+  const mk = x => dots ?
     '<button class="ts-dot' + (x.id === cur ? ' on' : '') + '" data-' + attr + '="' + x.id + '"><i style="background:' + x.c[0] + ';border-color:rgba(0,0,0,.25)"></i><span>' + x.name + '</span></button>' :
-    '<button style="padding:4px 12px" class="ts-shape' + (x.id === cur ? ' on' : '') + '" data-' + attr + '="' + x.id + '">' + x.name + '</button>').join("") + '</div>';
+    '<button style="padding:4px 12px" class="ts-shape' + (x.id === cur ? ' on' : '') + '" data-' + attr + '="' + x.id + '">' + x.name + '</button>';
+  return '<div class="ts-label">' + (acc ? treatColLabel(acc, label) : label) + '</div><div class="ts-row">' + (acc ? treatColFilter(acc, list, cur, mk) : list.map(mk).join("")) + '</div>';
 }
 /* v84：ぼうし・めがね・イヤリング・はね・ちょうネクタイ・本・水とうのバリエーション */
 TREAT_COLS.ta_heartgl = [{"id":"pink","name":"ピンク","dot":"#FF8FB1","map":{}},{"id":"red","name":"あか","dot":"#F2747F","map":{"#E0457B":"#C24557","#FF8FB1":"#F2747F"}},{"id":"blue","name":"あお","dot":"#7FB3F0","map":{"#E0457B":"#3A6FC0","#FF8FB1":"#7FB3F0"}},{"id":"purple","name":"むらさき","dot":"#B79CF0","map":{"#E0457B":"#7A5BC0","#FF8FB1":"#B79CF0"}},{"id":"yellow","name":"きいろ","dot":"#FFD84D","map":{"#E0457B":"#D9A200","#FF8FB1":"#FFD84D"}},{"id":"green","name":"みどり","dot":"#7FD18F","map":{"#E0457B":"#3A8F4F","#FF8FB1":"#7FD18F"}}];
@@ -7193,9 +7221,176 @@ function normalizeTreatStyle(o){
     plushHat: o.plushHat === true, plushRibbon: o.plushRibbon === true, plushScarf: o.plushScarf === true
   };
 }
+/* ---------------- v85：季節の小物（その季節だけ宝探しに出る。ちょうちょは1年中） ----------------
+   絵は64×64。色あつめは TREAT_COLS（置きかえ表）で、ほかの小物と同じしくみ。字は絵に入れない。 */
+function seasonSpiky(cx, cy, len, wid, rot, teeth){
+  /* ヒイラギの葉：中心線にそって、とげとげのふちを作る */
+  const pts = [], n = teeth * 2, a = rot * Math.PI / 180;
+  const put = (t, s, w) => { const x = t * len, y = s * w; pts.push([cx + x * Math.cos(a) - y * Math.sin(a), cy + x * Math.sin(a) + y * Math.cos(a)]); };
+  for(let i = 0; i <= n; i++){ const t = i / n, w = wid * Math.sin(Math.PI * t) * (i % 2 ? 0.62 : 1.18); put(t, 1, w); }
+  for(let i = n; i >= 0; i--){ const t = i / n, w = wid * Math.sin(Math.PI * t) * (i % 2 ? 0.62 : 1.18); put(t, -1, w); }
+  return 'M' + pts.map(p => p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join('L') + 'Z';
+}
+const TREAT_SEASON_BODIES = {
+  ta_sakura: '<g class="ta-sway">' + [0, 72, 144, 216, 288].map(a => '<path d="M32 32C22 26 22 12 32 10C42 12 42 26 32 32Z" transform="rotate(' + a + ' 32 32)" fill="#ffc2d6" stroke="#f08fb0" stroke-width="1.6"/><path d="M32 12L32 16" transform="rotate(' + a + ' 32 32)" stroke="#f08fb0" stroke-width="1.6"/>').join("") + '<circle cx="32" cy="32" r="5" fill="#ffe36b"/><g class="ta-twinkle"><circle cx="32" cy="32" r="2" fill="#f5a623"/></g></g>',
+  ta_dandelion: '<g class="ta-sway"><path d="M32 60V34" stroke="#5fae5f" stroke-width="3.2" stroke-linecap="round"/>' +
+    '<path d="M32 60C27 58 20 57 9 55L13 51L9 47L15 45L13 40L20 42L21 37C27 41 31 49 32 60Z" fill="#8fd68a" stroke="#5fae5f" stroke-width="1.4" stroke-linejoin="round"/>' +
+    '<path d="M32 60C37 58 44 57 55 55L51 51L55 47L49 45L51 40L44 42L43 37C37 41 33 49 32 60Z" fill="#8fd68a" stroke="#5fae5f" stroke-width="1.4" stroke-linejoin="round"/>' +
+    '<g class="ta-spin">' + Array.from({length: 16}, (_, i) => '<ellipse cx="32" cy="14" rx="2.6" ry="8" transform="rotate(' + (i * 22.5) + ' 32 28)" fill="#ffd21e" stroke="#f0a500" stroke-width="1"/>').join("") + '</g><circle cx="32" cy="28" r="7" fill="#ffe36b"/></g>',
+  ta_easter: '<g class="ta-bob"><path d="M32 6C20 6 10 28 10 40C10 52 20 58 32 58C44 58 54 52 54 40C54 28 44 6 32 6Z" fill="#ffd1e0" stroke="#e58fb0" stroke-width="2"/><clipPath id="taEgg"><path d="M32 6C20 6 10 28 10 40C10 52 20 58 32 58C44 58 54 52 54 40C54 28 44 6 32 6Z"/></clipPath><g clip-path="url(#taEgg)"><path d="M0 26Q8 20 16 26T32 26T48 26T64 26V34Q56 28 48 34T32 34T16 34T0 34Z" fill="#8fd6ff"/><path d="M0 44Q8 38 16 44T32 44T48 44T64 44V50Q56 44 48 50T32 50T16 50T0 50Z" fill="#fff59a"/>' + [[20, 16], [44, 18], [32, 38], [18, 52], [46, 52]].map(p => '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="2.4" fill="#b79cff"/>').join("") + '<ellipse cx="22" cy="24" rx="4" ry="9" fill="#fff" opacity=".5" transform="rotate(20 22 24)"/></g><path d="M32 6C20 6 10 28 10 40C10 52 20 58 32 58C44 58 54 52 54 40C54 28 44 6 32 6Z" fill="none" stroke="#e58fb0" stroke-width="2"/></g>',
+  ta_tulip: '<g class="ta-sway"><path d="M32 60V36" stroke="#6DBB6A" stroke-width="3.4" stroke-linecap="round"/><path d="M32 58C20 58 15 48 14 40C24 42 31 48 32 58Z" fill="#8fd68a" stroke="#5fb065" stroke-width="1.2"/><path d="M32 54C44 54 49 46 50 40C40 42 33 46 32 54Z" fill="#8fd68a" stroke="#5fb065" stroke-width="1.2"/><path d="M18 12C18 28 20 38 32 38C26 32 24 22 26 14Z" fill="#ff7aa0" stroke="#e0457b" stroke-width="1.6" stroke-linejoin="round"/><path d="M46 12C46 28 44 38 32 38C38 32 40 22 38 14Z" fill="#ff7aa0" stroke="#e0457b" stroke-width="1.6" stroke-linejoin="round"/><path d="M26 14C27 8 30 7 32 5C34 7 37 8 38 14C40 24 38 34 32 38C26 34 24 24 26 14Z" fill="#ff9fbe" stroke="#e0457b" stroke-width="1.6" stroke-linejoin="round"/></g>',
+  ta_sunflower: '<g class="ta-spin">' + Array.from({length: 12}, (_, i) => '<ellipse cx="32" cy="12" rx="5" ry="9.5" transform="rotate(' + (i * 30) + ' 32 32)" fill="#ffcf2e" stroke="#f0a500" stroke-width="1.2"/>').join("") + '</g><circle cx="32" cy="32" r="11" fill="#8a5a2b"/><circle cx="32" cy="32" r="11" fill="none" stroke="#6b4220" stroke-width="1.6"/>' + [[28, 29], [36, 29], [32, 34], [27, 36], [37, 36]].map(p => '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="1.4" fill="#5a3818"/>').join(""),
+  ta_fuurin: '<g class="ta-sway" style="transform-origin:50% 0%"><path d="M32 2V9" stroke="#8a7a66" stroke-width="2.4" stroke-linecap="round"/><circle cx="32" cy="3" r="2" fill="none" stroke="#8a7a66" stroke-width="1.6"/>' +
+    '<path d="M10 36C10 18 20 9 32 9C44 9 54 18 54 36C54 38.5 52.5 40 50.5 39.4Q47 42 43.5 39.4Q40 42 36.5 39.4Q33 42 29.5 39.4Q26 42 22.5 39.4Q19 42 15.5 39.4C11.5 40 10 38.5 10 36Z" fill="#cdeeff" fill-opacity=".9" stroke="#6bb8e0" stroke-width="2.2" stroke-linejoin="round"/>' +
+    '<path d="M18 22C20 17 24 14 28 13" stroke="#fff" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".85"/><circle cx="24" cy="30" r="2.2" fill="#ffb3cf"/><circle cx="40" cy="28" r="2.2" fill="#ffb3cf"/><circle cx="32" cy="24" r="2" fill="#ffd1e0"/>' +
+    '<path d="M32 9V34" stroke="#8a7a66" stroke-width="1.4"/><circle cx="32" cy="35" r="2.6" fill="#8a7a66"/><path d="M32 37V44" stroke="#8a7a66" stroke-width="1.4"/>' +
+    '<g class="ta-wave"><path d="M27.5 44H36.5V62L34.2 60L32 62L29.8 60L27.5 62Z" fill="#ffb3cf" stroke="#f08fb0" stroke-width="1.6" stroke-linejoin="round"/><path d="M30 48V56M34 48V56" stroke="#fff" stroke-width="1.4" opacity=".8" stroke-linecap="round"/></g></g>',
+  ta_ukiwa: '<g class="ta-bob"><circle cx="32" cy="34" r="22" fill="none" stroke="#fff" stroke-width="13"/><circle cx="32" cy="34" r="22" fill="none" stroke="#ff7a8a" stroke-width="13" stroke-dasharray="17.3 17.3"/><circle cx="32" cy="34" r="28.5" fill="none" stroke="#e0556a" stroke-width="1.6"/><circle cx="32" cy="34" r="15.5" fill="none" stroke="#e0556a" stroke-width="1.6"/></g>',
+  ta_kakigori: '<g><path d="M11.5 40C9.5 33 13.5 29 17 24C17 18 23 16 25 11C27 5 31 2 34 4C37 6 38 10 41 12C45 14 48 17 48 22C52 27 56 33 52.5 40Q32 44 11.5 40Z" fill="#f1f7ff"/><path d="M26 20C28 15 31 10 34 8" stroke="#dbe8f7" stroke-width="2" stroke-linecap="round" fill="none"/><clipPath id="taKgM"><path d="M11.5 40C9.5 33 13.5 29 17 24C17 18 23 16 25 11C27 5 31 2 34 4C37 6 38 10 41 12C45 14 48 17 48 22C52 27 56 33 52.5 40Q32 44 11.5 40Z"/></clipPath><g clip-path="url(#taKgM)"><path d="M0 0H64V25C60 28 58 24 54 27C50 31 47 25 43 28C39 32 36 26 32 29C28 33 25 27 21 30C17 33 14 27 10 30C6 31 3 28 0 28Z" fill="#ff7a9a"/><path d="M24 20C26 15 29 11 32 9" stroke="#ffc2d1" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".9"/></g><path d="M11.5 40C9.5 33 13.5 29 17 24C17 18 23 16 25 11C27 5 31 2 34 4C37 6 38 10 41 12C45 14 48 17 48 22C52 27 56 33 52.5 40Q32 44 11.5 40Z" fill="none" stroke="#c9a070" stroke-width="2" stroke-linejoin="round"/><path d="M50 1L43 17" stroke="#e0b88a" stroke-width="5" stroke-linecap="round"/><path d="M50 1L43 17" stroke="#ff9fbe" stroke-width="3" stroke-linecap="round"/><path d="M50 1L43 17" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-dasharray="3 4"/><path d="M11.5 40Q32 44 52.5 40L46.6 59Q46 61 44 61H20Q18 61 17.4 59Z" fill="#fffaf0"/><clipPath id="taKgC"><path d="M11.5 40Q32 44 52.5 40L46.6 59Q46 61 44 61H20Q18 61 17.4 59Z"/></clipPath><g clip-path="url(#taKgC)"><path d="M10 52Q15 47 20 52T30 52T40 52T50 52T60 52V64H10Z" fill="#6aa8e6"/><path d="M10 56Q15 51 20 56T30 56T40 56T50 56T60 56V64H10Z" fill="#4a88d0"/></g><path d="M11.5 40Q32 44 52.5 40L46.6 59Q46 61 44 61H20Q18 61 17.4 59Z" fill="none" stroke="#e0b88a" stroke-width="2" stroke-linejoin="round"/><circle cx="19.5" cy="46" r="1.4" fill="#6aa8e6"/><circle cx="44.5" cy="46" r="1.4" fill="#6aa8e6"/><circle cx="26" cy="48" r="1.1" fill="#6aa8e6"/><circle cx="38" cy="47.5" r="1.1" fill="#6aa8e6"/></g>',
+  ta_shirokuma: '<g><ellipse cx="32" cy="58" rx="13" ry="3.4" fill="#cfe6f7" stroke="#a9cbe6" stroke-width="1.6"/><path d="M32 55V47" stroke="#a9cbe6" stroke-width="5" stroke-linecap="round"/><path d="M32 55V47" stroke="#cfe6f7" stroke-width="3" stroke-linecap="round"/>' +
+    '<path d="M10 36C10 28 12 22 16 19C14 12 22 8 27 10C28 6 36 6 37 10C42 8 50 12 48 19C52 22 54 28 54 36Z" fill="#fff" stroke="#dfe6ee" stroke-width="1.6" stroke-linejoin="round"/><circle cx="19.5" cy="12.5" r="4.6" fill="#fff" stroke="#dfe6ee" stroke-width="1.6"/><circle cx="19.5" cy="12.5" r="2.2" fill="#ffc2d1"/><circle cx="44.5" cy="12.5" r="4.6" fill="#fff" stroke="#dfe6ee" stroke-width="1.6"/><circle cx="44.5" cy="12.5" r="2.2" fill="#ffc2d1"/>' +
+    '<path d="M16 25C16 17 24 12 32 12C40 12 48 17 48 25C48 31 41 33 32 33C23 33 16 31 16 25Z" fill="#fff"/><circle cx="26" cy="22" r="1.8" fill="#4a3b2a"/><circle cx="38" cy="22" r="1.8" fill="#4a3b2a"/><ellipse cx="32" cy="26.5" rx="3.4" ry="2.4" fill="#4a3b2a"/><path d="M32 29V30.5M29.4 30.6Q32 32 34.6 30.6" stroke="#4a3b2a" stroke-width="1.2" fill="none" stroke-linecap="round"/><circle cx="22" cy="27" r="2.2" fill="#ffc2d1" opacity=".8"/><circle cx="42" cy="27" r="2.2" fill="#ffc2d1" opacity=".8"/>' +
+    '<path d="M33 7C34 3 37 1 40 1" stroke="#5a8a2b" stroke-width="1.6" fill="none" stroke-linecap="round"/><circle cx="32.5" cy="9" r="3.4" fill="#e8363f" stroke="#b81f28" stroke-width="1"/><circle cx="31.5" cy="8" r="1" fill="#fff" opacity=".8"/>' +
+    '<path d="M8 36H56C56 44 49 49 32 49C15 49 8 44 8 36Z" fill="#e6f3fc" stroke="#a9cbe6" stroke-width="2" stroke-linejoin="round"/>' +
+    '<path d="M14 40L12 33C16 31 20 36 19 40Z" fill="#ffa63a" stroke="#e08a1c" stroke-width="1"/><path d="M41 40L45 32C49 33 50 38 47 41Z" fill="#8fd66a" stroke="#5fb065" stroke-width="1"/><path d="M48 40L53 34C57 36 57 40 54 42Z" fill="#ffe36b" stroke="#e0b800" stroke-width="1"/><path d="M22 40L24 35C28 36 29 40 26 42Z" fill="#ffd21e" stroke="#e0a500" stroke-width="1"/></g>',
+  ta_momiji: '<g class="ta-sway"><path d="M32 8L37 20L47 14L44 27L56 26L47 35L55 42L42 42L44 52L32 46L20 52L22 42L9 42L17 35L8 26L20 27L17 14L27 20Z" fill="#f2692f" stroke="#c9461a" stroke-width="2" stroke-linejoin="round"/><path d="M32 52V32M32 40L22 34M32 40L42 34M32 32L28 22M32 32L36 22" stroke="#ffb066" stroke-width="1.8" stroke-linecap="round"/></g>',
+  ta_pumpkin: '<g class="ta-bob"><path d="M32 16Q36 8 42 8" stroke="#5a8a2b" stroke-width="3.4" fill="none" stroke-linecap="round"/><ellipse cx="20" cy="36" rx="14" ry="19" fill="#ff9a2e" stroke="#d96f10" stroke-width="2"/><ellipse cx="44" cy="36" rx="14" ry="19" fill="#ff9a2e" stroke="#d96f10" stroke-width="2"/><ellipse cx="32" cy="36" rx="12" ry="21" fill="#ffb04a" stroke="#d96f10" stroke-width="2"/><path d="M22 32L27 38H17ZM42 32L47 38H37Z" fill="#7a3d00"/><path d="M22 46Q32 54 42 46" stroke="#7a3d00" stroke-width="3" fill="none" stroke-linecap="round"/></g>',
+  ta_usagi: '<g class="ta-bob"><ellipse cx="32" cy="50" rx="15" ry="11" fill="#fff" stroke="#e5d8c0" stroke-width="1.8"/><ellipse cx="22" cy="58" rx="6" ry="3.4" fill="#fff" stroke="#e5d8c0" stroke-width="1.6"/><ellipse cx="42" cy="58" rx="6" ry="3.4" fill="#fff" stroke="#e5d8c0" stroke-width="1.6"/><ellipse cx="26" cy="49" rx="3.4" ry="5.4" fill="#fff" stroke="#e5d8c0" stroke-width="1.4"/><ellipse cx="38" cy="49" rx="3.4" ry="5.4" fill="#fff" stroke="#e5d8c0" stroke-width="1.4"/>' +
+    '<ellipse cx="24" cy="14" rx="5.4" ry="12" fill="#fff" stroke="#e5d8c0" stroke-width="1.8" transform="rotate(-10 24 14)"/><ellipse cx="40" cy="14" rx="5.4" ry="12" fill="#fff" stroke="#e5d8c0" stroke-width="1.8" transform="rotate(10 40 14)"/><ellipse cx="24" cy="15" rx="2.6" ry="8" fill="#ffc2d6" transform="rotate(-10 24 15)"/><ellipse cx="40" cy="15" rx="2.6" ry="8" fill="#ffc2d6" transform="rotate(10 40 15)"/>' +
+    '<circle cx="32" cy="34" r="14" fill="#fff" stroke="#e5d8c0" stroke-width="1.8"/><circle cx="26" cy="33" r="1.9" fill="#4a3b2a"/><circle cx="38" cy="33" r="1.9" fill="#4a3b2a"/><circle cx="21.5" cy="38" r="2.6" fill="#ffc2d6"/><circle cx="42.5" cy="38" r="2.6" fill="#ffc2d6"/><path d="M30 37Q32 39.5 34 37" stroke="#4a3b2a" stroke-width="1.4" fill="none" stroke-linecap="round"/></g>',
+  ta_grape: '<g class="ta-sway"><path d="M32 4Q32 10 32 14" stroke="#7a5a2b" stroke-width="3" stroke-linecap="round" fill="none"/><path d="M32 10C40 4 50 6 52 12C46 16 38 16 32 10Z" fill="#6DBB6A" stroke="#4a9a52" stroke-width="1.4"/>' + [[22, 20], [32, 20], [42, 20], [27, 30], [37, 30], [22, 38], [32, 38], [42, 38], [27, 47], [37, 47], [32, 56]].map((p, i) => '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="6.4" fill="' + (i % 2 ? '#8a5ad0' : '#7a4ac0') + '" stroke="#5a2f9a" stroke-width="1.4"/><circle cx="' + (p[0] - 2) + '" cy="' + (p[1] - 2) + '" r="1.8" fill="#fff" opacity=".6"/>').join("") + '</g>',
+  ta_snow: '<g class="ta-spin">' + [0, 60, 120].map(a => '<g transform="rotate(' + a + ' 32 32)"><path d="M32 6V58" stroke="#7cc8ff" stroke-width="3.2" stroke-linecap="round"/><path d="M32 14L25 8M32 14L39 8M32 50L25 56M32 50L39 56" stroke="#7cc8ff" stroke-width="2.6" stroke-linecap="round"/></g>').join("") + '</g><circle cx="32" cy="32" r="4.4" fill="#fff" stroke="#7cc8ff" stroke-width="2"/>',
+  ta_santa: '<g class="ta-sway"><path d="M10 44C10 22 22 10 40 10C48 10 54 16 54 24C48 22 42 24 40 30C46 34 52 40 54 44Z" fill="#e8363f" stroke="#b81f28" stroke-width="2" stroke-linejoin="round"/><rect x="6" y="40" width="52" height="12" rx="6" fill="#fff" stroke="#e5e5e5" stroke-width="1.6"/><g class="ta-bob"><circle cx="54" cy="24" r="7" fill="#fff" stroke="#e5e5e5" stroke-width="1.6"/></g></g>',
+  ta_holly: '<g class="ta-sway"><path d="' + seasonSpiky(32, 38, 26, 9, -160, 4) + '" fill="#3fa05a" stroke="#2a7a40" stroke-width="1.6" stroke-linejoin="round"/><path d="' + seasonSpiky(32, 38, 26, 9, -20, 4) + '" fill="#3fa05a" stroke="#2a7a40" stroke-width="1.6" stroke-linejoin="round"/><path d="M32 38L12 34M32 38L52 34" stroke="#7fd08f" stroke-width="1.4" stroke-linecap="round"/><circle cx="27" cy="40" r="6" fill="#e8363f" stroke="#b81f28" stroke-width="1.6"/><circle cx="37" cy="40" r="6" fill="#e8363f" stroke="#b81f28" stroke-width="1.6"/><circle cx="32" cy="47" r="6" fill="#e8363f" stroke="#b81f28" stroke-width="1.6"/><circle cx="25" cy="38" r="1.8" fill="#fff" opacity=".8"/><circle cx="35" cy="38" r="1.8" fill="#fff" opacity=".8"/><circle cx="30" cy="45" r="1.8" fill="#fff" opacity=".8"/></g>',
+  ta_clematis: '<g class="ta-spin">' + [0, 60, 120, 180, 240, 300].map(a => '<path d="M32 32C25 26 26 10 32 5C38 10 39 26 32 32Z" transform="rotate(' + a + ' 32 32)" fill="#b79cff" stroke="#8b6fd8" stroke-width="1.6" stroke-linejoin="round"/><path d="M32 28V10" transform="rotate(' + a + ' 32 32)" stroke="#e6dcff" stroke-width="2" stroke-linecap="round"/>').join("") + '</g><circle cx="32" cy="32" r="7" fill="#fff6c2"/>' + Array.from({length: 10}, (_, i) => '<circle cx="' + (32 + 5 * Math.cos(i * 0.628)).toFixed(1) + '" cy="' + (32 + 5 * Math.sin(i * 0.628)).toFixed(1) + '" r="1.5" fill="#e8a800"/>').join(""),
+  ta_butterfly: '<g class="ta-bob"><g class="ta-flapL"><path d="M30 29C22 10 6 8 6 20C6 28 18 32 30 30Z" fill="#b79cff" stroke="#8b6fd8" stroke-width="1.8" stroke-linejoin="round"/><path d="M30 33C18 33 10 38 12 47C14 56 26 52 31 38Z" fill="#c9b6ff" stroke="#8b6fd8" stroke-width="1.8" stroke-linejoin="round"/><circle cx="15" cy="21" r="3.2" fill="#fff" opacity=".8"/><circle cx="19" cy="46" r="2.4" fill="#fff" opacity=".8"/></g><g class="ta-flapR"><path d="M34 29C42 10 58 8 58 20C58 28 46 32 34 30Z" fill="#b79cff" stroke="#8b6fd8" stroke-width="1.8" stroke-linejoin="round"/><path d="M34 33C46 33 54 38 52 47C50 56 38 52 33 38Z" fill="#c9b6ff" stroke="#8b6fd8" stroke-width="1.8" stroke-linejoin="round"/><circle cx="49" cy="21" r="3.2" fill="#fff" opacity=".8"/><circle cx="45" cy="46" r="2.4" fill="#fff" opacity=".8"/></g><rect x="30" y="22" width="4" height="26" rx="2" fill="#5a4a7a"/><path d="M31 23Q27 13 22 11M33 23Q37 13 42 11" stroke="#5a4a7a" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>'
+};
+/* 色あつめの色（置きかえ表：もとの絵の色 → 新しい色。いちばん上がふつうの色） */
+function seasonCols(list){ return list.map((x, i) => ({id: x[0], name: x[1], dot: x[2], map: i ? x[3] : {}})); }
+Object.assign(TREAT_COLS, {
+  ta_tulip: seasonCols([["pink", "ピンク", "#ff7aa0"], ["red", "あか", "#e8363f", {"#ff7aa0": "#e8363f", "#ff9fbe": "#f2646a", "#e0457b": "#b81f28"}], ["yellow", "きいろ", "#ffcf2e", {"#ff7aa0": "#ffcf2e", "#ff9fbe": "#ffe36b", "#e0457b": "#e0a500"}], ["purple", "むらさき", "#a07be0", {"#ff7aa0": "#a07be0", "#ff9fbe": "#bda0f0", "#e0457b": "#7a55c0"}], ["white", "しろ", "#f4eef0", {"#ff7aa0": "#f4eef0", "#ff9fbe": "#ffffff", "#e0457b": "#c9bdc4"}]]),
+  ta_sakura: seasonCols([["pink", "ピンク", "#ffc2d6"], ["white", "しろ", "#ffffff", {"#ffc2d6": "#ffffff", "#f08fb0": "#d9c4cc"}], ["deep", "こいピンク", "#ff8fb1", {"#ffc2d6": "#ff8fb1", "#f08fb0": "#e0457b"}], ["lilac", "うすむらさき", "#d9c2ff", {"#ffc2d6": "#d9c2ff", "#f08fb0": "#a07be0"}]]),
+  ta_easter: seasonCols([["pink", "ピンク", "#ffd1e0"], ["blue", "みずいろ", "#cfeaff", {"#ffd1e0": "#cfeaff", "#e58fb0": "#6bb8e0", "#8fd6ff": "#ffd1e0"}], ["yellow", "きいろ", "#fff2a8", {"#ffd1e0": "#fff2a8", "#e58fb0": "#e0b800", "#fff59a": "#ffc2d1"}], ["green", "みどり", "#d4f5c0", {"#ffd1e0": "#d4f5c0", "#e58fb0": "#6fbf5a", "#fff59a": "#ffd1e0", "#8fd6ff": "#fff59a"}]]),
+  ta_ukiwa: seasonCols([["red", "あか", "#ff7a8a"], ["blue", "あお", "#5aa7f0", {"#ff7a8a": "#5aa7f0", "#e0556a": "#3a82cc"}], ["yellow", "きいろ", "#ffd84d", {"#ff7a8a": "#ffd84d", "#e0556a": "#e0a800"}], ["green", "みどり", "#6ccb7e", {"#ff7a8a": "#6ccb7e", "#e0556a": "#47a95c"}]]),
+  ta_kakigori: seasonCols([["strawberry", "いちご", "#ff7a9a"], ["melon", "メロン", "#8fd66a", {"#ff7a9a": "#8fd66a", "#ffc2d1": "#d6f5b8", "#ff9fbe": "#8fd66a"}], ["lemon", "レモン", "#ffd84a", {"#ff7a9a": "#ffd84a", "#ffc2d1": "#fff1a8", "#ff9fbe": "#ffd84a"}], ["blue", "ブルーハワイ", "#4fa8ea", {"#ff7a9a": "#4fa8ea", "#ffc2d1": "#a8d8ff", "#ff9fbe": "#4fa8ea"}]]),
+  ta_fuurin: seasonCols([["blue", "みずいろ", "#cdeeff"], ["pink", "ピンク", "#ffe0ec", {"#f08fb0": "#5aa6d8", "#6bb8e0": "#f08fb0", "#cdeeff": "#ffe0ec", "#ffb3cf": "#bfe3ff"}], ["yellow", "きいろ", "#fff4c2", {"#cdeeff": "#fff4c2", "#6bb8e0": "#e0b800", "#ffb3cf": "#cdeeff"}]]),
+  ta_momiji: seasonCols([["orange", "オレンジ", "#f2692f"], ["red", "あか", "#e0302f", {"#f2692f": "#e0302f", "#c9461a": "#a81e1e", "#ffb066": "#ff9a8a"}], ["yellow", "きいろ", "#ffc93c", {"#f2692f": "#ffc93c", "#c9461a": "#d99a00", "#ffb066": "#fff0a0"}], ["green", "みどり", "#7cc96a", {"#f2692f": "#7cc96a", "#c9461a": "#4a9a3a", "#ffb066": "#c8f0b0"}]]),
+  ta_pumpkin: seasonCols([["orange", "オレンジ", "#ff9a2e"], ["green", "みどり", "#8fc860", {"#ff9a2e": "#8fc860", "#ffb04a": "#a6dc7a", "#d96f10": "#5a9a30"}], ["white", "しろ", "#f4efe6", {"#ff9a2e": "#f4efe6", "#ffb04a": "#fff9ee", "#d96f10": "#cfc3ae"}], ["purple", "むらさき", "#a07be0", {"#ff9a2e": "#a07be0", "#ffb04a": "#bda0f0", "#d96f10": "#7a55c0"}]]),
+  ta_grape: seasonCols([["purple", "むらさき", "#7a4ac0"], ["green", "みどり", "#9bd45a", {"#7a4ac0": "#9bd45a", "#8a5ad0": "#aee070", "#5a2f9a": "#6a9a2a"}], ["red", "あか", "#e0506a", {"#7a4ac0": "#e0506a", "#8a5ad0": "#ee6a80", "#5a2f9a": "#a82f48"}]]),
+  ta_snow: seasonCols([["blue", "あお", "#7cc8ff"], ["pink", "ピンク", "#ff9fbe", {"#7cc8ff": "#ff9fbe"}], ["gold", "きん", "#ffcf4d", {"#7cc8ff": "#ffcf4d"}]]),
+  ta_santa: seasonCols([["red", "あか", "#e8363f"], ["green", "みどり", "#3fa05a", {"#e8363f": "#3fa05a", "#b81f28": "#2a7a40"}], ["blue", "あお", "#4a8fe0", {"#e8363f": "#4a8fe0", "#b81f28": "#2f6fb8"}], ["pink", "ピンク", "#ff8fb1", {"#e8363f": "#ff8fb1", "#b81f28": "#e0457b"}]]),
+  ta_clematis: seasonCols([["purple", "むらさき", "#b79cff"], ["pink", "ピンク", "#ffa6c9", {"#b79cff": "#ffa6c9", "#8b6fd8": "#e0689b", "#e6dcff": "#ffe0ee"}], ["blue", "あお", "#8fc4ff", {"#b79cff": "#8fc4ff", "#8b6fd8": "#4a82cc", "#e6dcff": "#dcecff"}], ["white", "しろ", "#ffffff", {"#b79cff": "#ffffff", "#8b6fd8": "#c9bde0", "#e6dcff": "#efe9f8"}]]),
+  ta_butterfly: seasonCols([["purple", "むらさき", "#b79cff"], ["pink", "ピンク", "#ffa6c9", {"#b79cff": "#ffa6c9", "#c9b6ff": "#ffc4dc", "#8b6fd8": "#e0689b"}], ["blue", "あお", "#8fc4ff", {"#b79cff": "#8fc4ff", "#c9b6ff": "#b4d8ff", "#8b6fd8": "#4a82cc"}], ["orange", "オレンジ", "#ffb347", {"#b79cff": "#ffb347", "#c9b6ff": "#ffd08a", "#8b6fd8": "#e08a1c"}], ["yellow", "きいろ", "#ffe36b", {"#b79cff": "#ffe36b", "#c9b6ff": "#fff0a8", "#8b6fd8": "#e0b800"}]])
+});
+
 let treatStyle = normalizeTreatStyle(null);
 try{ treatStyle = normalizeTreatStyle(JSON.parse(localStorage.getItem(TREAT_STYLE_KEY))); }catch(e){}
 function saveTreatStyle(){ try{ localStorage.setItem(TREAT_STYLE_KEY, JSON.stringify(treatStyle)); }catch(e){} }
+/* ---- v85：持っていない小物・色を先に出す／色あつめ／おしいれ ---- */
+const TREAT_SEASONS = [{id:"spring", name:"春", icon:"🌸", months:[3,4,5]}, {id:"summer", name:"夏", icon:"🌻", months:[6,7,8]},
+  {id:"autumn", name:"秋", icon:"🍁", months:[9,10,11]}, {id:"winter", name:"冬", icon:"⛄", months:[12,1,2]}];
+function treatSeasonNow(){
+  if(window.__treatSeason) return window.__treatSeason;
+  const m = new Date().getMonth() + 1;
+  return TREAT_SEASONS.find(s => s.months.indexOf(m) >= 0).id;
+}
+function treatSeasonOf(it){ return it.season && it.season !== "all" ? it.season : "all"; }
+function treatInSeason(it){ const s = treatSeasonOf(it); return s === "all" || s === treatSeasonNow(); }
+/* 色を選べる小物 → { list:色の一覧, get:今の色, set:色をかえる } */
+const TREAT_COL_STYLE = {ta_hat:["hatColor", () => HAT_COLORS], ta_ribbon:["ribbon", () => RIBBON_COLORS], ta_balloon:["balCol", () => BAL_COLORS],
+  ta_flower:["flCol", () => FL_COLORS], ta_strawhat:["hbCol", () => VAR_COLORS], ta_glasses:["glCol", () => GL_COLORS],
+  ta_earstar:["esCol", () => VAR_COLORS], ta_wings:["wgCol", () => WG_COLORS], ta_bowtie:["bwCol", () => VAR_COLORS], ta_crown:["crCol", () => CR_COLORS]};
+function treatColInfo(acc){
+  if(TREAT_COLS[acc]) return {list: TREAT_COLS[acc], get: () => treatColOf(acc).id, set: v => { treatStyle.col = Object.assign({}, treatStyle.col, {[acc]: v}); }};
+  const m = TREAT_COL_STYLE[acc];
+  return m ? {list: m[1](), get: () => treatStyle[m[0]], set: v => { treatStyle[m[0]] = v; }} : null;
+}
+const TREAT_COLOWN_KEY = "kanji-drill-treat-colown-v1", TREAT_HIDE_KEY = "kanji-drill-treat-hide-v1";
+function normalizeTreatColOwn(o){
+  const out = {};
+  if(o && typeof o === "object") Object.keys(o).forEach(acc => {
+    if(!TREAT_BY_ID[acc] || !o[acc] || typeof o[acc] !== "object") return;
+    Object.keys(o[acc]).forEach(c => { const n = o[acc][c]; if(typeof n === "number" && n > 0){ (out[acc] = out[acc] || {})[c] = Math.floor(n); } });
+  });
+  return out;
+}
+let treatColOwn = {};
+try{ treatColOwn = normalizeTreatColOwn(JSON.parse(localStorage.getItem(TREAT_COLOWN_KEY))); }catch(e){ treatColOwn = {}; }
+function saveTreatColOwn(){ try{ localStorage.setItem(TREAT_COLOWN_KEY, JSON.stringify(treatColOwn)); }catch(e){} }
+/* おしいれ：しまった時こくと出した時こくを別々に持つ（2台で使っても、あとから押したほうが勝つ） */
+function normalizeTreatHide(o){
+  const out = {h:{}, s:{}};
+  if(o && typeof o === "object") ["h", "s"].forEach(k => { if(o[k] && typeof o[k] === "object") Object.keys(o[k]).forEach(id => { if(TREAT_BY_ID[id] && typeof o[k][id] === "number") out[k][id] = o[k][id]; }); });
+  return out;
+}
+let treatHide = {h:{}, s:{}};
+try{ treatHide = normalizeTreatHide(JSON.parse(localStorage.getItem(TREAT_HIDE_KEY))); }catch(e){ treatHide = {h:{}, s:{}}; }
+function saveTreatHide(){ try{ localStorage.setItem(TREAT_HIDE_KEY, JSON.stringify(treatHide)); }catch(e){} }
+function treatIsHidden(id){ return (treatHide.h[id] || 0) > (treatHide.s[id] || 0); }
+function treatSetHidden(id, hide){
+  const now = Math.max(Date.now(), (treatHide.h[id] || 0) + 1, (treatHide.s[id] || 0) + 1);
+  (hide ? treatHide.h : treatHide.s)[id] = now; saveTreatHide();
+}
+function treatColHave(acc, cid){ return ((treatColOwn[acc] || {})[cid] || 0) > 0 || cid === "gem"; }
+function treatColCount(acc){ const ci = treatColInfo(acc); if(!ci) return null; const l = ci.list.filter(c => c.id !== "gem"); return {have: l.filter(c => treatColHave(acc, c.id)).length, total: l.length}; }
+/* いままで持っていた小物は、いま選んでいる色ともとの色を「見つけた」ことにして引きつぐ */
+function treatColMigrate(){
+  let ch = false;
+  Object.keys(treatOwn).forEach(acc => {
+    const ci = treatColInfo(acc);
+    if(!ci || (treatColOwn[acc] && Object.keys(treatColOwn[acc]).length)) return;
+    const o = treatColOwn[acc] = {};
+    o[ci.get()] = 1; if(ci.list[0]) o[ci.list[0].id] = 1;
+    ch = true;
+  });
+  if(ch) saveTreatColOwn();
+}
+/* 0：もうそろった　1：色がまだ　2：まだ持っていない */
+function treatFresh(it){
+  if(!treatOwn[it.id]) return 2;
+  const c = treatColCount(it.id);
+  return c && c.have < c.total ? 1 : 0;
+}
+function treatPickColor(it){
+  const ci = treatColInfo(it.id);
+  if(!ci) return null;
+  const cands = ci.list.filter(c => c.id !== "gem"), nu = cands.filter(c => !treatColHave(it.id, c.id)), pool = nu.length ? nu : cands;
+  return pool[Math.floor(Math.random() * pool.length)].id;
+}
+function treatIconColor(id, size, cid){
+  const ci = cid ? treatColInfo(id) : null;
+  if(!ci) return treatIconSvg(id, size);
+  const prev = ci.get(); ci.set(cid);
+  const s = treatIconSvg(id, size);
+  ci.set(prev);
+  return s;
+}
+/* 見つけた小物をきろくする。かえり値：{first:はじめて, newCol:新しい色} */
+function treatRecordFind(r){
+  const first = !treatOwn[r.id];
+  treatOwn[r.id] = (treatOwn[r.id] || 0) + 1; saveTreatOwn();
+  let newCol = false;
+  const ci = treatColInfo(r.id);
+  if(ci && r.colorId){
+    const o = treatColOwn[r.id] = treatColOwn[r.id] || {};
+    newCol = !(o[r.colorId] > 0);
+    o[r.colorId] = (o[r.colorId] || 0) + 1; saveTreatColOwn();
+    if(first){ ci.set(r.colorId); saveTreatStyle(); }
+  }
+  noteFound();
+  return {first: first, newCol: newCol};
+}
+function treatColLockTile(){ return '<div class="ts-dot lock"><i>？</i><span>まだ</span></div>'; }
+/* 色えらびの一覧：見つけた色だけ選べる。まだの色は「？」 */
+function treatColFilter(acc, list, cur, make){
+  return list.map(x => (treatColHave(acc, x.id) || x.id === cur) ? make(x) : treatColLockTile()).join("");
+}
+function treatColLabel(acc, text){
+  const c = treatColCount(acc);
+  return text + (c ? '（' + c.have + '/' + c.total + '）' : '');
+}
+
+treatColMigrate();
 function treatRibbonBody(id){
   const c = (RIBBON_COLORS.find(x => x.id === id) || RIBBON_COLORS[0]).c;
   return '<g class="ta-sway"><g fill="#fffdf6" stroke="#cdbf9f" stroke-width=".9"><circle cx="32.0" cy="25.8" r="2.6"/><circle cx="32.0" cy="29.6" r="2.6"/><circle cx="30.5" cy="33.3" r="2.6"/><circle cx="27.7" cy="36.3" r="2.6"/><circle cx="23.9" cy="38.4" r="2.6"/><circle cx="19.5" cy="39.4" r="2.6"/><circle cx="15.2" cy="39.0" r="2.6"/><circle cx="11.4" cy="37.3" r="2.6"/><circle cx="8.5" cy="34.6" r="2.6"/><circle cx="7.0" cy="31.2" r="2.6"/><circle cx="7.0" cy="27.4" r="2.6"/><circle cx="8.5" cy="23.7" r="2.6"/><circle cx="11.3" cy="20.7" r="2.6"/><circle cx="15.1" cy="18.6" r="2.6"/><circle cx="19.5" cy="17.6" r="2.6"/><circle cx="23.8" cy="18.0" r="2.6"/><circle cx="27.6" cy="19.7" r="2.6"/><circle cx="30.5" cy="22.4" r="2.6"/></g><ellipse cx="19.5" cy="28.5" rx="12.8" ry="10.8" transform="rotate(-12 19.5 28.5)" fill="#fffdf6"/><g fill="#ddd1b6"><circle cx="32.0" cy="25.8" r=".75"/><circle cx="32.0" cy="29.6" r=".75"/><circle cx="30.5" cy="33.3" r=".75"/><circle cx="27.7" cy="36.3" r=".75"/><circle cx="23.9" cy="38.4" r=".75"/><circle cx="19.5" cy="39.4" r=".75"/><circle cx="15.2" cy="39.0" r=".75"/><circle cx="11.4" cy="37.3" r=".75"/><circle cx="8.5" cy="34.6" r=".75"/><circle cx="7.0" cy="31.2" r=".75"/><circle cx="7.0" cy="27.4" r=".75"/><circle cx="8.5" cy="23.7" r=".75"/><circle cx="11.3" cy="20.7" r=".75"/><circle cx="15.1" cy="18.6" r=".75"/><circle cx="19.5" cy="17.6" r=".75"/><circle cx="23.8" cy="18.0" r=".75"/><circle cx="27.6" cy="19.7" r=".75"/><circle cx="30.5" cy="22.4" r=".75"/></g><g fill="#fffdf6" stroke="#cdbf9f" stroke-width=".9"><circle cx="57.0" cy="31.2" r="2.6"/><circle cx="55.5" cy="34.6" r="2.6"/><circle cx="52.6" cy="37.3" r="2.6"/><circle cx="48.8" cy="39.0" r="2.6"/><circle cx="44.5" cy="39.4" r="2.6"/><circle cx="40.1" cy="38.4" r="2.6"/><circle cx="36.3" cy="36.3" r="2.6"/><circle cx="33.5" cy="33.3" r="2.6"/><circle cx="32.0" cy="29.6" r="2.6"/><circle cx="32.0" cy="25.8" r="2.6"/><circle cx="33.5" cy="22.4" r="2.6"/><circle cx="36.4" cy="19.7" r="2.6"/><circle cx="40.2" cy="18.0" r="2.6"/><circle cx="44.5" cy="17.6" r="2.6"/><circle cx="48.9" cy="18.6" r="2.6"/><circle cx="52.7" cy="20.7" r="2.6"/><circle cx="55.5" cy="23.7" r="2.6"/><circle cx="57.0" cy="27.4" r="2.6"/></g><ellipse cx="44.5" cy="28.5" rx="12.8" ry="10.8" transform="rotate(12 44.5 28.5)" fill="#fffdf6"/><g fill="#ddd1b6"><circle cx="57.0" cy="31.2" r=".75"/><circle cx="55.5" cy="34.6" r=".75"/><circle cx="52.6" cy="37.3" r=".75"/><circle cx="48.8" cy="39.0" r=".75"/><circle cx="44.5" cy="39.4" r=".75"/><circle cx="40.1" cy="38.4" r=".75"/><circle cx="36.3" cy="36.3" r=".75"/><circle cx="33.5" cy="33.3" r=".75"/><circle cx="32.0" cy="29.6" r=".75"/><circle cx="32.0" cy="25.8" r=".75"/><circle cx="33.5" cy="22.4" r=".75"/><circle cx="36.4" cy="19.7" r=".75"/><circle cx="40.2" cy="18.0" r=".75"/><circle cx="44.5" cy="17.6" r=".75"/><circle cx="48.9" cy="18.6" r=".75"/><circle cx="52.7" cy="20.7" r=".75"/><circle cx="55.5" cy="23.7" r=".75"/><circle cx="57.0" cy="27.4" r=".75"/></g><path d="M29 35L23 52Q26.5 49.5 30 51.5L32.5 37Z" fill="' + c[1] + '" stroke="' + c[2] + '" stroke-width="1.3" stroke-linejoin="round"/><path d="M35 35L41 52Q37.5 49.5 34 51.5L31.5 37Z" fill="' + c[1] + '" stroke="' + c[2] + '" stroke-width="1.3" stroke-linejoin="round"/><path d="M32 32C25 17 8 15 8.5 28C9 40 24 41 32 32Z" fill="' + c[0] + '" stroke="' + c[2] + '" stroke-width="1.6"/><path d="M32 32C39 17 56 15 55.5 28C55 40 40 41 32 32Z" fill="' + c[0] + '" stroke="' + c[2] + '" stroke-width="1.6"/><path d="M28 29C23 24 16 23 13 27M36 29C41 24 48 23 51 27" fill="none" stroke="' + c[3] + '" stroke-width="1.3" stroke-linecap="round"/><path d="M14 22Q17 19 21 19" fill="none" stroke="#fff" stroke-opacity=".8" stroke-width="2" stroke-linecap="round"/><ellipse cx="32" cy="32" rx="5.8" ry="5.2" fill="' + c[4] + '" stroke="' + c[2] + '" stroke-width="1.5"/></g>';
@@ -7242,15 +7437,15 @@ function treatStyleHtmlBase(accId, made){
       (made ? '<div class="ts-note">キーホルダーをつけかえたら、相棒にはもう一度つけ直してね</div>' : '') + '</div>';
   }
   if(accId !== "ta_hat" && accId !== "ta_ribbon") return "";
-  const dot = (list, cur, key) => list.map(x => '<button class="ts-dot' + (x.id === cur ? ' on' : '') + '" data-' + key + '="' + x.id + '" aria-label="' + x.name + '"><i style="background:' + x.c[0] + ';border-color:' + x.c[2] + '"></i><span>' + x.name + '</span></button>').join('');
+  const dot = (list, cur, key, acc) => treatColFilter(acc, list, cur, x => '<button class="ts-dot' + (x.id === cur ? ' on' : '') + '" data-' + key + '="' + x.id + '" aria-label="' + x.name + '"><i style="background:' + x.c[0] + ';border-color:' + x.c[2] + '"></i><span>' + x.name + '</span></button>');
   let h = '<div class="treat-style">';
   if(accId === "ta_hat"){
     h += '<div class="ts-label">形を選ぶ</div><div class="ts-row">' +
       '<button class="ts-shape' + (treatStyle.hat === "round" ? ' on' : '') + '" data-shape="round">丸いぼうし</button>' +
       '<button class="ts-shape' + (treatStyle.hat === "top" ? ' on' : '') + '" data-shape="top">シルクハット</button></div>';
-    if(treatStyle.hat === "round") h += '<div class="ts-label">色を選ぶ</div><div class="ts-row">' + dot(HAT_COLORS, treatStyle.hatColor, "hc") + '</div>';
+    if(treatStyle.hat === "round") h += '<div class="ts-label">' + treatColLabel("ta_hat", "色を選ぶ") + '</div><div class="ts-row">' + dot(HAT_COLORS, treatStyle.hatColor, "hc", "ta_hat") + '</div>';
   } else {
-    h += '<div class="ts-label">色を選ぶ</div><div class="ts-row">' + dot(RIBBON_COLORS, treatStyle.ribbon, "rc") + '</div>';
+    h += '<div class="ts-label">' + treatColLabel("ta_ribbon", "色を選ぶ") + '</div><div class="ts-row">' + dot(RIBBON_COLORS, treatStyle.ribbon, "rc", "ta_ribbon") + '</div>';
   }
   if(made) h += '<div class="ts-note">形や色を変えたら、相棒にはもう一度つけ直してね</div>';
   return h + '</div>';
@@ -7307,7 +7502,7 @@ function treatIconSvg(id, size){
     ta_keyholder: treatKhBody(),
     ta_crown: treatCrownBody(),
   };
-  let b = treatRecolor(id, bodies[id] || "");
+  let b = treatRecolor(id, bodies[id] || TREAT_SEASON_BODIES[id] || "");
   const kh = TREAT_KH_AT[id];
   if(kh && treatStyle.kh && treatOwn.ta_keyholder){
     /* 動き(CSS)が transform を上書きするので、位置は外の <g> で決める */
@@ -7315,20 +7510,28 @@ function treatIconSvg(id, size){
     const i = b.lastIndexOf('</g>');
     b = b.slice(0, i) + c + b.slice(i);
   }
+  /* 切り抜き（clipPath）のidは、絵ごとに別の名前にする（同じ絵が2つ出ても、かくれた絵のidを使ってしまわないように） */
+  if(b.indexOf(' id="ta') >= 0){ const q = ++treatIdSeq; b = b.replace(/ id="(ta[A-Za-z]+)"/g, ' id="$1' + q + '"').replace(/url\(#(ta[A-Za-z]+)\)/g, 'url(#$1' + q + ')'); }
   return '<svg class="ta" width="' + size + '" height="' + size + '" viewBox="0 0 64 64" aria-hidden="true">' + b + '</svg>';
 }
+let treatIdSeq = 0;
 /* v79：キーホルダーをつけられるかばんと、つるす所 */
 const TREAT_KH_AT = {"ta_randoseru":[6,36],"ta_backpack":[44,36],"ta_bag":[42,26]};
 function rollTreat(itemOnly){
-  const counts = {};
-  TREAT_ITEMS.forEach(it => { counts[it.rarity] = (counts[it.rarity] || 0) + 1; });
   const entries = itemOnly ? [] : [{item: GEM_SHARD_META, weight: TREAT_SHARD_WEIGHT}];
   if(!itemOnly) TREAT_NATURE.forEach(it => entries.push({item: it, weight: it.weight}));
-  TREAT_ITEMS.forEach(it => entries.push({item: it, weight: TIER_WEIGHT[it.rarity] / counts[it.rarity]}));
+  /* v85：いまの季節の小物（と1年中の小物）から。まだ持っていない小物と、まだ見つけていない色のある小物を先に出す。
+     ぜんぶそろったら、またどれでも出る。小物の出る数は今までと同じ（重みの合計69）になるようにそろえる */
+  const elig = TREAT_ITEMS.filter(treatInSeason), counts = {};
+  elig.forEach(it => { counts[it.rarity] = (counts[it.rarity] || 0) + 1; });
+  const fresh = elig.map(it => [it, treatFresh(it)]), anyFresh = fresh.some(f => f[1] > 0);
+  const its = fresh.map(f => ({item: f[0], weight: TIER_WEIGHT[f[0].rarity] / counts[f[0].rarity] * (anyFresh ? (f[1] === 2 ? 3 : f[1] === 1 ? 1.5 : 0) : 1)}));
+  const sum = its.reduce((a, e) => a + e.weight, 0);
+  its.forEach(e => { e.weight = e.weight * 69 / sum; entries.push(e); });
   const total = entries.reduce((a, e) => a + e.weight, 0);
   let r = Math.random() * total;
   for(const e of entries){
-    if(r < e.weight) return e.item;
+    if(r < e.weight) return TREAT_BY_ID[e.item.id] ? Object.assign({}, e.item, {colorId: treatPickColor(e.item)}) : e.item;
     r -= e.weight;
   }
   return GEM_SHARD_META;
@@ -7351,9 +7554,9 @@ function renderTreatCard(){
 }
 function treatItemChip(it){
   return '<span class="dig-find-chip rarity-' + it.rarity + '">' +
-    (it.id === GEM_SHARD_ID ? itemIconSvg(it, 22) : TREAT_NATURE_BY_ID[it.id] ? natureIconSvg(it.id, 22) : treatIconSvg(it.id, 22)) + '<span>' + it.name + '</span></span>';
+    (it.id === GEM_SHARD_ID ? itemIconSvg(it, 22) : TREAT_NATURE_BY_ID[it.id] ? natureIconSvg(it.id, 22) : treatIconColor(it.id, 22, it.colorId)) + '<span>' + it.name + '</span></span>';
 }
-let treatMode = false, treatEnded = false, treatFinds = [], treatNewScarf = [];
+let treatMode = false, treatEnded = false, treatFinds = [], treatNewScarf = [], treatNewColors = 0;
 function startTreat(){
   if(treatDoneToday() || !treatUnlocked()) return;
   treatMode = true;
@@ -7362,7 +7565,7 @@ function startTreat(){
   scr.classList.add("active", "treat");
   document.getElementById("digTitle").textContent = "🎁 おつかれさま宝探し";
   treatEnded = false;
-  treatFinds = []; treatNewScarf = [];
+  treatFinds = []; treatNewScarf = []; treatNewColors = 0;
   const strip = document.getElementById("digSessionFinds");
   strip.innerHTML = ""; strip.style.display = "none";
   const grid = document.getElementById("digGrid");
@@ -7389,8 +7592,12 @@ function flipTreatCard(card){
   if(treatFinds.length === 0){ treatDay = todayStr(); saveTreatDay(); }
   const rr = result.rarity;
   const face = card.querySelector(".dig-card-face");
+  /* v85：小物は先にきろくして、「はじめて／新しい色」を絵に出す */
+  const rec = (isShard || isNature) ? null : treatRecordFind(result);
+  const newTag = rec ? (rec.first ? '<span class="dig-size-tag size-b">はじめて！</span>' : rec.newCol ? '<span class="dig-size-tag size-b">新しい色！</span>' : '') : '';
+  if(rec && rec.newCol && !rec.first) treatNewColors++;
   face.innerHTML = revealFxHtml({rarity: rr === "epic" ? "epic" : rr}) +
-    '<span class="dig-icon-wrap">' + (isShard ? itemIconSvg(result, 34) : isNature ? natureIconSvg(result.id, 46) : treatIconSvg(result.id, 52)) + '</span>' + (isNature ? COIN_TAG : '');
+    '<span class="dig-icon-wrap">' + (isShard ? itemIconSvg(result, 34) : isNature ? natureIconSvg(result.id, 46) : treatIconColor(result.id, 52, result.colorId)) + '</span>' + (isNature ? COIN_TAG : newTag);
   if(isShard){
     card.classList.add("shard-hit");
     gemCollection[GEM_SHARD_ID] = (gemCollection[GEM_SHARD_ID] || 0) + 1;
@@ -7400,9 +7607,6 @@ function flipTreatCard(card){
     treatNature[result.id] = (treatNature[result.id] || 0) + 1;
     saveTreatNature(); kcAdd(1);
     if(result.id === "tn_yarn") treatNewScarf.push(...scarfUnlockedNames(yarnCount()).slice(before));
-  }else{
-    treatOwn[result.id] = (treatOwn[result.id] || 0) + 1;
-    saveTreatOwn(); noteFound();
   }
   treatFinds.push(result);
   const strip = document.getElementById("digSessionFinds");
@@ -7418,9 +7622,27 @@ function endTreat(allCleared){
   document.getElementById("digHint").textContent = got > 0 ?
     "全部めくったよ！おしゃれ小物を" + got + "個見つけたよ。おつかれさま！" :
     "全部めくったよ！今日はお散歩の宝物がいっぱい。おつかれさま！";
+  if(treatNewColors) document.getElementById("digHint").textContent += "　🎨新しい色を" + treatNewColors + "こ見つけたよ！";
   if(treatNewScarf.length) document.getElementById("digHint").textContent += "　🧶毛糸玉がたまって、マフラーの「" + treatNewScarf.join("」「") + "」が使えるようになったよ！";
   document.getElementById("digDoneRow").style.display = "flex";
   document.getElementById("digAgainBtn").style.display = "none";
+}
+let treatZukanTab = "all";
+function treatZukanItems(tab){
+  return TREAT_ITEMS.filter(it => {
+    const h = !!treatOwn[it.id] && treatIsHidden(it.id);
+    if(tab === "shelf") return h;
+    if(h) return false;
+    if(tab === "all") return true;
+    return treatSeasonOf(it) === (tab === "always" ? "all" : tab);
+  });
+}
+function treatZukanTabsHtml(){
+  const now = treatSeasonNow(), nShelf = TREAT_ITEMS.filter(it => treatOwn[it.id] && treatIsHidden(it.id)).length;
+  const tabs = [["all", "ぜんぶ"]].concat(TREAT_SEASONS.map(x => [x.id, x.icon + x.name + (x.id === now ? "（いま）" : "")])).concat([["always", "ずっと"], ["shelf", "📦おしいれ" + (nShelf ? "(" + nShelf + ")" : "")]]);
+  const cur = TREAT_SEASONS.find(x => x.id === now);
+  return '<div class="ts-row" style="flex-wrap:wrap;justify-content:center;margin:6px 0">' + tabs.map(t => '<button style="padding:4px 10px" class="ts-shape' + (t[0] === treatZukanTab ? ' on' : '') + '" data-ztab="' + t[0] + '">' + t[1] + '</button>').join("") + '</div>' +
+    '<div class="treat-howto" style="margin-top:0">いまは' + cur.icon + '<b>' + cur.name + '</b>の小物が、宝探しに出るよ。見つけた小物は、ずっと図かんに残るよ。</div>';
 }
 function showTreatZukan(){
   const html =
@@ -7428,16 +7650,18 @@ function showTreatZukan(){
       '<div class="gembook-detail-name">🎀 おしゃれ図かん</div>' +
       '<div class="gembook-detail-count">' + Object.keys(treatOwn).length + ' / ' + TREAT_ITEMS.length + ' 種類</div>' +
       '<div class="treat-howto">見つけた小物は、そのままでは<b>見るだけ</b>。<br>小物をおして<b>💎宝石でかざる</b>と、<b>手作りのおしゃれ</b>になって、計算ドリルの<b>🐾相棒につけられる</b>よ。</div>' +
+      treatZukanTabsHtml() +
       '<div class="treat-zukan">' +
-      TREAT_ITEMS.map(it => {
-        const n = treatOwn[it.id] || 0;
+      (treatZukanItems(treatZukanTab).map(it => {
+        const n = treatOwn[it.id] || 0, cc = treatColCount(it.id);
         return (n ? '<button class="treat-slot tap rarity-' + it.rarity + '" data-t="' + it.id + '">' : '<div class="treat-slot locked">') +
           (n ? '<span class="treat-slot-count">×' + n + '</span>' : '') +
           (n ? treatIconSvg(it.id, 52) : '<div style="height:52px;display:flex;align-items:center;font-size:1.6rem;color:var(--ink-soft);">？</div>') +
-          '<span class="treat-slot-name">' + (n ? it.name : "まだ") + '</span>' + (n ? '</button>' : '</div>');
-      }).join("") +
+          '<span class="treat-slot-name">' + (n ? it.name : "まだ") + '</span>' +
+          (n && cc ? '<span class="treat-slot-name" style="font-size:.7rem;opacity:.8">🎨' + cc.have + '/' + cc.total + '</span>' : '') + (n ? '</button>' : '</div>');
+      }).join("") || '<div class="treat-howto">ここには、まだ何もないよ。</div>') +
       '</div>' +
-      (yarnCount() ? '<div class="treat-made-title">🧶 毛糸玉 ' + yarnCount() + '個（マフラーをおすとかざりが選べるよ）</div>' : '') +
+      (treatZukanTab !== "all" ? '' : (yarnCount() ? '<div class="treat-made-title">🧶 毛糸玉 ' + yarnCount() + '個（マフラーをおすとかざりが選べるよ）</div>' : '') +
       '<div class="treat-made-title">🍂 お散歩の宝物（宝探しで見つけたもの）</div><div class="treat-zukan">' +
       TREAT_NATURE.filter(it => it.id !== "tn_yarn").map(it => {
         const n = treatNature[it.id] || 0;
@@ -7455,10 +7679,11 @@ function showTreatZukan(){
             (treatMade[mid] > 1 ? '<span class="treat-slot-count">×' + treatMade[mid] + '</span>' : '') +
             treatMadeSvg(mid, 52) + '<span class="treat-slot-name">' + t.name + '</span></button>';
         }).join("") + '</div>' :
-        '') +
+        '')) +
     '</div>';
   showHtmlModal(html, '<button class="ctrl-btn primary" id="modalOkBtn">閉じる</button>', (overlay) => {
     document.getElementById("modalOkBtn").onclick = closeModal;
+    overlay.querySelectorAll("[data-ztab]").forEach(b => { b.onclick = () => { treatZukanTab = b.dataset.ztab; showTreatZukan(); }; });
     overlay.querySelectorAll(".treat-slot[data-t]").forEach(b => { b.onclick = () => showTreatItem(b.dataset.t); });
     overlay.querySelectorAll(".treat-slot[data-m]").forEach(b => { b.onclick = () => showTreatMadeItem(b.dataset.m); });
   });
@@ -7484,7 +7709,9 @@ function saveTreatMade(){ try{ localStorage.setItem(TREAT_MADE_KEY, JSON.stringi
 const TREAT_SLOT = {ta_ribbon:"head", ta_glasses:"eyes", ta_bowtie:"neck", ta_flower:"head", ta_star:"head",
   ta_scarf:"neck", ta_hat:"head", ta_cape:"back", ta_wings:"back", ta_crown:"head",
   ta_heartgl:"eyes", ta_balloon:"side", ta_strawhat:"head", ta_earstar:"ears", ta_flowercrown:"head",
-  ta_bottle:"side", ta_book:"side", ta_bag:"side", ta_plush:"side", ta_backpack:"back", ta_randoseru:"back"};
+  ta_bottle:"side", ta_book:"side", ta_bag:"side", ta_plush:"side", ta_backpack:"back", ta_randoseru:"back",
+  ta_sakura:"head", ta_dandelion:"side", ta_easter:"side", ta_tulip:"side", ta_sunflower:"head", ta_fuurin:"side", ta_ukiwa:"side", ta_kakigori:"side", ta_shirokuma:"side",
+  ta_momiji:"head", ta_pumpkin:"side", ta_usagi:"side", ta_grape:"side", ta_snow:"head", ta_santa:"head", ta_holly:"neck", ta_clematis:"head", ta_butterfly:"head"};
 /* v78：相棒につけるときだけ大きさを変える（図かんの絵はそのまま。中心を決めて拡大） */
 const TREAT_WEAR_T = {ta_crown:"translate(32 52) scale(1.4) translate(-32 -50)", ta_strawhat:"translate(32 52) scale(1.5) translate(-32 -44)", ta_flowercrown:"translate(32 50) scale(1.45) translate(-32 -44)",
   ta_balloon:"translate(30 63) scale(1.45) translate(-30 -63)", ta_earstar:"translate(32 13) scale(1.3) translate(-32 -13)",
@@ -7497,7 +7724,9 @@ function treatWearSvg(mid){
 const TREAT_GEM_AT = {ta_ribbon:[32,32,17], ta_glasses:[32,22,10], ta_bowtie:[32,32,12], ta_flower:[32,32,12],
   ta_star:[32,31,13], ta_scarf:[24,33,11], ta_hat:[32,41,10], ta_cape:[32,21,11], ta_wings:[32,34,12], ta_crown:[32,40,11],
   ta_heartgl:[32,30,9], ta_balloon:[30,17,12], ta_strawhat:[41,38,10], ta_earstar:[32,40,10], ta_flowercrown:[32,44,10],
-  ta_bottle:[32,44,10], ta_book:[35,40,10], ta_bag:[32,46,11], ta_plush:[32,50,8], ta_backpack:[32,43,10], ta_randoseru:[20,32,12]};
+  ta_bottle:[32,44,10], ta_book:[35,40,10], ta_bag:[32,46,11], ta_plush:[32,50,8], ta_backpack:[32,43,10], ta_randoseru:[20,32,12],
+  ta_sakura:[32,32,9], ta_dandelion:[32,28,9], ta_easter:[32,34,10], ta_tulip:[32,24,9], ta_sunflower:[32,32,10], ta_fuurin:[32,22,9], ta_ukiwa:[32,10,9], ta_kakigori:[32,22,9], ta_shirokuma:[32,24,9],
+  ta_momiji:[32,32,9], ta_pumpkin:[32,36,10], ta_usagi:[32,34,10], ta_grape:[32,34,10], ta_snow:[32,32,8], ta_santa:[44,41,8], ta_holly:[32,44,8], ta_clematis:[32,32,8], ta_butterfly:[32,30,7]};
 const JEWEL_SLOT = {tiara:"head", crown:"head", andes:"head", imperial:"head", necklace:"neck", brooch:"neck",
   magatama:"neck", collar:"neck", earrings:"ears", ring:"side", bracelet:"side", regard:"side", mask:"side",
   diadem:"head", triearrings:"ears"};
@@ -7605,10 +7834,11 @@ function showTreatItem(id){
       (id === "ta_keyholder" ? '<div class="treat-howto">キーホルダーは、<b>カバン・ランドセル・リュックサック</b>を宝石でかざるときに「かざりをつける」でつけられるよ。</div>' :
       '<div class="treat-howto">このままの' + it.name + 'は、相棒にはつけられないよ。<br><b>💎宝石を1つ使ってかざる</b>と、自分だけの<b>手作りのおしゃれ</b>になって、<b>🐾相棒につけられる</b>よ。<br>' + it.name + 'はへらないよ。</div>') +
     '</div>',
-    '<button class="ctrl-btn" id="modalNoBtn">もどる</button>' + (id === "ta_keyholder" ? '' : '<button class="wear-btn" id="treatGemBtn">💎 宝石でかざる</button>'),
+    '<button class="ctrl-btn" id="modalNoBtn">もどる</button><button class="ctrl-btn" id="treatShelfBtn">' + (treatIsHidden(id) ? '📦 おしいれから出す' : '📦 おしいれにしまう') + '</button>' + (id === "ta_keyholder" ? '' : '<button class="wear-btn" id="treatGemBtn">💎 宝石でかざる</button>'),
     (overlay) => {
       bindTreatStyle(overlay, () => showTreatItem(id));
       document.getElementById("modalNoBtn").onclick = showTreatZukan;
+      document.getElementById("treatShelfBtn").onclick = () => { treatSetHidden(id, !treatIsHidden(id)); showTreatZukan(); };
       if(id === "ta_keyholder") return;
       document.getElementById("treatGemBtn").onclick = () => pickTreatGem(id);
     });
