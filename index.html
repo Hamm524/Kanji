@@ -606,6 +606,33 @@ svg.pet { display: block; width: 100%; height: auto; overflow: visible; }
 .stop.open .name{color:var(--ink);}
 .road-map.tate .stop.open .name{transform:translateY(-82%);}
 .road-map.tate .stop.open .go{top:calc(50% + 26px);}
+/* v82：道の「新しい字」マス・カウントダウン */
+.stop.newk .ball{border-color:var(--gold);}
+.stop.newk.now .ball{border:4px solid var(--gold);box-shadow:0 0 0 8px rgba(255,200,90,.28),0 0 26px 10px rgba(255,200,90,.6),0 5px 0 rgba(0,0,0,.12);}
+.stop.newk.now .name{color:var(--gold);}
+.stop.newk.now .num{background:var(--gold);}
+.stop.newk.now .go{background:var(--gold);}
+.stop.done.newk .ball{border:3px solid var(--gold);background:#FFFBEF;}
+.stop.done.newk .ball::after{border-color:rgba(169,117,14,.5);}
+.stop.done.newk .num{background:var(--gold);}
+.stop .ball .nk{font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:2.6rem;font-weight:700;color:var(--gold);line-height:1;}
+.stop .ball .nk-star{position:absolute;bottom:-6px;right:-8px;font-size:1.3rem;transform:rotate(12deg);}
+.stop .bonus{display:inline-block;margin-top:2px;font-size:.7rem;font-weight:700;color:#fff;background:var(--gold);border-radius:999px;padding:1px 8px;}
+#homeCountdown{max-width:360px;margin:6px auto 4px;}
+.cd-card{position:relative;overflow:hidden;padding:12px 16px 12px;border:2px solid var(--gold);border-radius:20px;background:linear-gradient(135deg,#FFF6DC,var(--paper-raised));text-align:center;}
+.cd-lead{font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:1rem;color:var(--ink);}
+.cd-main{font-family:"BIZ UDPGothic","Kosugi Maru",sans-serif;font-size:1.25rem;color:var(--ink);margin-top:2px;}
+.cd-num{display:inline-block;font-size:3.4rem;font-weight:700;color:var(--shu);line-height:1.05;margin:0 4px;min-width:1.2em;}
+.cd-num.flip{animation:cd-flip .7s ease;}
+.cd-bar{height:10px;border-radius:999px;background:var(--line);margin:8px 4px 2px;overflow:hidden;}
+.cd-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#F2B33D,var(--shu));transition:width .8s ease;}
+.cd-sub{font-size:.78rem;color:var(--ink-soft);}
+.cd-minus{position:absolute;left:50%;top:38%;font-size:1.6rem;font-weight:700;color:var(--gold);pointer-events:none;animation:cd-up 1.4s ease forwards;}
+.cd-spark{position:absolute;font-size:1.2rem;pointer-events:none;animation:cd-spark 1.1s ease-out forwards;}
+@keyframes cd-flip{0%{transform:scale(1);}35%{transform:scale(.4) rotateX(80deg);opacity:.3;}60%{transform:scale(1.35);opacity:1;}100%{transform:scale(1);}}
+@keyframes cd-up{0%{opacity:0;transform:translate(-50%,10px);}20%{opacity:1;}100%{opacity:0;transform:translate(-50%,-46px);}}
+@keyframes cd-spark{0%{opacity:0;transform:translate(0,0) scale(.4);}25%{opacity:1;}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.2);}}
+@media (prefers-reduced-motion: reduce){.cd-num.flip,.cd-minus,.cd-spark{animation:none;}}
 .di-words{display:flex;flex-direction:column;gap:6px;margin:6px 0 10px;}
 .di-w{display:flex;gap:10px;align-items:center;border:1.5px solid var(--kon);border-radius:12px;background:var(--paper-raised);padding:6px 10px;}
 .di-ch{font-size:2.6rem;line-height:1;color:#CFC6B4;flex:none;width:3.2rem;text-align:center;}
@@ -2614,6 +2641,7 @@ header.app{
       <button class="restore-skip" id="restoreSkipBtn">初めてだよ</button>
     </div>
 
+    <div class="cd-card" id="homeCountdown" hidden></div>
     <div class="gate-card" id="homeRoad" hidden></div>
 
     <div class="today-card" id="reviewCard">
@@ -2899,8 +2927,8 @@ header.app{
   var PREFIX = "kanji-drill-";
   var CHANGED = "kanji-drill-changed-at-v1";
   var BASE = "kanji-drill-cloud-base-v1";
-  var NO_DIRTY = {"kanji-drill-cloud-base-v1":1,"kanji-drill-grade-v2":1,"kanji-drill-selfcheck-count-v1":1,"kanji-drill-last-backup-v1":1,"kanji-drill-backup-at-v1":1,"kanji-drill-changed-at-v1":1};
-  var NO_CLOUD = {"kanji-drill-cloud-base-v1":1,"kanji-drill-last-backup-v1":1,"kanji-drill-backup-at-v1":1,"kanji-drill-gateskip-v1":1};
+  var NO_DIRTY = {"kanji-drill-cloud-base-v1":1,"kanji-drill-grade-v2":1,"kanji-drill-selfcheck-count-v1":1,"kanji-drill-last-backup-v1":1,"kanji-drill-backup-at-v1":1,"kanji-drill-changed-at-v1":1,"kanji-drill-countdown-seen-v1":1};
+  var NO_CLOUD = {"kanji-drill-countdown-seen-v1":1,"kanji-drill-cloud-base-v1":1,"kanji-drill-last-backup-v1":1,"kanji-drill-backup-at-v1":1,"kanji-drill-gateskip-v1":1};
   var DATA_KEYS = ["kanji-drill-progress-v2","kanji-drill-gems-v1","kanji-drill-tickets-v1","kanji-drill-srs-v1"];
   var DBN = "kanji-drill-mirror", ST = "kv";
   var CFG = { projectId:"keisan-suzu", apiKey:"AIzaSyCv0vvfBwyjInAZV9cBRfVaRAn5zTEtCrg" };
@@ -5044,6 +5072,115 @@ function osaraiRetestLeft(){
 function osaraiFinished(){
   return osaraiLeft().length === 0 && osaraiLaterLeft().length === 0 && osaraiRetestLeft().length === 0;
 }
+/* ---------------- 道の「⭐新しい字」マス（v82） ----------------
+   親：おさらいが先に出るので、新しい字をなかなか始めない。
+   おさらいを前半（4字以上なら半分）と後半に分け、そのあいだと、プリントのあとに「⭐新しい字」のマスを置く。
+   宝探し（ゴール）の前に、その日の新しい字が ROAD_NEW_N 字になるように。おさらいの数は変えない。
+   新しい字は、前半が終わったら練習できる（openChar）。マスの「はじめる」は、カウントダウンの学年の次の字を開く */
+const ROAD_NEW_N = 2;
+function osaraiSplit(){
+  const n = todayOsarai().list.length;
+  return n >= 4 ? Math.ceil(n / 2) : n;
+}
+/* 前半の字で、まだ書いていない字 */
+function osaraiFirstLeft(){
+  const o = todayOsarai();
+  return o.list.slice(0, osaraiSplit()).filter(c => CHAR_MAP[c] && srs[c] && !o.done[c]);
+}
+function osaraiHalfDone(){ return osaraiFirstLeft().length === 0; }
+/* カウントダウンの学年：3年生が基本。3年生が全部終わったら、まだ残っている次の学年 */
+const COUNTDOWN_BASE_GRADE = 3;
+function countdownGrade(){
+  const left = g => KANJI.some(k => k.g === g && !getProg(k.c).mastered);
+  if(left(COUNTDOWN_BASE_GRADE)) return COUNTDOWN_BASE_GRADE;
+  const up = GRADES.filter(g => g > COUNTDOWN_BASE_GRADE).find(left);
+  if(up) return up;
+  const down = GRADES.filter(g => g < COUNTDOWN_BASE_GRADE).find(left);
+  return down || COUNTDOWN_BASE_GRADE;
+}
+/* 道の⭐マスで開く字：その学年の、書きかけの字（なぞった字）を先に。なければ順番で最初のまだの字 */
+function roadNewTarget(){
+  const g = countdownGrade();
+  let first = -1;
+  for(let i = 0; i < KANJI.length; i++){
+    if(KANJI[i].g !== g) continue;
+    const p = getProg(KANJI[i].c);
+    if(p.mastered) continue;
+    if(p.traced) return i;
+    if(first < 0) first = i;
+  }
+  return first;
+}
+function openRoadNew(){
+  const idx = roadNewTarget();
+  if(idx < 0) return;
+  if(state.grade !== KANJI[idx].g){ state.grade = KANJI[idx].g; saveGradePref(state.grade); }
+  openChar(idx);
+}
+/* ホームの上の大きなカウントダウン。字が減ったときは、前の数から1つずつ減らして見せる */
+const COUNTDOWN_SEEN_KEY = "kanji-drill-countdown-seen-v1";
+let countdownAnimating = false;
+function renderHomeCountdown(){
+  const card = document.getElementById("homeCountdown");
+  if(!card) return;
+  if(!appHasData()){ card.hidden = true; return; }
+  card.hidden = false;
+  const g = countdownGrade();
+  const total = KANJI.filter(k => k.g === g).length;
+  const left = KANJI.filter(k => k.g === g && !getProg(k.c).mastered).length;
+  const label = (GRADE_LABELS[g] || (g + "年")).replace(/年$/, "年生");
+  let seen = null;
+  try{ seen = JSON.parse(localStorage.getItem(COUNTDOWN_SEEN_KEY) || "null"); }catch(e){}
+  const saveSeen = () => { try{ localStorage.setItem(COUNTDOWN_SEEN_KEY, JSON.stringify({g:g, n:left})); }catch(e){} };
+  const draw = n => {
+    if(n === 0){
+      card.innerHTML = '<div class="cd-lead">🎉 ' + label + 'の漢字</div><div class="cd-main">全部覚えたよ！</div>' +
+        '<div class="cd-bar"><span style="width:100%"></span></div>';
+      return;
+    }
+    card.innerHTML = '<div class="cd-lead">' + label + 'の漢字、全部覚えるまで</div>' +
+      '<div class="cd-main">あと<span class="cd-num" id="cdNum">' + n + '</span>文字！</div>' +
+      '<div class="cd-bar"><span id="cdBar" style="width:' + ((total - n) / total * 100) + '%"></span></div>' +
+      '<div class="cd-sub">覚えた字 ' + (total - n) + ' / ' + total + '</div>';
+  };
+  if(countdownAnimating) return;
+  const homeShown = !document.getElementById("screen-grid").classList.contains("hidden");
+  const from = seen && seen.g === g && typeof seen.n === "number" ? seen.n : left;
+  if(from > left && homeShown){
+    /* 減る瞬間の演出：数がくるっと回って1つ減る＋「-1」とキラキラ */
+    countdownAnimating = true;
+    draw(from);
+    let cur = from;
+    const step = () => {
+      cur--;
+      const num = document.getElementById("cdNum");
+      if(num){
+        num.classList.remove("flip"); void num.offsetWidth; num.classList.add("flip");
+        setTimeout(() => {
+          if(cur === 0){ draw(0); return; }
+          num.textContent = cur;
+          const bar = document.getElementById("cdBar"); if(bar) bar.style.width = ((total - cur) / total * 100) + "%";
+          const sub = card.querySelector(".cd-sub"); if(sub) sub.textContent = "覚えた字 " + (total - cur) + " / " + total;
+        }, 250);
+      }
+      const m = document.createElement("div"); m.className = "cd-minus"; m.textContent = "-1"; card.appendChild(m);
+      setTimeout(() => m.remove(), 1500);
+      for(let i = 0; i < 8; i++){
+        const sp = document.createElement("span"); sp.className = "cd-spark"; sp.textContent = i % 2 ? "✨" : "⭐";
+        const a = Math.PI * 2 * i / 8;
+        sp.style.left = "50%"; sp.style.top = "45%";
+        sp.style.setProperty("--dx", Math.round(Math.cos(a) * 90) + "px"); sp.style.setProperty("--dy", Math.round(Math.sin(a) * 40) + "px");
+        card.appendChild(sp); setTimeout(() => sp.remove(), 1200);
+      }
+      if(cur > left) setTimeout(step, 900);
+      else setTimeout(() => { countdownAnimating = false; saveSeen(); draw(left); }, 1300);
+    };
+    setTimeout(step, 450);
+    return;
+  }
+  draw(left);
+  if(homeShown || !seen || seen.g !== g || seen.n < left) saveSeen();
+}
 
 /* ---------------- 今日のプリント・今日やること（v56） ----------------
    printData = {date, list:[その日の字], done:{字:1}}。その日の最初に字を決めて固定する。
@@ -6183,8 +6320,10 @@ function awardMasteryTicket(chC){
 /* 新しい字ゲージ（v80）：今日マスターした新しい字の数。5字まで⭐、6〜8字はがんばり印🌱、9字からはごほうびなし */
 const NEWDAY_KEY = "kanji-drill-newday-v1";
 const NEWDAY_STAR_MAX = 5, NEWDAY_SPROUT_MAX = 8;
-let newDay = {date:"", n:0};
-try{ const o = JSON.parse(localStorage.getItem(NEWDAY_KEY)); if(o && typeof o.date === "string") newDay = {date:o.date, n:Math.max(0, parseInt(o.n, 10) || 0)}; }catch(e){}
+let newDay = {date:"", n:0, chars:[]};
+try{ const o = JSON.parse(localStorage.getItem(NEWDAY_KEY)); if(o && typeof o.date === "string") newDay = {date:o.date, n:Math.max(0, parseInt(o.n, 10) || 0), chars:Array.isArray(o.chars) ? o.chars.filter(c => typeof c === "string").slice(0, 20) : []}; }catch(e){}
+/* 今日、新しくマスターした字（道の⭐マスのスタンプに出す） */
+function newDayChars(){ return newDay.date === todayStr() ? (newDay.chars || []) : []; }
 function saveNewDay(){ try{ localStorage.setItem(NEWDAY_KEY, JSON.stringify(newDay)); }catch(e){} }
 function newDayCount(){ return newDay.date === todayStr() ? newDay.n : 0; }
 function newDayGaugeHtml(n){
@@ -6194,16 +6333,24 @@ function newDayGaugeHtml(n){
   if(sprouts) s += "　" + "🌱".repeat(sprouts);
   return '<span style="letter-spacing:2px;">' + s + '</span>';
 }
-function awardNewKanjiStar(){
+/* 道の⭐マス（その日の1字目・2字目、ROAD_NEW_N）は、ごほうびを多めに（v82）：小物がもう1つ・コイン+3 */
+const ROAD_BONUS_COIN = 3;
+function awardNewKanjiStar(chC){
   const n = newDayCount() + 1;
-  newDay = {date:todayStr(), n:n}; saveNewDay();
-  let msg = "", coins = 0, item = null;
+  newDay = {date:todayStr(), n:n, chars:newDayChars().concat(chC ? [chC] : [])}; saveNewDay();
+  let msg = "", coins = 0, item = null, bonusItem = null;
   if(n <= NEWDAY_STAR_MAX){
     coins = 3;
     if(n === 3){ coins += 10; msg += "💰コインの袋を見つけた！（+10コイン）<br>"; }
     if(n === 5){ coins += 20; msg += "💰大きなコインの袋を見つけた！（+20コイン）<br>"; }
     item = rollTreat(true);
     treatOwn[item.id] = (treatOwn[item.id] || 0) + 1;
+    if(n <= ROAD_NEW_N){
+      bonusItem = rollTreat(true);
+      treatOwn[bonusItem.id] = (treatOwn[bonusItem.id] || 0) + 1;
+      coins += ROAD_BONUS_COIN;
+
+    }
     saveTreatOwn(); noteFound();
   }else if(n <= NEWDAY_SPROUT_MAX){
     coins = 1;
@@ -6213,6 +6360,7 @@ function awardNewKanjiStar(){
   if(n <= NEWDAY_STAR_MAX) head = "⭐ 新しい字ゲージ　" + newDayGaugeHtml(n) + '<br>コイン +3' + (item ? '　小物「' + item.name + '」をゲット！' : '');
   else if(n <= NEWDAY_SPROUT_MAX) head = "🌱 がんばり印がふえたよ　" + newDayGaugeHtml(n) + "<br>コイン +1";
   else head = "今日はもう十分！よくがんばったね。<br>あとは、あした、おさらいで会おう。";
+  if(bonusItem) head += '<br><span style="color:var(--shu);">🌟 道のボーナス！　小物「' + bonusItem.name + '」とコイン+' + ROAD_BONUS_COIN + 'も！</span>';
   return '<div class="ticket-gained" style="line-height:1.7;">' + msg + head + '</div>';
 }
 const GEM_SHAPES = {
@@ -9354,7 +9502,7 @@ function stopRepeat(){
   setMsg(state.mode === "trace" ? "うすい線をなぞってね" : "見本なしで書いてみよう");
 }
 function openChar(idx){
-  if(KANJI[idx] && !getProg(KANJI[idx].c).mastered && !osaraiFinished()){
+  if(KANJI[idx] && !getProg(KANJI[idx].c).mastered && !osaraiHalfDone()){
     showOsaraiGate();
     return;
   }
@@ -10431,6 +10579,7 @@ function gatePetSvg(){
 }
 /* ホームの上に出す、今日のスタンプロード（v81）：①おさらい ②プリント ③新しい字（下の一覧から） ④おつかれさま宝探し */
 function renderHomeRoad(){
+  try{ renderHomeCountdown(); }catch(e){}
   const card = document.getElementById("homeRoad");
   if(!card) return;
   if(!appHasData()){ card.hidden = true; return; }
@@ -10442,31 +10591,45 @@ function renderHomeRoad(){
   const pLeft = printLeft().length;
   const pDone = pLeft === 0;
   const treatDone = treatDoneToday();
-  const baseDone = (o.list.length === 0 || oDone) && (p.list.length === 0 || pDone);
-  const after = baseDone && treatUnlocked();
-  const steps = [];
-  if(o.list.length > 0) steps.push({id:"roadOsarai", ico:"📖", name:"今日のおさらい", st: oDone ? "done" : "now",
-    sub: oDone ? "終わり ✓" : oLeft > 0 ? (oLeft < o.list.length ? "あと" + oLeft + "字" : o.list.length + "字") : oLater > 0 ? "練習　あと" + oLater + "字" : "もう一度問題　あと" + oRetest + "字",
-    go: () => startOsarai()});
-  if(p.list.length > 0) steps.push({id:"roadPrint", ico:"📝", name:"今日のプリント", st: pDone ? "done" : (steps.length && steps[steps.length - 1].st === "now") ? "todo" : "now",
-    sub: pDone ? "終わり ✓" : (pLeft < p.list.length ? "あと" + pLeft + "字" : p.list.length + "字") + "　文を読んで書こう",
-    go: () => startPrint()});
-  const gn = newDayCount();
-  steps.push({id:"roadNew", ico:"⭐", name:"新しい字", st: baseDone ? "open" : "lock",
-    sub: baseDone ? (gn > 0 ? "今日 " + gn + "字　" : "") + "下の一覧から<br>えらんでやってみよう" : "おさらいとプリントの後<br>1字ごとに⭐がふえるよ",
-    go: baseDone ? () => { const g = document.getElementById("grid"); if(g) g.scrollIntoView({behavior:"smooth", block:"start"}); } : null});
+  /* v82：①おさらい前半 →⭐新しい字 →おさらい後半 →プリント →⭐新しい字 →🎁宝探し。
+     新しい字の字がもうないときは⭐マスを出さない */
+  const gn = newDayCount(), gChars = newDayChars();
+  const hasTarget = roadNewTarget() >= 0;
+  const split = osaraiSplit();
+  const firstLeft = osaraiFirstLeft().length;
+  const twoParts = split < o.list.length;
+  const oSub = () => oDone ? "終わり ✓" : oLeft > 0 ? "あと" + (twoParts ? oLeft - firstLeft : oLeft) + "字" : oLater > 0 ? "練習　あと" + oLater + "字" : "もう一度問題　あと" + oRetest + "字";
+  const items = [];
+  if(o.list.length > 0 && twoParts) items.push({id:"roadOsarai", ico:"📖", name:"おさらい（前半）", done: firstLeft === 0,
+    sub: firstLeft === 0 ? "終わり ✓" : "あと" + firstLeft + "字", go: () => startOsarai()});
+  /* おさらいが3字までのときは分けない：おさらい →⭐新しい字 →プリント →⭐新しい字 */
+  if(o.list.length > 0 && !twoParts) items.push({id:"roadOsarai2", ico:"📖", name:"今日のおさらい", done: oDone, sub: oSub(), go: () => startOsarai()});
+  const newStep = k => ({id:"roadNew" + k, ico:"⭐", name:"新しい字", newk:true, done: gn >= k, ch: gChars[k - 1] || "",
+    sub: gn >= k ? "覚えたよ！" : "1字覚えよう", bonus: gn < k, go: () => openRoadNew()});
+  if(hasTarget || gn >= 1) items.push(newStep(1));
+  if(o.list.length > 0 && twoParts) items.push({id:"roadOsarai2", ico:"📖", name:"おさらい（後半）", done: oDone,
+    sub: oSub(), go: () => startOsarai()});
+  if(p.list.length > 0) items.push({id:"roadPrint", ico:"📝", name:"今日のプリント", done: pDone,
+    sub: pDone ? "終わり ✓" : (pLeft < p.list.length ? "あと" + pLeft + "字" : p.list.length + "字") + "　文を読んで書こう", go: () => startPrint()});
+  if(hasTarget || gn >= 2) items.push(newStep(2));
+  /* 前半を書いたら、前の⭐マスより先に後ろのおさらいをやってもよい。順番は道の上の最初のまだのマス */
+  const nowIdx = items.findIndex(t => !t.done);
+  const steps = items.map((t, i) => Object.assign(t, {st: t.done ? "done" : i === nowIdx ? "now" : "todo"}));
+  const roadDone = nowIdx < 0;
+  const after = roadDone && treatUnlocked();
   steps.push({id:"roadTreat", ico:"🎁", name:"おつかれさま宝探し", st: treatDone ? "done" : after ? "now" : "lock",
-    sub: treatDone ? "今日はあけたよ ✓" : after ? "あけられるよ！" : "おさらいとプリントが<br>終わると、あけられるよ",
+    sub: treatDone ? "今日はあけたよ ✓" : after ? "あけられるよ！" : "道を全部進むと<br>あけられるよ",
     go: after && !treatDone ? () => startTreat() : null});
   const pet = '<div class="road-pet">' + gatePetSvg() + '</div>';
   const left = steps.filter(t => t.st === "now" && t.id !== "roadTreat").length;
-  const msg = treatDone ? "今日も、おつかれさま！" : after ? "新しい字にも挑戦できるよ。宝探しは、いつでもあけられるよ" :
-    "今日の道を、順番に進もう";
+  const nowStep = steps.find(t => t.st === "now");
+  const msg = treatDone ? "今日も、おつかれさま！" : after ? "宝探しをあけよう！" :
+    nowStep && nowStep.newk ? "次は⭐新しい字！<b>ボーナス</b>つきだよ" : "今日の道を、順番に進もう";
   const sc = currentStreakCount();
   const foot = '<div class="gate-foot"><span class="gate-streak">' + (sc > 0 ? "🔥 " + sc + "日連続" : "今日から続けよう") + '</span><button class="gate-save" id="homeRoadSave">保存する</button></div>';
   if(treatDone){
     card.innerHTML = '<div class="gate-label">今日のスタンプロード</div><div class="road-head">' + pet + '<div class="road-bubble">' + msg + '</div></div>' +
-      '<div style="display:flex;justify-content:center;gap:10px;margin:6px 0;">' + steps.map(t => '<span style="width:46px;height:46px;border-radius:50%;border:2px solid var(--shu);background:#FFF8F0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--shu);font-weight:700;">' + (t.st === "done" ? "✓" : t.ico) + '</span>').join("") + '</div>' + foot;
+      '<div style="display:flex;justify-content:center;gap:10px;margin:6px 0;">' + steps.map(t => '<span style="width:46px;height:46px;border-radius:50%;border:2px solid var(--shu);background:#FFF8F0;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:var(--shu);font-weight:700;">' + (t.st === "done" ? (t.newk && t.ch ? t.ch : "✓") : t.ico) + '</span>').join("") + '</div>' + foot;
   }else{
     const STEP = 128, TOP = 62, N = steps.length, H = TOP + STEP * (N - 1) + 76;
     const ys = steps.map((_, i) => TOP + STEP * i);
@@ -10480,12 +10643,13 @@ function renderHomeRoad(){
     svg += '</svg>';
     let html = '<div class="road-map tate" style="height:' + H + 'px">' + svg;
     steps.forEach((t, i) => {
-      const inner = t.st === "done" ? '<span class="pet">' + gatePetSvg() + '</span><span class="stamp">✓</span>' : t.ico;
-      const cls = t.st === "open" ? "todo open" : t.st;
+      const inner = t.st === "done" && t.newk && t.ch ? '<span class="nk">' + t.ch + '</span><span class="nk-star">⭐</span>' :
+        t.st === "done" ? '<span class="pet">' + gatePetSvg() + '</span><span class="stamp">✓</span>' : t.ico;
+      const cls = (t.st === "open" ? "todo open" : t.st) + (t.newk ? " newk" : "");
       html += '<div class="stop ' + cls + '" style="left:24%;top:' + ys[i] + 'px">' +
         '<div class="ball">' + inner + '<span class="num">' + (i + 1) + '</span>' +
         (t.st === "now" ? '<span class="flag">今ここ！</span>' : '') + (t.st === "lock" ? '<span class="key">🔒</span>' : '') + '</div>' +
-        '<div class="name">' + t.name + '<small>' + t.sub + '</small></div>' +
+        '<div class="name">' + t.name + (t.bonus ? '　<span class="bonus">ボーナス</span>' : '') + '<small>' + t.sub + '</small></div>' +
         (t.go && t.st === "now" ? '<button class="go" id="' + t.id + '">' + (t.id === "roadTreat" ? "あける" : "はじめる") + '</button>' : '') +
         (t.go && t.st === "open" ? '<button class="go alt" id="' + t.id + '">字をえらぶ ↓</button>' : '') + '</div>';
     });
@@ -10586,6 +10750,9 @@ function renderGate(){
 })();
 /* ---------------- 今日のおさらい：始める・まとめ・「あとで」の練習（v54） ---------------- */
 function startOsarai(){
+  /* v82：おさらいは前半と後半に分けて、そのあいだに道の⭐新しい字 */
+  const first = osaraiFirstLeft();
+  if(first.length > 0){ startWorksheet(first, {osarai:true}); return; }
   const left = osaraiLeft();
   if(left.length === 0){
     if(osaraiLaterLeft().length > 0) startOsaraiPractice();
@@ -10597,7 +10764,10 @@ function startOsarai(){
 }
 function showOsaraiGate(){
   const left = osaraiLeft().length, later = osaraiLaterLeft().length, retest = osaraiRetestLeft().length;
-  const msg = left > 0 ?
+  const first = osaraiFirstLeft().length;
+  const msg = first > 0 ?
+    "新しい字は、今日のおさらいを、あと" + first + "字書いたら練習できるよ！" :
+    left > 0 ?
     "新しい字は、今日のおさらいが終わってから練習できるよ。\nおさらいは、あと" + left + "字！" :
     later > 0 ? "新しい字は、練習が終わってからできるよ。\nあと" + later + "字！" :
     "新しい字は、もう一度問題を解いてからできるよ。\nあと" + retest + "字！";
@@ -10621,7 +10791,12 @@ function showOsaraiSummary(){
   renderGridStats();
   document.getElementById("reviewProgressText").textContent = "";
   let msg, btns;
-  if(left > 0){
+  const goNew = left > 0 && osaraiHalfDone() && newDayCount() < 1 && roadNewTarget() >= 0;
+  if(goNew){
+    msg = '<div class="osarai-done">おさらいの前半は終わり！<br>次は⭐新しい字だよ</div>' +
+      '<div style="color:var(--ink-soft);font-size:.85rem;margin-top:6px;">残りの' + left + '字は、新しい字が終わったら書こうね</div>';
+    btns = '<button class="ctrl-btn primary" id="osaraiNewBtn">⭐ 新しい字をはじめる</button><button class="ctrl-btn" id="reviewDoneBtn">道にもどる</button>';
+  }else if(left > 0){
     msg = '<div style="color:var(--ink-soft);font-size:.9rem;">残りの' + left + '字は、ホームの「今日のおさらい」から続きができるよ</div>';
     btns = '<button class="ctrl-btn primary" id="reviewDoneBtn">閉じる</button>';
   }else if(laterN > 0){
@@ -10648,6 +10823,8 @@ function showOsaraiSummary(){
   if(pb) pb.onclick = startOsaraiPractice;
   const rb = document.getElementById("osaraiRetestBtn");
   if(rb) rb.onclick = startOsaraiRetest;
+  const nb = document.getElementById("osaraiNewBtn");
+  if(nb) nb.onclick = () => { closeReview(); openRoadNew(); };
 }
 /* 練習（v81）：「あとで」とまちがえた字を、1字ずつ練習する。親：「お手本を見るのは最初の1回だけ。あとはかくして見たいときに見る。
    見ないで3回続けて書けたら終わり」。
@@ -11571,7 +11748,7 @@ function finishConfirm(){
         '<div class="quiz-char" style="margin:10px 0;">' + ch.c + '</div>' +
         '<div style="color:var(--shu);font-size:1.1rem;font-family:\'BIZ UDPGothic\',sans-serif;">完ぺき！マスターしました</div>' +
         (gotTicket ? '<div class="ticket-gained">🎫 チケットを1枚ゲット！（' + tickets + ' / ' + TICKETS_PER_DIG + '）</div>' : '') +
-        (gotTicket ? awardNewKanjiStar() : '') +
+        (gotTicket ? awardNewKanjiStar(chC) : '') +
         (gotTicket && LEGEND_RECIPES.some(r => r.unlockAt > 0 && r.unlockAt === masteredCount()) ? '<div class="ticket-gained">📜 伝説の巻物が、宝探しで見つかるようになったよ！</div>' : '') +
         '<div class="complete-row" style="margin-top:18px;">' +
           '<button class="ctrl-btn primary" id="confirmNextBtn">次の漢字へ</button>' +
