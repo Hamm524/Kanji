@@ -10631,6 +10631,9 @@ function renderHomeRoad(){
   try{ renderHomeNewList(); }catch(e){}
   const card = document.getElementById("homeRoad");
   if(!card) return;
+  /* 道を出しているあいだは、道の下の「今日のおすすめ」の枠は出さない（道の「はじめる」と同じ働きのため） */
+  const rc = document.getElementById("reviewCard");
+  if(rc) rc.style.display = appHasData() ? "none" : "";
   if(!appHasData()){ card.hidden = true; return; }
   card.hidden = false;
   const o = todayOsarai();
