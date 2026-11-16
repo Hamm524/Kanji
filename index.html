@@ -2129,6 +2129,10 @@ header.app{
 .treat-slot.rarity-rare{border-color:#1f7a43;}
 .treat-slot.rarity-epic{border-color:var(--gold);background:var(--gold-soft);}
 .treat-slot.locked{opacity:.5;}
+.treat-slot.tidy{cursor:pointer;min-height:88px;padding-top:12px;}
+.treat-slot.tidy .tidy-ck{position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);background:var(--paper-raised);color:transparent;font-size:.8rem;line-height:18px;text-align:center;font-weight:700;}
+.treat-slot.tidy.sel{border-color:var(--shu);background:var(--shu-soft);box-shadow:0 0 0 2px var(--shu);}
+.treat-slot.tidy.sel .tidy-ck{background:var(--shu);border-color:var(--shu);color:#fff;}
 .treat-slot-name{font-size:.64rem;line-height:1.2;text-align:center;}
 .treat-slot-count{position:absolute;top:3px;right:6px;font-size:.62rem;color:#C2496F;font-weight:700;}
 .ta{display:block;overflow:visible;}
@@ -7637,22 +7641,26 @@ function treatZukanItems(tab){
     return treatSeasonOf(it) === (tab === "always" ? "all" : tab);
   });
 }
-function treatZukanTabsHtml(){
+function treatZukanTabsHtml(tidy){
   const now = treatSeasonNow(), nShelf = TREAT_ITEMS.filter(it => treatOwn[it.id] && treatIsHidden(it.id)).length;
   const tabs = [["all", "ぜんぶ"]].concat(TREAT_SEASONS.map(x => [x.id, x.icon + x.name + (x.id === now ? "（いま）" : "")])).concat([["always", "ずっと"], ["shelf", "📦おしいれ" + (nShelf ? "(" + nShelf + ")" : "")]]);
   const cur = TREAT_SEASONS.find(x => x.id === now);
-  return '<div class="ts-row" style="flex-wrap:wrap;justify-content:center;margin:6px 0">' + tabs.map(t => '<button style="padding:4px 10px" class="ts-shape' + (t[0] === treatZukanTab ? ' on' : '') + '" data-ztab="' + t[0] + '">' + t[1] + '</button>').join("") + '</div>' +
-    '<div class="treat-howto" style="margin-top:0">いまは' + cur.icon + '<b>' + cur.name + '</b>の小物が、宝探しに出るよ。見つけた小物は、ずっと図かんに残るよ。</div>';
+  return '<div class="ts-row" style="flex-wrap:wrap;justify-content:center;margin:6px 0">' + tabs.map(t => '<button style="padding:4px 10px" class="ts-shape' + (t[0] === treatZukanTab ? ' on' : '') + '" data-ztab="' + t[0] + '">' + t[1] + '</button>').join("") + (tidy ? '' : '<button style="padding:4px 10px" class="ts-shape" id="ztidy">☑ まとめて かたづける</button>') + '</div>' +
+    (tidy ? '' : '<div class="treat-howto" style="margin-top:0">いまは' + cur.icon + '<b>' + cur.name + '</b>の小物が、宝探しに出るよ。見つけた小物は、ずっと図かんに残るよ。</div>');
 }
+let treatTidy = false, treatTidySel = {};
 function showTreatZukan(){
+  const tidy = treatTidy;
   const html =
     '<div class="gembook-detail-inner">' +
-      '<div class="gembook-detail-name">🎀 おしゃれ図かん</div>' +
+      '<div class="gembook-detail-name">' + (tidy ? '📦 かたづける' : '🎀 おしゃれ図かん') + '</div>' +
       '<div class="gembook-detail-count">' + Object.keys(treatOwn).length + ' / ' + TREAT_ITEMS.length + ' 種類</div>' +
-      '<div class="treat-howto">見つけた小物は、そのままでは<b>見るだけ</b>。<br>小物をおして<b>💎宝石でかざる</b>と、<b>手作りのおしゃれ</b>になって、計算ドリルの<b>🐾相棒につけられる</b>よ。</div>' +
-      treatZukanTabsHtml() +
+      (tidy ? '' : '<div class="treat-howto">見つけた小物は、そのままでは<b>見るだけ</b>。<br>小物をおして<b>💎宝石でかざる</b>と、<b>手作りのおしゃれ</b>になって、計算ドリルの<b>🐾相棒につけられる</b>よ。</div>') +
+      treatZukanTabsHtml(tidy) +
       '<div class="treat-zukan">' +
-      (treatZukanItems(treatZukanTab).map(it => {
+      (tidy ? (treatZukanItems(treatZukanTab).filter(it => treatOwn[it.id]).map(it =>
+        '<button class="treat-slot tap tidy' + (treatTidySel[it.id] ? ' sel' : '') + '" data-tt="' + it.id + '"><span class="tidy-ck">✓</span>' + treatIconSvg(it.id, 52) + '<span class="treat-slot-name">' + it.name + '</span></button>').join("") || '<div class="treat-howto">ここには、なにもないよ。</div>') :
+      treatZukanItems(treatZukanTab).map(it => {
         const n = treatOwn[it.id] || 0, cc = treatColCount(it.id);
         return (n ? '<button class="treat-slot tap rarity-' + it.rarity + '" data-t="' + it.id + '">' : '<div class="treat-slot locked">') +
           (n ? '<span class="treat-slot-count">×' + n + '</span>' : '') +
@@ -7661,7 +7669,7 @@ function showTreatZukan(){
           (n && cc ? '<span class="treat-slot-name" style="font-size:.7rem;opacity:.8">🎨' + cc.have + '/' + cc.total + '</span>' : '') + (n ? '</button>' : '</div>');
       }).join("") || '<div class="treat-howto">ここには、まだ何もないよ。</div>') +
       '</div>' +
-      (treatZukanTab !== "all" ? '' : (yarnCount() ? '<div class="treat-made-title">🧶 毛糸玉 ' + yarnCount() + '個（マフラーをおすとかざりが選べるよ）</div>' : '') +
+      (tidy || treatZukanTab !== "all" ? '' : (yarnCount() ? '<div class="treat-made-title">🧶 毛糸玉 ' + yarnCount() + '個（マフラーをおすとかざりが選べるよ）</div>' : '') +
       '<div class="treat-made-title">🍂 お散歩の宝物（宝探しで見つけたもの）</div><div class="treat-zukan">' +
       TREAT_NATURE.filter(it => it.id !== "tn_yarn").map(it => {
         const n = treatNature[it.id] || 0;
@@ -7681,9 +7689,30 @@ function showTreatZukan(){
         }).join("") + '</div>' :
         '')) +
     '</div>';
-  showHtmlModal(html, '<button class="ctrl-btn primary" id="modalOkBtn">閉じる</button>', (overlay) => {
+  showHtmlModal(html, tidy ? '<button class="ctrl-btn" id="tidyDone" style="white-space:nowrap">おわり</button><button class="ctrl-btn" id="tidyAll" style="white-space:nowrap">ぜんぶ</button><button class="wear-btn" id="tidyGo" style="white-space:nowrap" disabled>📦 しまう</button>' : '<button class="ctrl-btn primary" id="modalOkBtn">閉じる</button>', (overlay) => {
+    overlay.querySelectorAll("[data-ztab]").forEach(b => { b.onclick = () => { treatZukanTab = b.dataset.ztab; treatTidySel = {}; showTreatZukan(); }; });
+    if(tidy){
+      const shelf = treatZukanTab === "shelf", ids = treatZukanItems(treatZukanTab).filter(it => treatOwn[it.id]).map(it => it.id);
+      const go = document.getElementById("tidyGo"), all = document.getElementById("tidyAll");
+      const upd = () => {
+        const n = ids.filter(id => treatTidySel[id]).length;
+        go.disabled = !n; go.textContent = (shelf ? "📦 出す" : "📦 しまう") + (n ? " " + n : "");
+        all.disabled = !ids.length; all.textContent = ids.length && n === ids.length ? "はずす" : "ぜんぶ";
+      };
+      upd();
+      overlay.querySelectorAll(".treat-slot[data-tt]").forEach(b => { b.onclick = () => { const id = b.dataset.tt; if(treatTidySel[id]) delete treatTidySel[id]; else treatTidySel[id] = 1; b.classList.toggle("sel", !!treatTidySel[id]); upd(); }; });
+      all.onclick = () => {
+        const allOn = ids.length && ids.every(id => treatTidySel[id]);
+        ids.forEach(id => { if(allOn) delete treatTidySel[id]; else treatTidySel[id] = 1; });
+        overlay.querySelectorAll(".treat-slot[data-tt]").forEach(b => b.classList.toggle("sel", !!treatTidySel[b.dataset.tt]));
+        upd();
+      };
+      go.onclick = () => { ids.filter(id => treatTidySel[id]).forEach(id => treatSetHidden(id, !shelf)); treatTidySel = {}; showTreatZukan(); };
+      document.getElementById("tidyDone").onclick = () => { treatTidy = false; treatTidySel = {}; showTreatZukan(); };
+      return;
+    }
     document.getElementById("modalOkBtn").onclick = closeModal;
-    overlay.querySelectorAll("[data-ztab]").forEach(b => { b.onclick = () => { treatZukanTab = b.dataset.ztab; showTreatZukan(); }; });
+    const zt = document.getElementById("ztidy"); if(zt) zt.onclick = () => { treatTidy = true; treatTidySel = {}; showTreatZukan(); };
     overlay.querySelectorAll(".treat-slot[data-t]").forEach(b => { b.onclick = () => showTreatItem(b.dataset.t); });
     overlay.querySelectorAll(".treat-slot[data-m]").forEach(b => { b.onclick = () => showTreatMadeItem(b.dataset.m); });
   });
@@ -12922,8 +12951,8 @@ document.getElementById("bulkKnowBtn").onclick = () => {
 
 document.getElementById("gemDigBtn").onclick = startDig;
 document.getElementById("treatOpenBtn").onclick = startTreat;
-document.getElementById("treatZukanBtn").onclick = showTreatZukan;
-document.getElementById("gemTreatZukanBtn").onclick = showTreatZukan;
+document.getElementById("treatZukanBtn").onclick = () => { treatTidy = false; treatTidySel = {}; showTreatZukan(); };
+document.getElementById("gemTreatZukanBtn").onclick = () => { treatTidy = false; treatTidySel = {}; showTreatZukan(); };
 document.getElementById("gemBookBtn").onclick = openGemBook;
 document.getElementById("digBackBtn").onclick = closeDig;
 document.getElementById("digDoneBtn").onclick = closeDig;
