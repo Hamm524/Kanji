@@ -5098,8 +5098,8 @@ function osaraiFinished(){
 const ROAD_NEW_N = 2;  /* ごほうびのボーナスは、その日の1・2字目 */
 const ROAD_NEW_GOALS = [3, 5];  /* [道の⭐マスが終わる字数（必ずやる）, 1日の上限（4・5字目は任意）] */
 function osaraiSplit(){
-  const n = todayOsarai().list.length;
-  return n >= 4 ? Math.ceil(n / 2) : n;
+  /* 分けない（道が長くなって嫌にならないように）：おさらい →⭐新しい字 →プリント →🎁。新しい字はおさらいが終わってから */
+  return todayOsarai().list.length;
 }
 /* 前半の字で、まだ書いていない字 */
 function osaraiFirstLeft(){
